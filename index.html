@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tap-to-Earn Game</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap');
+
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: 'Inter', sans-serif;
+  }
+
+  body {
+    background-color: #0d0d0d;
+    color: #fff;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    min-height: 100vh;
+    padding: 20px;
+  }
+
+  h1 {
+    margin-bottom: 10px;
+    color: #0ff;
+    text-shadow: 0 0 10px #0ff, 0 0 20px #0ff;
+  }
+
+  .counter, .multiplier {
+    font-size: 1.5rem;
+    margin: 5px 0;
+    color: #0ff;
+    text-shadow: 0 0 5px #0ff, 0 0 10px #0ff;
+  }
+
+  .tap-button {
+    margin: 30px 0;
+    width: 200px;
+    height: 200px;
+    border-radius: 50%;
+    border: none;
+    background: linear-gradient(145deg, #0ff, #00f);
+    box-shadow: 0 0 20px #0ff, 0 0 40px #0ff inset;
+    color: #fff;
+    font-size: 2rem;
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+
+  .tap-button:active {
+    transform: scale(0.95);
+    box-shadow: 0 0 40px #0ff inset, 0 0 20px #0ff;
+  }
+
+  .shop {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    width: 100%;
+    max-width: 300px;
+  }
+
+  .shop button {
+    padding: 15px;
+    border-radius: 12px;
+    border: none;
+    background-color: #111;
+    color: #0ff;
+    font-size: 1rem;
+    cursor: pointer;
+    box-shadow: 0 0 10px #0ff;
+    transition: transform 0.2s, box-shadow 0.2s, background-color 0.2s;
+  }
+
+  .shop button:hover {
+    transform: scale(1.05);
+    box-shadow: 0 0 20px #0ff, 0 0 10px #0ff inset;
+    background-color: #222;
+  }
+
+  .alert {
+    color: #f0f;
+    font-size: 0.9rem;
+    margin-top: 5px;
+    text-align: center;
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+
+  @media (max-width: 500px) {
+    .tap-button {
+      width: 150px;
+      height: 150px;
+      font-size: 1.5rem;
+    }
+  }
+</style>
+</head>
+<body>
+
+<h1>Tap-to-Earn</h1>
+<div class="counter">Coins: <span id="coins">0</span></div>
+<div class="multiplier">Multiplier: <span id="multiplier">1x</span></div>
+
+<button class="tap-button" id="tapButton">TAP</button>
+
+<div class="shop">
+  <button data-multiplier="2" data-cost="100">Upgrade 2x (100 coins)</button>
+  <button data-multiplier="5" data-cost="500">Upgrade 5x (500 coins)</button>
+  <button data-multiplier="10" data-cost="2000">Upgrade 10x (2000 coins)</button>
+</div>
+
+<div class="alert" id="alertMsg">Not enough coins!</div>
+
+<script>
+  let coins = parseInt(localStorage.getItem('coins')) || 0;
+  let multiplier = parseInt(localStorage.getItem('multiplier')) || 1;
+
+  const coinsEl = document.getElementById('coins');
+  const multiplierEl = document.getElementById('multiplier');
+  const tapButton = document.getElementById('tapButton');
+  const alertMsg = document.getElementById('alertMsg');
+
+  function updateUI() {
+    coinsEl.textContent = coins;
+    multiplierEl.textContent = multiplier + 'x';
+  }
+
+  function showAlert(message) {
+    alertMsg.textContent = message;
+    alertMsg.style.opacity = 1;
+    setTimeout(() => {
+      alertMsg.style.opacity = 0;
+    }, 1000);
+  }
+
+  tapButton.addEventListener('click', () => {
+    coins += multiplier;
+    localStorage.setItem('coins', coins);
+    updateUI();
+  });
+
+  document.querySelectorAll('.shop button').forEach(button => {
+    button.addEventListener('click', () => {
+      const cost = parseInt(button.getAttribute('data-cost'));
+      const newMultiplier = parseInt(button.getAttribute('data-multiplier'));
+      if (coins >= cost) {
+        coins -= cost;
+        multiplier = newMultiplier;
+        localStorage.setItem('coins', coins);
+        localStorage.setItem('multiplier', multiplier);
+        updateUI();
+      } else {
+        showAlert('Not enough coins!');
+      }
+    });
+  });
+
+  updateUI();
+</script>
+
+</body>
+</html>
