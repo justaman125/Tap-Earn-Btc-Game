@@ -85,10 +85,10 @@ button:hover { background:#0cc; transform:scale(1.05); }
   </div>
   <h1>Button Colors</h1>
   <div class="button-colors">
-    <button data-color="purple" data-cost="500">Purple 500</button>
-    <button data-color="red" data-cost="500">Red 500</button>
-    <button data-color="green" data-cost="500">Green 500</button>
-    <button data-color="gold" data-cost="1000">Gold 1000</button>
+    <button data-color="purple" data-cost="500">Purple - 500</button>
+    <button data-color="red" data-cost="500">Red - 500</button>
+    <button data-color="green" data-cost="500">Green - 500</button>
+    <button data-color="gold" data-cost="1000">Gold - 1000</button>
   </div>
   <div class="alert" id="cosmeticAlert"></div>
 </div>
@@ -127,7 +127,7 @@ function updateUI(){ coinsEl.textContent=coins; coinsEl2.textContent=coins; coin
 
 function applyCosmetic(){
     tapButton.textContent = selectedCharacter;
-    let gradient = 'linear-gradient(145deg,#0ff,#00f)'; // default
+    let gradient = 'linear-gradient(145deg,#0ff,#00f)';
     if(selectedColor==='purple') gradient='linear-gradient(145deg,#a020f0,#8000ff)';
     if(selectedColor==='red') gradient='linear-gradient(145deg,#ff4040,#ff0000)';
     if(selectedColor==='green') gradient='linear-gradient(145deg,#40ff40,#00ff00)';
