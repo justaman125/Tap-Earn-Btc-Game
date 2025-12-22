@@ -3,28 +3,31 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Tap-to-Earn Game with Quests & Cosmetics Toggle</title>
+<title>Tap-to-Earn Game with Smooth Animations</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap');
 * { box-sizing:border-box; margin:0; padding:0; font-family:'Inter',sans-serif; }
 body { background:#0d0d0d; color:#fff; display:flex; justify-content:center; align-items:flex-start; min-height:100vh; padding:20px; touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
 .screen { display:none; flex-direction:column; align-items:center; gap:15px; width:100%; max-width:400px; }
 .screen.active { display:flex; }
-h1 { color:#0ff; text-shadow:0 0 10px #0ff,0 0 20px #0ff; text-align:center; }
-input { padding:10px; border-radius:8px; border:none; width:200px; font-size:1rem; }
+h1 { color:#0ff; text-shadow:0 0 10px #0ff,0 0 20px #0ff; text-align:center; transition:0.3s; }
+input { padding:10px; border-radius:8px; border:none; width:200px; font-size:1rem; transition:0.2s; }
+input:focus{ outline:none; box-shadow:0 0 10px #0ff; }
 button { padding:10px 20px; border:none; border-radius:8px; background:#0ff; color:#000; cursor:pointer; font-weight:bold; transition:0.2s; }
-button:hover { background:#0cc; }
-.alert { color:#f0f; font-size:0.9rem; text-align:center; opacity:0; transition:opacity 0.3s; }
-.counter, .multiplier { font-size:1.3rem; text-shadow:0 0 5px #0ff,0 0 10px #0ff; }
-.tap-button { width:200px; height:200px; border-radius:50%; border:none; background:linear-gradient(145deg,#0ff,#00f); box-shadow:0 0 20px #0ff,0 0 40px #0ff inset; font-size:3rem; cursor:pointer; transition:0.2s; display:flex; justify-content:center; align-items:center; }
+button:hover { background:#0cc; transform:scale(1.05); }
+.alert { color:#f0f; font-size:0.9rem; text-align:center; opacity:0; transition:opacity 0.3s, transform 0.2s; }
+.counter, .multiplier { font-size:1.3rem; text-shadow:0 0 5px #0ff,0 0 10px #0ff; transition:0.3s; }
+.tap-button { width:200px; height:200px; border-radius:50%; border:none; background:linear-gradient(145deg,#0ff,#00f); box-shadow:0 0 20px #0ff,0 0 40px #0ff inset; font-size:3rem; cursor:pointer; transition:0.2s, transform 0.1s; display:flex; justify-content:center; align-items:center; }
 .tap-button:active { transform:scale(0.95); box-shadow:0 0 40px #0ff inset,0 0 20px #0ff; }
 .shop, .cosmetics, .character-shop, .quests { display:flex; flex-direction:column; gap:10px; width:100%; max-width:300px; }
-.shop button, .cosmetics button, .character-shop button { padding:15px; border-radius:12px; border:none; background:#111; color:#0ff; box-shadow:0 0 10px #0ff; transition:0.2s; cursor:pointer; }
+.shop button, .cosmetics button, .character-shop button { padding:15px; border-radius:12px; border:none; background:#111; color:#0ff; box-shadow:0 0 10px #0ff; transition:0.2s, transform 0.2s; cursor:pointer; }
 .shop button:hover, .cosmetics button:hover, .character-shop button:hover { transform:scale(1.05); box-shadow:0 0 20px #0ff,0 0 10px #0ff inset; background:#222; }
 .nav { display:flex; gap:10px; margin-bottom:10px; }
-.nav button { background:#111; color:#0ff; }
-.nav button:hover { background:#222; }
-.quest { background:#111; padding:10px; border-radius:10px; box-shadow:0 0 10px #0ff; text-align:center; }
+.nav button { background:#111; color:#0ff; transition:0.2s; }
+.nav button:hover { background:#222; transform:scale(1.05); }
+.quest { background:#111; padding:10px; border-radius:10px; box-shadow:0 0 10px #0ff; text-align:center; transition:0.3s; }
+@keyframes pulse { 0% { transform:scale(1); } 50% { transform:scale(1.1); } 100% { transform:scale(1); } }
+@keyframes flash { 0% { color:#0ff; } 50% { color:#fff; text-shadow:0 0 20px #fff; } 100% { color:#0ff; text-shadow:0 0 5px #0ff; } }
 </style>
 </head>
 <body>
@@ -102,183 +105,38 @@ button:hover { background:#0cc; }
 </div>
 
 <script>
-let currentUser = null;
-let coins = 0;
-let multiplier = 1;
-let upgradeCosts = {2:100,5:500,10:2000};
-let cosmeticsOwned = {};
-let selectedCosmetic = null;
-let selectedCharacter = '🐵';
-let charactersOwned = {'🐵':true};
-let quests = [
-  {desc:'Tap 10 times',type:'tap',target:10,reward:50,progress:0},
-  {desc:'Earn 100 coins',type:'coins',target:100,reward:100,progress:0},
-  {desc:'Buy an upgrade',type:'upgrade',target:1,reward:200,progress:0}
-];
-let currentQuestIndex = 0;
+let currentUser=null,coins=0,multiplier=1,upgradeCosts={2:100,5:500,10:2000},cosmeticsOwned={},selectedCosmetic=null,selectedCharacter='🐵',charactersOwned={'🐵':true},quests=[{desc:'Tap 10 times',type:'tap',target:10,reward:50,progress:0},{desc:'Earn 100 coins',type:'coins',target:100,reward:100,progress:0},{desc:'Buy an upgrade',type:'upgrade',target:1,reward:200,progress:0}],currentQuestIndex=0;
 
 // Elements
-const loginScreen = document.getElementById('loginScreen');
-const gameScreen = document.getElementById('gameScreen');
-const cosmeticsScreen = document.getElementById('cosmeticsScreen');
-const charactersScreen = document.getElementById('charactersScreen');
+const loginScreen=document.getElementById('loginScreen'),gameScreen=document.getElementById('gameScreen'),cosmeticsScreen=document.getElementById('cosmeticsScreen'),charactersScreen=document.getElementById('charactersScreen');
+const usernameInput=document.getElementById('username'),passwordInput=document.getElementById('password'),loginBtn=document.getElementById('loginBtn'),loginAlert=document.getElementById('loginAlert');
+const coinsEl=document.getElementById('coins'),coinsEl2=document.getElementById('coins2'),coinsEl3=document.getElementById('coins3'),multiplierEl=document.getElementById('multiplier'),tapButton=document.getElementById('tapButton'),alertMsg=document.getElementById('alertMsg'),cosmeticAlert=document.getElementById('cosmeticAlert'),characterAlert=document.getElementById('characterAlert'),shopButtons=document.querySelectorAll('.shop button'),cosmeticButtons=document.querySelectorAll('.cosmetics button'),characterButtons=document.querySelectorAll('.character-shop button'),questDisplay=document.getElementById('questDisplay');
 
-const usernameInput = document.getElementById('username');
-const passwordInput = document.getElementById('password');
-const loginBtn = document.getElementById('loginBtn');
-const loginAlert = document.getElementById('loginAlert');
+function saveUserData(){ localStorage.setItem('user_'+currentUser,JSON.stringify({coins,multiplier,upgradeCosts,cosmeticsOwned,selectedCosmetic,selectedCharacter,charactersOwned,quests,currentQuestIndex})); }
+function loadUserData(){ const data=JSON.parse(localStorage.getItem('user_'+currentUser)); if(data){ coins=data.coins; multiplier=data.multiplier; upgradeCosts=data.upgradeCosts; cosmeticsOwned=data.cosmeticsOwned||{}; selectedCosmetic=data.selectedCosmetic||null; selectedCharacter=data.selectedCharacter||'🐵'; charactersOwned=data.charactersOwned||{'🐵':true}; quests=data.quests||quests; currentQuestIndex=data.currentQuestIndex||0; } else { coins=0; multiplier=1; upgradeCosts={2:100,5:500,10:2000}; cosmeticsOwned={}; selectedCosmetic=null; selectedCharacter='🐵'; charactersOwned={'🐵':true}; quests=[{desc:'Tap 10 times',type:'tap',target:10,reward:50,progress:0},{desc:'Earn 100 coins',type:'coins',target:100,reward:100,progress:0},{desc:'Buy an upgrade',type:'upgrade',target:1,reward:200,progress:0}]; currentQuestIndex=0; } updateUI(); }
 
-const coinsEl = document.getElementById('coins');
-const coinsEl2 = document.getElementById('coins2');
-const coinsEl3 = document.getElementById('coins3');
-const multiplierEl = document.getElementById('multiplier');
-const tapButton = document.getElementById('tapButton');
-const alertMsg = document.getElementById('alertMsg');
-const cosmeticAlert = document.getElementById('cosmeticAlert');
-const characterAlert = document.getElementById('characterAlert');
-const shopButtons = document.querySelectorAll('.shop button');
-const cosmeticButtons = document.querySelectorAll('.cosmetics button');
-const characterButtons = document.querySelectorAll('.character-shop button');
-const questDisplay = document.getElementById('questDisplay');
+function updateUI(){ coinsEl.textContent=coins; coinsEl2.textContent=coins; coinsEl3.textContent=coins; multiplierEl.textContent=multiplier+'x'; shopButtons.forEach(btn=>{btn.querySelector('.cost').textContent=upgradeCosts[btn.dataset.id];}); applyCosmetic(); updateQuestDisplay(); }
 
-// Save/load
-function saveUserData(){
-  localStorage.setItem('user_'+currentUser, JSON.stringify({coins,multiplier,upgradeCosts,cosmeticsOwned,selectedCosmetic,selectedCharacter,charactersOwned,quests,currentQuestIndex}));
-}
-function loadUserData(){
-  const data = JSON.parse(localStorage.getItem('user_'+currentUser));
-  if(data){
-    coins=data.coins; multiplier=data.multiplier;
-    upgradeCosts=data.upgradeCosts;
-    cosmeticsOwned=data.cosmeticsOwned || {};
-    selectedCosmetic=data.selectedCosmetic || null;
-    selectedCharacter=data.selectedCharacter || '🐵';
-    charactersOwned=data.charactersOwned || {'🐵':true};
-    quests=data.quests || quests;
-    currentQuestIndex=data.currentQuestIndex || 0;
-  } else {
-    coins=0; multiplier=1; upgradeCosts={2:100,5:500,10:2000};
-    cosmeticsOwned={}; selectedCosmetic=null; selectedCharacter='🐵'; charactersOwned={'🐵':true};
-    quests=[{desc:'Tap 10 times',type:'tap',target:10,reward:50,progress:0},{desc:'Earn 100 coins',type:'coins',target:100,reward:100,progress:0},{desc:'Buy an upgrade',type:'upgrade',target:1,reward:200,progress:0}];
-    currentQuestIndex=0;
-  }
-  updateUI();
-}
+function applyCosmetic(){ tapButton.style.background='linear-gradient(145deg,#0ff,#00f)'; tapButton.textContent=selectedCharacter; tapButton.style.boxShadow='0 0 20px #0ff,0 0 40px #0ff inset'; if(selectedCosmetic==='santaHat'){ tapButton.textContent='🎅 '+selectedCharacter; } else if(selectedCosmetic==='neonGlow'){ tapButton.style.boxShadow='0 0 30px #f0f,0 0 60px #0ff inset'; } }
 
-// UI Update
-function updateUI(){
-  coinsEl.textContent = coins;
-  coinsEl2.textContent = coins;
-  coinsEl3.textContent = coins;
-  multiplierEl.textContent = multiplier+'x';
-  shopButtons.forEach(btn=>{btn.querySelector('.cost').textContent=upgradeCosts[btn.dataset.id];});
-  applyCosmetic();
-  updateQuestDisplay();
-}
+function showAlert(msg,element){ element.textContent=msg; element.style.opacity=1; element.style.transform='scale(1.05)'; setTimeout(()=>{element.style.opacity=0;element.style.transform='scale(1)';},1000); }
 
-// Cosmetic display
-function applyCosmetic(){
-  tapButton.style.background = 'linear-gradient(145deg,#0ff,#00f)';
-  tapButton.textContent = selectedCharacter;
-  if(selectedCosmetic==='santaHat') tapButton.textContent='🎅 '+selectedCharacter;
-  if(selectedCosmetic==='neonGlow') tapButton.style.boxShadow='0 0 30px #f0f,0 0 60px #0ff inset';
-  else tapButton.style.boxShadow='0 0 20px #0ff,0 0 40px #0ff inset';
-}
+function updateQuestDisplay(){ const q=quests[currentQuestIndex]; questDisplay.textContent=`${q.desc} (${q.progress}/${q.target}) Reward: ${q.reward} coins`; }
 
-// Alerts
-function showAlert(msg,element){ element.textContent=msg; element.style.opacity=1; setTimeout(()=>{element.style.opacity=0;},1000); }
+function checkQuest(action){ const q=quests[currentQuestIndex]; if(!q) return; if(q.type===action){ q.progress++; } else if(q.type==='coins'&&action==='coins'){ q.progress=Math.min(q.progress+multiplier,q.target); } if(q.progress>=q.target){ coins+=q.reward; questDisplay.style.animation='flash 0.5s'; setTimeout(()=>{questDisplay.style.animation='';},500); showAlert(`Quest completed! +${q.reward} coins`,alertMsg); currentQuestIndex=(currentQuestIndex+1)%quests.length; saveUserData(); } updateQuestDisplay(); }
 
-// Update quest display
-function updateQuestDisplay(){
-  const q = quests[currentQuestIndex];
-  questDisplay.textContent = `${q.desc} (${q.progress}/${q.target}) Reward: ${q.reward} coins`;
-}
+loginBtn.addEventListener('click',()=>{ const username=usernameInput.value.trim(),password=passwordInput.value.trim(); if(!username||!password){ showAlert('Enter username & password',loginAlert); return; } const storedPass=localStorage.getItem('pass_'+username); if(!storedPass) localStorage.setItem('pass_'+username,password); else if(storedPass!==password){ showAlert('Wrong password',loginAlert); return; } currentUser=username; loadUserData(); loginScreen.classList.remove('active'); gameScreen.classList.add('active'); });
 
-// Quest progress
-function checkQuest(action){
-  const q = quests[currentQuestIndex];
-  if(!q) return;
-  if(q.type===action){
-    q.progress++;
-  } else if(q.type==='coins' && action==='coins'){
-    q.progress = Math.min(q.progress + multiplier, q.target);
-  }
-  if(q.progress>=q.target){
-    coins += q.reward;
-    showAlert(`Quest completed! +${q.reward} coins`,alertMsg);
-    currentQuestIndex = (currentQuestIndex+1)%quests.length;
-    saveUserData();
-  }
-  updateQuestDisplay();
-}
-
-// Login / Signup
-loginBtn.addEventListener('click',()=>{
-  const username=usernameInput.value.trim();
-  const password=passwordInput.value.trim();
-  if(!username||!password){ showAlert('Enter username & password',loginAlert); return; }
-  const storedPass = localStorage.getItem('pass_'+username);
-  if(!storedPass) localStorage.setItem('pass_'+username,password);
-  else if(storedPass!==password){ showAlert('Wrong password',loginAlert); return; }
-  currentUser=username;
-  loadUserData();
-  loginScreen.classList.remove('active');
-  gameScreen.classList.add('active');
-});
-
-// Tap button
-function tap(){ coins+=multiplier; checkQuest('tap'); checkQuest('coins'); saveUserData(); updateUI(); }
+function tap(){ coins+=multiplier; tapButton.style.animation='pulse 0.2s'; setTimeout(()=>{tapButton.style.animation='';},200); checkQuest('tap'); checkQuest('coins'); saveUserData(); updateUI(); }
 tapButton.addEventListener('click',tap);
 tapButton.addEventListener('touchstart',e=>{ e.preventDefault(); tap(); });
 
-// Shop upgrades
-shopButtons.forEach(button=>{
-  button.addEventListener('click',()=>{
-    const id = button.dataset.id;
-    const cost = upgradeCosts[id];
-    if(coins>=cost){ coins-=cost; multiplier+=parseInt(id); upgradeCosts[id]=Math.floor(cost*2.5); checkQuest('upgrade'); saveUserData(); updateUI(); }
-    else showAlert('Not enough coins!',alertMsg);
-  });
-});
+shopButtons.forEach(button=>{ button.addEventListener('click',()=>{ const id=button.dataset.id,cost=upgradeCosts[id]; if(coins>=cost){ coins-=cost; multiplier+=parseInt(id); upgradeCosts[id]=Math.floor(cost*2.5); multiplierEl.style.animation='flash 0.3s'; setTimeout(()=>{multiplierEl.style.animation='';},300); checkQuest('upgrade'); saveUserData(); updateUI(); } else showAlert('Not enough coins!',alertMsg); }); });
 
-// Cosmetics (toggle on/off)
-cosmeticButtons.forEach(btn=>{
-  btn.addEventListener('click',()=>{
-    const name=btn.dataset.name;
-    const cost=parseInt(btn.dataset.cost);
+cosmeticButtons.forEach(btn=>{ btn.addEventListener('click',()=>{ const name=btn.dataset.name,cost=parseInt(btn.dataset.cost); if(cosmeticsOwned[name]){ if(selectedCosmetic===name){ selectedCosmetic=null; } else{ selectedCosmetic=name; } saveUserData(); updateUI(); return; } if(coins>=cost){ coins-=cost; cosmeticsOwned[name]=true; selectedCosmetic=name; saveUserData(); updateUI(); } else showAlert('Not enough coins!',cosmeticAlert); }); });
 
-    if(cosmeticsOwned[name]){
-      // Toggle on/off
-      if(selectedCosmetic===name){ selectedCosmetic=null; }
-      else { selectedCosmetic=name; }
-      saveUserData();
-      updateUI();
-      return;
-    }
+characterButtons.forEach(btn=>{ btn.addEventListener('click',()=>{ const char=btn.dataset.char,cost=parseInt(btn.dataset.cost); if(charactersOwned[char]){ selectedCharacter=char; saveUserData(); updateUI(); return; } if(coins>=cost){ coins-=cost; charactersOwned[char]=true; selectedCharacter=char; saveUserData(); updateUI(); } else showAlert('Not enough coins!',characterAlert); }); });
 
-    // Buy if not owned
-    if(coins>=cost){
-      coins-=cost;
-      cosmeticsOwned[name]=true;
-      selectedCosmetic=name;
-      saveUserData();
-      updateUI();
-    } else showAlert('Not enough coins!',cosmeticAlert);
-  });
-});
-
-// Character Shop
-characterButtons.forEach(btn=>{
-  btn.addEventListener('click',()=>{
-    const char=btn.dataset.char;
-    const cost=parseInt(btn.dataset.cost);
-    if(charactersOwned[char]){ selectedCharacter=char; saveUserData(); updateUI(); return; }
-    if(coins>=cost){ coins-=cost; charactersOwned[char]=true; selectedCharacter=char; saveUserData(); updateUI(); }
-    else showAlert('Not enough coins!',characterAlert);
-  });
-});
-
-// Tabs navigation
 function showScreen(screen){ [gameScreen,cosmeticsScreen,charactersScreen].forEach(s=>s.classList.remove('active')); screen.classList.add('active'); }
 document.getElementById('gameTab').addEventListener('click',()=>showScreen(gameScreen));
 document.getElementById('gameTab2').addEventListener('click',()=>showScreen(gameScreen));
