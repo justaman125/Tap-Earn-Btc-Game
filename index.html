@@ -3,30 +3,30 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Tap-to-Earn Game with Users</title>
+<title>Tap-to-Earn with Login</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap');
-
   * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
-  body { background-color: #0d0d0d; color: #fff; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; min-height: 100vh; padding: 20px; }
-  h1 { margin-bottom: 10px; color: #0ff; text-shadow: 0 0 10px #0ff, 0 0 20px #0ff; }
-  .counter, .multiplier { font-size: 1.5rem; margin: 5px 0; color: #0ff; text-shadow: 0 0 5px #0ff, 0 0 10px #0ff; }
-  .tap-button { margin: 30px 0; width: 200px; height: 200px; border-radius: 50%; border: none; background: linear-gradient(145deg, #0ff, #00f); box-shadow: 0 0 20px #0ff, 0 0 40px #0ff inset; color: #fff; font-size: 2rem; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; }
-  .tap-button:active { transform: scale(0.95); box-shadow: 0 0 40px #0ff inset, 0 0 20px #0ff; }
-  .shop { display: flex; flex-direction: column; gap: 10px; width: 100%; max-width: 300px; }
-  .shop button { padding: 15px; border-radius: 12px; border: none; background-color: #111; color: #0ff; font-size: 1rem; cursor: pointer; box-shadow: 0 0 10px #0ff; transition: transform 0.2s, box-shadow 0.2s, background-color 0.2s; }
-  .shop button:hover { transform: scale(1.05); box-shadow: 0 0 20px #0ff, 0 0 10px #0ff inset; background-color: #222; }
-  .alert { color: #f0f; font-size: 0.9rem; margin-top: 5px; text-align: center; opacity: 0; transition: opacity 0.3s; }
-  .login-container { display: flex; flex-direction: column; gap: 10px; align-items: center; justify-content: center; min-height: 100vh; }
-  .login-container input { padding: 10px; border-radius: 8px; border: none; width: 200px; font-size: 1rem; }
-  .login-container button { padding: 10px 20px; border-radius: 8px; border: none; background: #0ff; color: #000; cursor: pointer; font-weight: bold; transition: 0.2s; }
-  .login-container button:hover { background: #0cc; }
-  @media (max-width: 500px) { .tap-button { width: 150px; height: 150px; font-size: 1.5rem; } }
+  body { background:#0d0d0d; color:#fff; display:flex; justify-content:center; align-items:center; min-height:100vh; }
+  .screen { display:none; flex-direction:column; align-items:center; gap:15px; }
+  .screen.active { display:flex; }
+  h1 { color:#0ff; text-shadow:0 0 10px #0ff,0 0 20px #0ff; }
+  input { padding:10px; border-radius:8px; border:none; width:200px; font-size:1rem; }
+  button { padding:10px 20px; border:none; border-radius:8px; background:#0ff; color:#000; cursor:pointer; font-weight:bold; transition:0.2s; }
+  button:hover { background:#0cc; }
+  .alert { color:#f0f; font-size:0.9rem; text-align:center; opacity:0; transition:opacity 0.3s; }
+  .counter, .multiplier { font-size:1.5rem; text-shadow:0 0 5px #0ff,0 0 10px #0ff; }
+  .tap-button { width:200px; height:200px; border-radius:50%; border:none; background:linear-gradient(145deg,#0ff,#00f); box-shadow:0 0 20px #0ff,0 0 40px #0ff inset; font-size:2rem; cursor:pointer; transition:0.2s; }
+  .tap-button:active { transform:scale(0.95); box-shadow:0 0 40px #0ff inset,0 0 20px #0ff; }
+  .shop { display:flex; flex-direction:column; gap:10px; width:100%; max-width:300px; }
+  .shop button { padding:15px; border-radius:12px; border:none; background:#111; color:#0ff; box-shadow:0 0 10px #0ff; transition:0.2s; cursor:pointer; }
+  .shop button:hover { transform:scale(1.05); box-shadow:0 0 20px #0ff,0 0 10px #0ff inset; background:#222; }
 </style>
 </head>
 <body>
 
-<div id="loginScreen" class="login-container">
+<!-- Login / Signup Screen -->
+<div id="loginScreen" class="screen active">
   <h1>Login / Sign Up</h1>
   <input type="text" id="username" placeholder="Username">
   <input type="password" id="password" placeholder="Password">
@@ -34,7 +34,8 @@
   <div class="alert" id="loginAlert"></div>
 </div>
 
-<div id="gameScreen" style="display:none;">
+<!-- Game Screen -->
+<div id="gameScreen" class="screen">
   <h1>Tap-to-Earn</h1>
   <div class="counter">Coins: <span id="coins">0</span></div>
   <div class="multiplier">Multiplier: <span id="multiplier">1x</span></div>
@@ -44,7 +45,7 @@
     <button data-id="5">Upgrade 5x (<span class="cost">500</span> coins)</button>
     <button data-id="10">Upgrade 10x (<span class="cost">2000</span> coins)</button>
   </div>
-  <div class="alert" id="alertMsg">Not enough coins!</div>
+  <div class="alert" id="alertMsg"></div>
 </div>
 
 <script>
@@ -53,6 +54,7 @@ let coins = 0;
 let multiplier = 1;
 let upgradeCosts = {2:100,5:500,10:2000};
 
+// Elements
 const loginScreen = document.getElementById('loginScreen');
 const gameScreen = document.getElementById('gameScreen');
 const loginBtn = document.getElementById('loginBtn');
@@ -66,77 +68,51 @@ const tapButton = document.getElementById('tapButton');
 const alertMsg = document.getElementById('alertMsg');
 const shopButtons = document.querySelectorAll('.shop button');
 
+// Save and load user data
 function saveUserData() {
-  localStorage.setItem('user_' + currentUser, JSON.stringify({coins, multiplier, upgradeCosts}));
+  localStorage.setItem('user_' + currentUser, JSON.stringify({coins,multiplier,upgradeCosts}));
 }
-
 function loadUserData() {
   const data = JSON.parse(localStorage.getItem('user_' + currentUser));
-  if (data) {
-    coins = data.coins;
-    multiplier = data.multiplier;
-    upgradeCosts = data.upgradeCosts;
-  } else {
-    coins = 0;
-    multiplier = 1;
-    upgradeCosts = {2:100,5:500,10:2000};
-  }
+  if (data) { coins=data.coins; multiplier=data.multiplier; upgradeCosts=data.upgradeCosts; }
+  else { coins=0; multiplier=1; upgradeCosts={2:100,5:500,10:2000}; }
+  updateUI();
 }
 
+// UI Update
 function updateUI() {
   coinsEl.textContent = coins;
-  multiplierEl.textContent = multiplier + 'x';
-  shopButtons.forEach(btn => {
-    const id = btn.getAttribute('data-id');
-    btn.querySelector('.cost').textContent = upgradeCosts[id];
-  });
+  multiplierEl.textContent = multiplier+'x';
+  shopButtons.forEach(btn=>{btn.querySelector('.cost').textContent=upgradeCosts[btn.dataset.id];});
 }
 
-function showAlert(message) {
-  alertMsg.textContent = message;
-  alertMsg.style.opacity = 1;
-  setTimeout(() => { alertMsg.style.opacity = 0; }, 1000);
-}
+// Alerts
+function showAlert(msg,element) { element.textContent=msg; element.style.opacity=1; setTimeout(()=>{element.style.opacity=0;},1000); }
 
-loginBtn.addEventListener('click', () => {
-  const username = usernameInput.value.trim();
-  const password = passwordInput.value.trim();
-  if (!username || !password) {
-    loginAlert.textContent = 'Enter username & password';
-    loginAlert.style.opacity = 1;
-    setTimeout(()=>{loginAlert.style.opacity=0;},1500);
-    return;
-  }
-  // Store simple user credentials in localStorage (for demo only)
-  const storedPass = localStorage.getItem('pass_' + username);
-  if (!storedPass) localStorage.setItem('pass_' + username, password); // sign up
-  else if (storedPass !== password) { loginAlert.textContent='Wrong password'; loginAlert.style.opacity=1; setTimeout(()=>{loginAlert.style.opacity=0;},1500); return; }
+// Login / Signup
+loginBtn.addEventListener('click',()=>{
+  const username=usernameInput.value.trim();
+  const password=passwordInput.value.trim();
+  if(!username||!password){ showAlert('Enter username & password',loginAlert); return; }
 
-  currentUser = username;
+  const storedPass=localStorage.getItem('pass_'+username);
+  if(!storedPass) localStorage.setItem('pass_'+username,password); // signup
+  else if(storedPass!==password){ showAlert('Wrong password',loginAlert); return; }
+
+  currentUser=username;
   loadUserData();
-  loginScreen.style.display = 'none';
-  gameScreen.style.display = 'block';
-  updateUI();
+  loginScreen.classList.remove('active');
+  gameScreen.classList.add('active');
 });
 
-// Game functionality
-tapButton.addEventListener('click', () => {
-  coins += multiplier;
-  saveUserData();
-  updateUI();
-});
-
-shopButtons.forEach(button => {
-  button.addEventListener('click', () => {
-    const id = button.getAttribute('data-id');
-    const cost = upgradeCosts[id];
-    if (coins >= cost) {
-      coins -= cost;
-      multiplier = parseInt(id);
-      upgradeCosts[id] = Math.floor(cost * 2.5);
-      saveUserData();
-      updateUI();
-    } else showAlert('Not enough coins!');
+// Game interactions
+tapButton.addEventListener('click',()=>{ coins+=multiplier; saveUserData(); updateUI(); });
+shopButtons.forEach(button=>{
+  button.addEventListener('click',()=>{
+    const id=button.dataset.id;
+    const cost=upgradeCosts[id];
+    if(coins>=cost){ coins-=cost; multiplier=parseInt(id); upgradeCosts[id]=Math.floor(cost*2.5); saveUserData(); updateUI(); }
+    else showAlert('Not enough coins!',alertMsg);
   });
 });
 </script>
