@@ -4,162 +4,381 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Tap-to-Earn Game</title>
+
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap');
-*{margin:0;padding:0;box-sizing:border-box;font-family:'Inter',sans-serif;}
-body{background:#0d0d0d;color:#fff;display:flex;justify-content:center;align-items:flex-start;min-height:100vh;padding:20px;overflow:hidden;}
-.screen{display:none;flex-direction:column;align-items:center;gap:15px;width:100%;max-width:400px;}
+
+*{
+  margin:0;
+  padding:0;
+  box-sizing:border-box;
+  font-family:'Inter',sans-serif;
+}
+
+body{
+  background:#0d0d0d;
+  color:#fff;
+  min-height:100vh;
+  display:flex;
+  justify-content:center;
+  align-items:flex-start;
+  padding:20px;
+  overflow:hidden;
+}
+
+.screen{
+  display:none;
+  flex-direction:column;
+  align-items:center;
+  gap:15px;
+  width:100%;
+  max-width:420px;
+}
+
 .screen.active{display:flex;}
-h1{color:#0ff;text-shadow:0 0 10px #0ff;text-align:center;}
-input{padding:10px;border-radius:8px;border:none;width:200px;font-size:1rem;}
-input:focus{outline:none;box-shadow:0 0 10px #0ff;}
-button{padding:10px 20px;border:none;border-radius:8px;background:#0ff;color:#000;cursor:pointer;font-weight:bold;transition:0.2s;}
-button:hover{background:#0cc;transform:scale(1.05);}
-.alert{color:#f0f;font-size:0.9rem;text-align:center;opacity:0;transition:opacity 0.3s, transform 0.2s;}
-.tap-button{width:200px;height:200px;border-radius:50%;font-size:3rem;cursor:pointer;background:linear-gradient(145deg,#0ff,#00f);display:flex;justify-content:center;align-items:center;box-shadow:0 0 20px #0ff,0 0 40px #0ff inset;transition:0.2s;touch-action: manipulation;}
-.tap-button:active{transform:scale(0.95);}
-.nav{display:flex;gap:10px;margin-bottom:10px;}
-.nav button{background:#111;color:#0ff;transition:0.2s;}
-.nav button:hover{background:#222;transform:scale(1.05);}
-.shop,.cosmetics,.character-shop,.button-colors,.quests{display:flex;flex-direction:column;gap:10px;width:100%;max-width:300px;}
-.shop button,.cosmetics button,.character-shop button,.button-colors button{padding:15px;border-radius:12px;border:none;background:#111;color:#0ff;box-shadow:0 0 10px #0ff;transition:0.2s, transform 0.2s;cursor:pointer;}
-.shop button:hover,.cosmetics button:hover,.character-shop button:hover,.button-colors button:hover{transform:scale(1.05);box-shadow:0 0 20px #0ff,0 0 10px #0ff inset;background:#222;}
-.quest{background:#111;padding:10px;border-radius:10px;box-shadow:0 0 10px #0ff;text-align:center;transition:0.3s;}
-.coin{position:absolute;font-size:1.5rem;pointer-events:none;animation:floatUp 1s forwards;}
-@keyframes floatUp{0%{transform: translateY(0) scale(1);opacity:1;}50%{transform: translateY(-50px) scale(1.2);opacity:1;}100%{transform: translateY(-100px) scale(1);opacity:0;}}
-@keyframes pulse{0%{transform:scale(1);}50%{transform:scale(1.1);}100%{transform:scale(1);}}
-@keyframes flash{0%{color:#0ff;}50%{color:#fff;text-shadow:0 0 20px #fff;}100%{color:#0ff;text-shadow:0 0 5px #0ff;}}
+
+h1{
+  color:#0ff;
+  text-shadow:0 0 12px #0ff;
+}
+
+input{
+  width:220px;
+  padding:12px;
+  border-radius:10px;
+  border:none;
+  background:#111;
+  color:#fff;
+}
+
+input:focus{
+  outline:none;
+  box-shadow:0 0 10px #0ff;
+}
+
+button{
+  padding:12px 20px;
+  border:none;
+  border-radius:12px;
+  background:#0ff;
+  color:#000;
+  font-weight:700;
+  cursor:pointer;
+  transition:0.25s;
+}
+
+button:hover{transform:scale(1.05);}
+button:active{transform:scale(0.95);}
+
+.alert{
+  font-size:0.9rem;
+  color:#f0f;
+  opacity:0;
+  transition:0.3s;
+}
+
+.nav{
+  display:flex;
+  gap:10px;
+}
+
+.nav button{
+  background:#111;
+  color:#0ff;
+  box-shadow:0 0 10px #0ff;
+}
+
+.counter,.multiplier,.level{
+  font-size:1.1rem;
+}
+
+.tap-wrapper{
+  position:relative;
+}
+
+.tap-button{
+  width:220px;
+  height:220px;
+  border-radius:50%;
+  font-size:3.5rem;
+  background:linear-gradient(145deg,#0ff,#0055ff);
+  box-shadow:0 0 25px #0ff,0 0 60px #0ff inset;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  cursor:pointer;
+  transition:0.15s;
+  touch-action:manipulation;
+}
+
+.tap-button:active{transform:scale(0.94);}
+
+.shop,.quests,.cosmetics,.characters,.colors{
+  width:100%;
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+}
+
+.shop button,.cosmetics button,.characters button,.colors button{
+  background:#111;
+  color:#0ff;
+  box-shadow:0 0 10px #0ff;
+}
+
+/* COIN FLOAT */
+.coin{
+  position:absolute;
+  font-size:1.5rem;
+  pointer-events:none;
+  animation:coinFloat 1s forwards;
+}
+
+@keyframes coinFloat{
+  0%{transform:translate(0,0) scale(1);opacity:1;}
+  100%{transform:translate(var(--x),var(--y)) scale(0.8);opacity:0;}
+}
+
+/* RIPPLE */
+.ripple{
+  position:absolute;
+  width:20px;
+  height:20px;
+  border-radius:50%;
+  border:2px solid #0ff;
+  animation:ripple 0.6s ease-out forwards;
+  pointer-events:none;
+}
+
+@keyframes ripple{
+  0%{transform:scale(0.2);opacity:0.8;}
+  100%{transform:scale(6);opacity:0;}
+}
 </style>
 </head>
+
 <body>
 
-<!-- Login Screen -->
+<!-- LOGIN -->
 <div id="loginScreen" class="screen active">
-<h1>Login / Sign Up</h1>
-<input type="text" id="username" placeholder="Username">
-<input type="password" id="password" placeholder="Password">
-<button id="loginBtn">Login / Sign Up</button>
-<div class="alert" id="loginAlert"></div>
+  <h1>Login / Sign Up</h1>
+  <input id="username" placeholder="Username">
+  <input id="password" type="password" placeholder="Password">
+  <button id="loginBtn">Enter</button>
+  <div class="alert" id="loginAlert"></div>
 </div>
 
-<!-- Game Screen -->
+<!-- GAME -->
 <div id="gameScreen" class="screen">
-<div class="nav">
-<button id="gameTab">Game</button>
-<button id="cosmeticsTab">Cosmetics</button>
-<button id="charactersTab">Characters</button>
-</div>
-<h1>Tap-to-Earn</h1>
-<div class="counter">Coins: <span id="coins">0</span></div>
-<div class="multiplier">Multiplier: <span id="multiplier">1x</span></div>
-<div id="levelDisplay">Level: 1 (XP: 0/100)</div>
-<button class="tap-button" id="tapButton">🐵</button>
-<div class="shop">
-<button data-id="2">Upgrade 2x (<span class="cost">100</span> coins)</button>
-<button data-id="5">Upgrade 5x (<span class="cost">500</span> coins)</button>
-<button data-id="10">Upgrade 10x (<span class="cost">2000</span> coins)</button>
-</div>
-<div class="quests">
-<div class="quest" id="questDisplay">Quest: </div>
-</div>
-<div class="alert" id="alertMsg"></div>
+  <div class="nav">
+    <button id="tabGame">Game</button>
+    <button id="tabCosmetics">Cosmetics</button>
+    <button id="tabCharacters">Characters</button>
+  </div>
+
+  <h1>Tap-to-Earn</h1>
+  <div class="counter">Coins: <span id="coins">0</span></div>
+  <div class="multiplier">Multiplier: <span id="multiplier">1x</span></div>
+  <div class="level">Level <span id="level">1</span></div>
+
+  <div class="tap-wrapper">
+    <div class="tap-button" id="tapButton">🐵</div>
+  </div>
+
+  <div class="shop">
+    <button data-x="2">Upgrade +2x (100)</button>
+    <button data-x="5">Upgrade +5x (500)</button>
+    <button data-x="10">Upgrade +10x (2000)</button>
+  </div>
+
+  <div class="quests">
+    <div id="questText">Tap 20 times</div>
+  </div>
+
+  <div class="alert" id="gameAlert"></div>
 </div>
 
-<!-- Cosmetics & Colors Screen -->
+<!-- COSMETICS -->
 <div id="cosmeticsScreen" class="screen">
-<div class="nav">
-<button id="gameTab2">Game</button>
-<button id="cosmeticsTab2">Cosmetics</button>
-<button id="charactersTab2">Characters</button>
-</div>
-<h1>Cosmetics</h1>
-<div class="counter">Coins: <span id="coins2">0</span></div>
-<div class="cosmetics">
-<div><span>Santa Hat</span><button data-name="santaHat" data-cost="500">Buy / Toggle</button></div>
-<div><span>Neon Glow</span><button data-name="neonGlow" data-cost="800">Buy / Toggle</button></div>
-</div>
-<h1>Button Colors</h1>
-<div class="button-colors">
-<button data-color="purple" data-cost="500">Purple - 500</button>
-<button data-color="red" data-cost="500">Red - 500</button>
-<button data-color="green" data-cost="500">Green - 500</button>
-<button data-color="gold" data-cost="1000">Gold - 1000</button>
-</div>
-<div class="alert" id="cosmeticAlert"></div>
+  <div class="nav">
+    <button id="tabGame2">Game</button>
+    <button id="tabCosmetics2">Cosmetics</button>
+    <button id="tabCharacters2">Characters</button>
+  </div>
+
+  <h1>Button Colors</h1>
+  <div class="colors">
+    <button data-color="purple">Purple (500)</button>
+    <button data-color="red">Red (500)</button>
+    <button data-color="green">Green (500)</button>
+    <button data-color="gold">Gold (1000)</button>
+  </div>
 </div>
 
-<!-- Character Shop -->
+<!-- CHARACTERS -->
 <div id="charactersScreen" class="screen">
-<div class="nav">
-<button id="gameTab3">Game</button>
-<button id="cosmeticsTab3">Cosmetics</button>
-<button id="charactersTab3">Characters</button>
-</div>
-<h1>Character Shop</h1>
-<div class="counter">Coins: <span id="coins3">0</span></div>
-<div class="character-shop">
-<button data-char="🐵" data-cost="0">Monkey (default)</button>
-<button data-char="🦄" data-cost="1000">Unicorn 1000</button>
-<button data-char="👽" data-cost="2000">Alien 2000</button>
-<button data-char="🐸" data-cost="1500">Frog 1500</button>
-<button data-char="🐼" data-cost="2500">Panda 2500</button>
-</div>
-<div class="alert" id="characterAlert"></div>
+  <div class="nav">
+    <button id="tabGame3">Game</button>
+    <button id="tabCosmetics3">Cosmetics</button>
+    <button id="tabCharacters3">Characters</button>
+  </div>
+
+  <h1>Characters</h1>
+  <div class="characters">
+    <button data-char="🐵">Monkey (free)</button>
+    <button data-char="🦄">Unicorn (1000)</button>
+    <button data-char="👽">Alien (2000)</button>
+  </div>
 </div>
 
 <script>
-// VARIABLES
-let currentUser=null,coins=0,multiplier=1,upgradeCosts={2:100,5:500,10:2000},cosmeticsOwned={},selectedCosmetic=null,selectedCharacter='🐵',charactersOwned={'🐵':true},colorsOwned={},selectedColor=null,xp=0,level=1,nextLevelXP=100,quests=[{desc:'Tap 10 times',type:'tap',target:10,reward:50,progress:0},{desc:'Earn 100 coins',type:'coins',target:100,reward:100,progress:0},{desc:'Buy an upgrade',type:'upgrade',target:1,reward:200,progress:0}],currentQuestIndex=0;
+let user=null,coins=0,multiplier=1,level=1,xp=0;
+let ownedColors={},selectedColor=null;
+let ownedChars={"🐵":true},selectedChar="🐵";
+let upgradeCost={2:100,5:500,10:2000};
+let taps=0;
 
-// DOM
-const loginScreen=document.getElementById('loginScreen'),gameScreen=document.getElementById('gameScreen'),cosmeticsScreen=document.getElementById('cosmeticsScreen'),charactersScreen=document.getElementById('charactersScreen');
-const usernameInput=document.getElementById('username'),passwordInput=document.getElementById('password'),loginBtn=document.getElementById('loginBtn'),loginAlert=document.getElementById('loginAlert');
-const coinsEl=document.getElementById('coins'),coinsEl2=document.getElementById('coins2'),coinsEl3=document.getElementById('coins3'),multiplierEl=document.getElementById('multiplier'),tapButton=document.getElementById('tapButton'),alertMsg=document.getElementById('alertMsg'),cosmeticAlert=document.getElementById('cosmeticAlert'),characterAlert=document.getElementById('characterAlert'),shopButtons=document.querySelectorAll('.shop button'),cosmeticButtons=document.querySelectorAll('.cosmetics button'),characterButtons=document.querySelectorAll('.character-shop button'),colorButtons=document.querySelectorAll('.button-colors button'),questDisplay=document.getElementById('questDisplay'),levelDisplay=document.getElementById('levelDisplay');
+const qs=id=>document.getElementById(id);
 
-// SAVE / LOAD
-function saveUserData(){ localStorage.setItem('user_'+currentUser,JSON.stringify({coins,multiplier,upgradeCosts,cosmeticsOwned,selectedCosmetic,selectedCharacter,charactersOwned,colorsOwned,selectedColor,quests,currentQuestIndex,xp,level,nextLevelXP})); }
-function loadUserData(){ const data=JSON.parse(localStorage.getItem('user_'+currentUser)); if(data){ coins=data.coins; multiplier=data.multiplier; upgradeCosts=data.upgradeCosts; cosmeticsOwned=data.cosmeticsOwned||{}; selectedCosmetic=data.selectedCosmetic||null; selectedCharacter=data.selectedCharacter||'🐵'; charactersOwned=data.charactersOwned||{'🐵':true}; colorsOwned=data.colorsOwned||{}; selectedColor=data.selectedColor||null; quests=data.quests||quests; currentQuestIndex=data.currentQuestIndex||0; xp=data.xp||0; level=data.level||1; nextLevelXP=data.nextLevelXP||100; } updateUI(); }
+function save(){
+  localStorage.setItem("user_"+user,JSON.stringify({
+    coins,multiplier,level,xp,
+    ownedColors,selectedColor,
+    ownedChars,selectedChar,
+    upgradeCost,taps
+  }));
+}
 
-// UI
-function updateUI(){ coinsEl.textContent=coins; coinsEl2.textContent=coins; coinsEl3.textContent=coins; multiplierEl.textContent=multiplier+'x'; levelDisplay.textContent=`Level: ${level} (XP: ${xp}/${nextLevelXP})`; shopButtons.forEach(btn=>{btn.querySelector('.cost').textContent=upgradeCosts[btn.dataset.id];}); applyCosmetic(); updateQuestDisplay(); }
-function applyCosmetic(){ tapButton.textContent = selectedCharacter; let gradient='linear-gradient(145deg,#0ff,#00f)'; if(selectedColor==='purple') gradient='linear-gradient(145deg,#a020f0,#8000ff)'; if(selectedColor==='red') gradient='linear-gradient(145deg,#ff4040,#ff0000)'; if(selectedColor==='green') gradient='linear-gradient(145deg,#40ff40,#00ff00)'; if(selectedColor==='gold') gradient='linear-gradient(145deg,#ffd700,#ffb700)'; tapButton.style.background=gradient; tapButton.style.boxShadow='0 0 20px #0ff,0 0 40px #0ff inset'; if(selectedCosmetic==='santaHat'){ tapButton.textContent='🎅 '+selectedCharacter; } if(selectedCosmetic==='neonGlow'){ tapButton.style.boxShadow='0 0 30px #f0f,0 0 60px #0ff inset'; } }
-function showAlert(msg,element){ element.textContent=msg;element.style.opacity=1;setTimeout(()=>{element.style.opacity=0;},1000);}
-function updateQuestDisplay(){ const q=quests[currentQuestIndex]; questDisplay.textContent=`${q.desc} (${q.progress}/${q.target}) Reward: ${q.reward} coins`; }
-function checkQuest(action){ const q=quests[currentQuestIndex]; if(!q) return; if(q.type===action){ q.progress++; } else if(q.type==='coins'&&action==='coins'){ q.progress=Math.min(q.progress+multiplier,q.target); } if(q.progress>=q.target){ coins+=q.reward; showAlert(`Quest completed! +${q.reward} coins`,alertMsg); currentQuestIndex=(currentQuestIndex+1)%quests.length; xp+=50; checkLevelUp(); saveUserData(); } updateQuestDisplay(); }
-function checkLevelUp(){ while(xp>=nextLevelXP){ xp-=nextLevelXP; level++; nextLevelXP=Math.floor(level*100); showAlert(`Level Up! Now Level ${level}`,alertMsg); multiplier++; } }
+function load(){
+  const d=JSON.parse(localStorage.getItem("user_"+user));
+  if(!d)return;
+  Object.assign(this,d);
+}
 
-// LOGIN
-loginBtn.addEventListener('click',()=>{ const username=usernameInput.value.trim(); const password=passwordInput.value.trim(); if(!username||!password){ showAlert('Enter username & password',loginAlert); return; } const storedPass=localStorage.getItem('pass_'+username); if(!storedPass) localStorage.setItem('pass_'+username,password); else if(storedPass!==password){ showAlert('Wrong password',loginAlert); return; } currentUser=username; loadUserData(); loginScreen.classList.remove('active'); gameScreen.classList.add('active'); usernameInput.value=''; passwordInput.value=''; });
+function updateUI(){
+  qs("coins").textContent=coins;
+  qs("multiplier").textContent=multiplier+"x";
+  qs("level").textContent=level;
+  qs("tapButton").textContent=selectedChar;
+  if(selectedColor){
+    const map={
+      purple:["#a020f0","#8000ff"],
+      red:["#ff4040","#ff0000"],
+      green:["#40ff40","#00ff00"],
+      gold:["#ffd700","#ffb700"]
+    };
+    qs("tapButton").style.background=`linear-gradient(145deg,${map[selectedColor][0]},${map[selectedColor][1]})`;
+  }
+}
 
-// TAP
-function spawnCoin(x,y){ const coin=document.createElement('div'); coin.className='coin'; coin.textContent='🪙'; coin.style.left=`${x}px`; coin.style.top=`${y}px`; document.body.appendChild(coin); setTimeout(()=>coin.remove(),1000); }
-function tap(e){ coins+=multiplier; xp+=multiplier; checkLevelUp(); tapButton.style.animation='pulse 0.2s'; setTimeout(()=>{tapButton.style.animation='';},200); checkQuest('tap'); checkQuest('coins'); saveUserData(); updateUI(); let rect=tapButton.getBoundingClientRect(); let clickX=rect.left+rect.width/2-10; let clickY=rect.top+rect.height/2-10; for(let i=0;i<multiplier;i++){ spawnCoin(clickX+(Math.random()*40-20),clickY+(Math.random()*40-20)); } }
-tapButton.addEventListener('click',tap);
-tapButton.addEventListener('touchstart',e=>{ e.preventDefault(); tap(); });
+function alertMsg(msg,el){
+  el.textContent=msg;
+  el.style.opacity=1;
+  setTimeout(()=>el.style.opacity=0,1000);
+}
 
-// UPGRADES
-shopButtons.forEach(btn=>{ btn.addEventListener('click',()=>{ const id=btn.dataset.id,cost=upgradeCosts[id]; if(coins>=cost){ coins-=cost; multiplier+=parseInt(id); upgradeCosts[id]=Math.floor(cost*2.5); checkQuest('upgrade'); xp+=20; checkLevelUp(); saveUserData(); updateUI(); } else showAlert('Not enough coins!',alertMsg); }); });
+/* LOGIN */
+qs("loginBtn").onclick=()=>{
+  const u=qs("username").value.trim();
+  const p=qs("password").value.trim();
+  if(!u||!p)return alertMsg("Fill fields",qs("loginAlert"));
+  const pass=localStorage.getItem("pass_"+u);
+  if(!pass) localStorage.setItem("pass_"+u,p);
+  else if(pass!==p) return alertMsg("Wrong password",qs("loginAlert"));
+  user=u;
+  load();
+  qs("loginScreen").classList.remove("active");
+  qs("gameScreen").classList.add("active");
+  updateUI();
+};
 
-// COSMETICS
-cosmeticButtons.forEach(btn=>{ btn.addEventListener('click',()=>{ const name=btn.dataset.name,cost=parseInt(btn.dataset.cost); if(cosmeticsOwned[name]){ selectedCosmetic=(selectedCosmetic===name)?null:name; saveUserData(); updateUI(); return; } if(coins>=cost){ coins-=cost; cosmeticsOwned[name]=true; selectedCosmetic=name; saveUserData(); updateUI(); } else showAlert('Not enough coins!',cosmeticAlert); }); });
+/* TAP EFFECTS */
+function spawnCoin(x,y){
+  const c=document.createElement("div");
+  c.className="coin";
+  c.textContent="🪙";
+  c.style.left=x+"px";
+  c.style.top=y+"px";
+  c.style.setProperty("--x",(Math.random()*120-60)+"px");
+  c.style.setProperty("--y",(Math.random()*-120)+"px");
+  document.body.appendChild(c);
+  setTimeout(()=>c.remove(),1000);
+}
 
-// CHARACTERS
-characterButtons.forEach(btn=>{ btn.addEventListener('click',()=>{ const char=btn.dataset.char,cost=parseInt(btn.dataset.cost); if(charactersOwned[char]){ selectedCharacter=char; saveUserData(); updateUI(); return; } if(coins>=cost){ coins-=cost; charactersOwned[char]=true; selectedCharacter=char; saveUserData(); updateUI(); } else showAlert('Not enough coins!',characterAlert); }); });
+function spawnRipple(x,y){
+  const r=document.createElement("div");
+  r.className="ripple";
+  r.style.left=x+"px";
+  r.style.top=y+"px";
+  document.body.appendChild(r);
+  setTimeout(()=>r.remove(),600);
+}
 
-// COLORS
-colorButtons.forEach(btn=>{ btn.addEventListener('click',()=>{ const color=btn.dataset.color,cost=parseInt(btn.dataset.cost); if(colorsOwned[color]){ selectedColor=color; saveUserData(); updateUI(); return; } if(coins>=cost){ coins-=cost; colorsOwned[color]=true; selectedColor=color; saveUserData(); updateUI(); } else showAlert('Not enough coins!',cosmeticAlert); }); });
+qs("tapButton").onclick=e=>{
+  coins+=multiplier;
+  xp+=multiplier;
+  taps++;
+  if(xp>=level*100){xp=0;level++;multiplier++;}
+  const rect=e.target.getBoundingClientRect();
+  const cx=rect.left+rect.width/2;
+  const cy=rect.top+rect.height/2;
+  spawnRipple(cx-10,cy-10);
+  for(let i=0;i<multiplier;i++) spawnCoin(cx,cy);
+  save();
+  updateUI();
+};
 
-// NAVIGATION
-function showScreen(screen){ [gameScreen,cosmeticsScreen,charactersScreen].forEach(s=>s.classList.remove('active')); screen.classList.add('active'); }
-document.getElementById('gameTab').addEventListener('click',()=>showScreen(gameScreen));
-document.getElementById('gameTab2').addEventListener('click',()=>showScreen(gameScreen));
-document.getElementById('gameTab3').addEventListener('click',()=>showScreen(gameScreen));
-document.getElementById('cosmeticsTab').addEventListener('click',()=>showScreen(cosmeticsScreen));
-document.getElementById('cosmeticsTab2').addEventListener('click',()=>showScreen(cosmeticsScreen));
-document.getElementById('cosmeticsTab3').addEventListener('click',()=>showScreen(cosmeticsScreen));
-document.getElementById('charactersTab').addEventListener('click',()=>showScreen(charactersScreen));
-document.getElementById('charactersTab2').addEventListener('click',()=>showScreen(charactersScreen));
-document.getElementById('charactersTab3').addEventListener('click',()=>showScreen(charactersScreen));
+/* UPGRADES */
+document.querySelectorAll(".shop button").forEach(b=>{
+  b.onclick=()=>{
+    const x=+b.dataset.x;
+    if(coins<upgradeCost[x]) return alertMsg("Not enough coins",qs("gameAlert"));
+    coins-=upgradeCost[x];
+    multiplier+=x;
+    upgradeCost[x]=Math.floor(upgradeCost[x]*2.3);
+    save();updateUI();
+  };
+});
+
+/* COLORS */
+document.querySelectorAll(".colors button").forEach(b=>{
+  b.onclick=()=>{
+    const c=b.dataset.color;
+    const cost=c==="gold"?1000:500;
+    if(!ownedColors[c] && coins<cost) return;
+    if(!ownedColors[c]){coins-=cost;ownedColors[c]=true;}
+    selectedColor=c;
+    save();updateUI();
+  };
+});
+
+/* CHARACTERS */
+document.querySelectorAll(".characters button").forEach(b=>{
+  b.onclick=()=>{
+    const c=b.dataset.char;
+    const cost=c==="🦄"?1000:c==="👽"?2000:0;
+    if(!ownedChars[c] && coins<cost) return;
+    if(!ownedChars[c]){coins-=cost;ownedChars[c]=true;}
+    selectedChar=c;
+    save();updateUI();
+  };
+});
+
+/* NAV */
+function show(s){
+  ["gameScreen","cosmeticsScreen","charactersScreen"].forEach(x=>qs(x).classList.remove("active"));
+  qs(s).classList.add("active");
+}
+
+qs("tabGame").onclick=()=>show("gameScreen");
+qs("tabGame2").onclick=()=>show("gameScreen");
+qs("tabGame3").onclick=()=>show("gameScreen");
+qs("tabCosmetics").onclick=()=>show("cosmeticsScreen");
+qs("tabCosmetics2").onclick=()=>show("cosmeticsScreen");
+qs("tabCosmetics3").onclick=()=>show("cosmeticsScreen");
+qs("tabCharacters").onclick=()=>show("charactersScreen");
+qs("tabCharacters2").onclick=()=>show("charactersScreen");
+qs("tabCharacters3").onclick=()=>show("charactersScreen");
 </script>
 
 </body>
