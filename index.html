@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Tap-to-Earn Game with Quests</title>
+<title>Tap-to-Earn Game with Quests & Cosmetics Toggle</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap');
 * { box-sizing:border-box; margin:0; padding:0; font-family:'Inter',sans-serif; }
@@ -72,11 +72,11 @@ button:hover { background:#0cc; }
   <div class="cosmetics">
     <div class="cosmetic-item">
       <span>Santa Hat</span>
-      <button data-name="santaHat" data-cost="500">Buy 500</button>
+      <button data-name="santaHat" data-cost="500">Buy / Toggle</button>
     </div>
     <div class="cosmetic-item">
       <span>Neon Glow</span>
-      <button data-name="neonGlow" data-cost="800">Buy 800</button>
+      <button data-name="neonGlow" data-cost="800">Buy / Toggle</button>
     </div>
   </div>
   <div class="alert" id="cosmeticAlert"></div>
@@ -241,13 +241,29 @@ shopButtons.forEach(button=>{
   });
 });
 
-// Cosmetics
+// Cosmetics (toggle on/off)
 cosmeticButtons.forEach(btn=>{
   btn.addEventListener('click',()=>{
     const name=btn.dataset.name;
     const cost=parseInt(btn.dataset.cost);
-    if(coins>=cost){ coins-=cost; cosmeticsOwned[name]=true; selectedCosmetic=name; saveUserData(); updateUI(); }
-    else showAlert('Not enough coins!',cosmeticAlert);
+
+    if(cosmeticsOwned[name]){
+      // Toggle on/off
+      if(selectedCosmetic===name){ selectedCosmetic=null; }
+      else { selectedCosmetic=name; }
+      saveUserData();
+      updateUI();
+      return;
+    }
+
+    // Buy if not owned
+    if(coins>=cost){
+      coins-=cost;
+      cosmeticsOwned[name]=true;
+      selectedCosmetic=name;
+      saveUserData();
+      updateUI();
+    } else showAlert('Not enough coins!',cosmeticAlert);
   });
 });
 
@@ -273,7 +289,6 @@ document.getElementById('cosmeticsTab3').addEventListener('click',()=>showScreen
 document.getElementById('charactersTab').addEventListener('click',()=>showScreen(charactersScreen));
 document.getElementById('charactersTab2').addEventListener('click',()=>showScreen(charactersScreen));
 document.getElementById('charactersTab3').addEventListener('click',()=>showScreen(charactersScreen));
-
 </script>
 </body>
 </html>
