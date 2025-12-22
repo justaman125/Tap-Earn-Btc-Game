@@ -7,12 +7,7 @@
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap');
 
-  * {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
-    font-family: 'Inter', sans-serif;
-  }
+  * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
 
   body {
     background-color: #0d0d0d;
@@ -25,18 +20,9 @@
     padding: 20px;
   }
 
-  h1 {
-    margin-bottom: 10px;
-    color: #0ff;
-    text-shadow: 0 0 10px #0ff, 0 0 20px #0ff;
-  }
+  h1 { margin-bottom: 10px; color: #0ff; text-shadow: 0 0 10px #0ff, 0 0 20px #0ff; }
 
-  .counter, .multiplier {
-    font-size: 1.5rem;
-    margin: 5px 0;
-    color: #0ff;
-    text-shadow: 0 0 5px #0ff, 0 0 10px #0ff;
-  }
+  .counter, .multiplier { font-size: 1.5rem; margin: 5px 0; color: #0ff; text-shadow: 0 0 5px #0ff, 0 0 10px #0ff; }
 
   .tap-button {
     margin: 30px 0;
@@ -52,18 +38,9 @@
     transition: transform 0.2s, box-shadow 0.2s;
   }
 
-  .tap-button:active {
-    transform: scale(0.95);
-    box-shadow: 0 0 40px #0ff inset, 0 0 20px #0ff;
-  }
+  .tap-button:active { transform: scale(0.95); box-shadow: 0 0 40px #0ff inset, 0 0 20px #0ff; }
 
-  .shop {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    width: 100%;
-    max-width: 300px;
-  }
+  .shop { display: flex; flex-direction: column; gap: 10px; width: 100%; max-width: 300px; }
 
   .shop button {
     padding: 15px;
@@ -83,21 +60,10 @@
     background-color: #222;
   }
 
-  .alert {
-    color: #f0f;
-    font-size: 0.9rem;
-    margin-top: 5px;
-    text-align: center;
-    opacity: 0;
-    transition: opacity 0.3s;
-  }
+  .alert { color: #f0f; font-size: 0.9rem; margin-top: 5px; text-align: center; opacity: 0; transition: opacity 0.3s; }
 
   @media (max-width: 500px) {
-    .tap-button {
-      width: 150px;
-      height: 150px;
-      font-size: 1.5rem;
-    }
+    .tap-button { width: 150px; height: 150px; font-size: 1.5rem; }
   }
 </style>
 </head>
@@ -110,58 +76,71 @@
 <button class="tap-button" id="tapButton">TAP</button>
 
 <div class="shop">
-  <button data-multiplier="2" data-cost="100">Upgrade 2x (100 coins)</button>
-  <button data-multiplier="5" data-cost="500">Upgrade 5x (500 coins)</button>
-  <button data-multiplier="10" data-cost="2000">Upgrade 10x (2000 coins)</button>
+  <button data-id="2">Upgrade 2x (<span class="cost">100</span> coins)</button>
+  <button data-id="5">Upgrade 5x (<span class="cost">500</span> coins)</button>
+  <button data-id="10">Upgrade 10x (<span class="cost">2000</span> coins)</button>
 </div>
 
 <div class="alert" id="alertMsg">Not enough coins!</div>
 
 <script>
-  let coins = parseInt(localStorage.getItem('coins')) || 0;
-  let multiplier = parseInt(localStorage.getItem('multiplier')) || 1;
+let coins = parseInt(localStorage.getItem('coins')) || 0;
+let multiplier = parseInt(localStorage.getItem('multiplier')) || 1;
 
-  const coinsEl = document.getElementById('coins');
-  const multiplierEl = document.getElementById('multiplier');
-  const tapButton = document.getElementById('tapButton');
-  const alertMsg = document.getElementById('alertMsg');
+// Track upgrade costs dynamically
+let upgradeCosts = {
+  2: parseInt(localStorage.getItem('cost2')) || 100,
+  5: parseInt(localStorage.getItem('cost5')) || 500,
+  10: parseInt(localStorage.getItem('cost10')) || 2000
+};
 
-  function updateUI() {
-    coinsEl.textContent = coins;
-    multiplierEl.textContent = multiplier + 'x';
-  }
+const coinsEl = document.getElementById('coins');
+const multiplierEl = document.getElementById('multiplier');
+const tapButton = document.getElementById('tapButton');
+const alertMsg = document.getElementById('alertMsg');
+const shopButtons = document.querySelectorAll('.shop button');
 
-  function showAlert(message) {
-    alertMsg.textContent = message;
-    alertMsg.style.opacity = 1;
-    setTimeout(() => {
-      alertMsg.style.opacity = 0;
-    }, 1000);
-  }
-
-  tapButton.addEventListener('click', () => {
-    coins += multiplier;
-    localStorage.setItem('coins', coins);
-    updateUI();
+function updateUI() {
+  coinsEl.textContent = coins;
+  multiplierEl.textContent = multiplier + 'x';
+  shopButtons.forEach(btn => {
+    const id = btn.getAttribute('data-id');
+    btn.querySelector('.cost').textContent = upgradeCosts[id];
   });
+}
 
-  document.querySelectorAll('.shop button').forEach(button => {
-    button.addEventListener('click', () => {
-      const cost = parseInt(button.getAttribute('data-cost'));
-      const newMultiplier = parseInt(button.getAttribute('data-multiplier'));
-      if (coins >= cost) {
-        coins -= cost;
-        multiplier = newMultiplier;
-        localStorage.setItem('coins', coins);
-        localStorage.setItem('multiplier', multiplier);
-        updateUI();
-      } else {
-        showAlert('Not enough coins!');
-      }
-    });
-  });
+function showAlert(message) {
+  alertMsg.textContent = message;
+  alertMsg.style.opacity = 1;
+  setTimeout(() => { alertMsg.style.opacity = 0; }, 1000);
+}
 
+tapButton.addEventListener('click', () => {
+  coins += multiplier;
+  localStorage.setItem('coins', coins);
   updateUI();
+});
+
+shopButtons.forEach(button => {
+  button.addEventListener('click', () => {
+    const id = button.getAttribute('data-id');
+    const cost = upgradeCosts[id];
+
+    if (coins >= cost) {
+      coins -= cost;
+      multiplier = parseInt(id);
+      upgradeCosts[id] = Math.floor(cost * 2.5); // scale cost after purchase
+      localStorage.setItem('coins', coins);
+      localStorage.setItem('multiplier', multiplier);
+      localStorage.setItem('cost' + id, upgradeCosts[id]);
+      updateUI();
+    } else {
+      showAlert('Not enough coins!');
+    }
+  });
+});
+
+updateUI();
 </script>
 
 </body>
