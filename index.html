@@ -3,11 +3,11 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Tap-to-Earn Game with Character Shop</title>
+<title>Tap-to-Earn Game with Quests</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap');
 * { box-sizing:border-box; margin:0; padding:0; font-family:'Inter',sans-serif; }
-body { background:#0d0d0d; color:#fff; display:flex; justify-content:center; align-items:center; min-height:100vh; touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
+body { background:#0d0d0d; color:#fff; display:flex; justify-content:center; align-items:flex-start; min-height:100vh; padding:20px; touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
 .screen { display:none; flex-direction:column; align-items:center; gap:15px; width:100%; max-width:400px; }
 .screen.active { display:flex; }
 h1 { color:#0ff; text-shadow:0 0 10px #0ff,0 0 20px #0ff; text-align:center; }
@@ -15,15 +15,16 @@ input { padding:10px; border-radius:8px; border:none; width:200px; font-size:1re
 button { padding:10px 20px; border:none; border-radius:8px; background:#0ff; color:#000; cursor:pointer; font-weight:bold; transition:0.2s; }
 button:hover { background:#0cc; }
 .alert { color:#f0f; font-size:0.9rem; text-align:center; opacity:0; transition:opacity 0.3s; }
-.counter, .multiplier { font-size:1.5rem; text-shadow:0 0 5px #0ff,0 0 10px #0ff; }
+.counter, .multiplier { font-size:1.3rem; text-shadow:0 0 5px #0ff,0 0 10px #0ff; }
 .tap-button { width:200px; height:200px; border-radius:50%; border:none; background:linear-gradient(145deg,#0ff,#00f); box-shadow:0 0 20px #0ff,0 0 40px #0ff inset; font-size:3rem; cursor:pointer; transition:0.2s; display:flex; justify-content:center; align-items:center; }
 .tap-button:active { transform:scale(0.95); box-shadow:0 0 40px #0ff inset,0 0 20px #0ff; }
-.shop, .cosmetics, .character-shop { display:flex; flex-direction:column; gap:10px; width:100%; max-width:300px; }
+.shop, .cosmetics, .character-shop, .quests { display:flex; flex-direction:column; gap:10px; width:100%; max-width:300px; }
 .shop button, .cosmetics button, .character-shop button { padding:15px; border-radius:12px; border:none; background:#111; color:#0ff; box-shadow:0 0 10px #0ff; transition:0.2s; cursor:pointer; }
 .shop button:hover, .cosmetics button:hover, .character-shop button:hover { transform:scale(1.05); box-shadow:0 0 20px #0ff,0 0 10px #0ff inset; background:#222; }
 .nav { display:flex; gap:10px; margin-bottom:10px; }
 .nav button { background:#111; color:#0ff; }
 .nav button:hover { background:#222; }
+.quest { background:#111; padding:10px; border-radius:10px; box-shadow:0 0 10px #0ff; text-align:center; }
 </style>
 </head>
 <body>
@@ -52,6 +53,9 @@ button:hover { background:#0cc; }
     <button data-id="2">Upgrade 2x (<span class="cost">100</span> coins)</button>
     <button data-id="5">Upgrade 5x (<span class="cost">500</span> coins)</button>
     <button data-id="10">Upgrade 10x (<span class="cost">2000</span> coins)</button>
+  </div>
+  <div class="quests">
+    <div class="quest" id="questDisplay">Quest: </div>
   </div>
   <div class="alert" id="alertMsg"></div>
 </div>
@@ -106,6 +110,12 @@ let cosmeticsOwned = {};
 let selectedCosmetic = null;
 let selectedCharacter = '🐵';
 let charactersOwned = {'🐵':true};
+let quests = [
+  {desc:'Tap 10 times',type:'tap',target:10,reward:50,progress:0},
+  {desc:'Earn 100 coins',type:'coins',target:100,reward:100,progress:0},
+  {desc:'Buy an upgrade',type:'upgrade',target:1,reward:200,progress:0}
+];
+let currentQuestIndex = 0;
 
 // Elements
 const loginScreen = document.getElementById('loginScreen');
@@ -129,10 +139,11 @@ const characterAlert = document.getElementById('characterAlert');
 const shopButtons = document.querySelectorAll('.shop button');
 const cosmeticButtons = document.querySelectorAll('.cosmetics button');
 const characterButtons = document.querySelectorAll('.character-shop button');
+const questDisplay = document.getElementById('questDisplay');
 
 // Save/load
 function saveUserData(){
-  localStorage.setItem('user_'+currentUser, JSON.stringify({coins,multiplier,upgradeCosts,cosmeticsOwned,selectedCosmetic,selectedCharacter,charactersOwned}));
+  localStorage.setItem('user_'+currentUser, JSON.stringify({coins,multiplier,upgradeCosts,cosmeticsOwned,selectedCosmetic,selectedCharacter,charactersOwned,quests,currentQuestIndex}));
 }
 function loadUserData(){
   const data = JSON.parse(localStorage.getItem('user_'+currentUser));
@@ -143,9 +154,13 @@ function loadUserData(){
     selectedCosmetic=data.selectedCosmetic || null;
     selectedCharacter=data.selectedCharacter || '🐵';
     charactersOwned=data.charactersOwned || {'🐵':true};
+    quests=data.quests || quests;
+    currentQuestIndex=data.currentQuestIndex || 0;
   } else {
     coins=0; multiplier=1; upgradeCosts={2:100,5:500,10:2000};
     cosmeticsOwned={}; selectedCosmetic=null; selectedCharacter='🐵'; charactersOwned={'🐵':true};
+    quests=[{desc:'Tap 10 times',type:'tap',target:10,reward:50,progress:0},{desc:'Earn 100 coins',type:'coins',target:100,reward:100,progress:0},{desc:'Buy an upgrade',type:'upgrade',target:1,reward:200,progress:0}];
+    currentQuestIndex=0;
   }
   updateUI();
 }
@@ -158,6 +173,7 @@ function updateUI(){
   multiplierEl.textContent = multiplier+'x';
   shopButtons.forEach(btn=>{btn.querySelector('.cost').textContent=upgradeCosts[btn.dataset.id];});
   applyCosmetic();
+  updateQuestDisplay();
 }
 
 // Cosmetic display
@@ -171,6 +187,30 @@ function applyCosmetic(){
 
 // Alerts
 function showAlert(msg,element){ element.textContent=msg; element.style.opacity=1; setTimeout(()=>{element.style.opacity=0;},1000); }
+
+// Update quest display
+function updateQuestDisplay(){
+  const q = quests[currentQuestIndex];
+  questDisplay.textContent = `${q.desc} (${q.progress}/${q.target}) Reward: ${q.reward} coins`;
+}
+
+// Quest progress
+function checkQuest(action){
+  const q = quests[currentQuestIndex];
+  if(!q) return;
+  if(q.type===action){
+    q.progress++;
+  } else if(q.type==='coins' && action==='coins'){
+    q.progress = Math.min(q.progress + multiplier, q.target);
+  }
+  if(q.progress>=q.target){
+    coins += q.reward;
+    showAlert(`Quest completed! +${q.reward} coins`,alertMsg);
+    currentQuestIndex = (currentQuestIndex+1)%quests.length;
+    saveUserData();
+  }
+  updateQuestDisplay();
+}
 
 // Login / Signup
 loginBtn.addEventListener('click',()=>{
@@ -187,7 +227,7 @@ loginBtn.addEventListener('click',()=>{
 });
 
 // Tap button
-function tap(){ coins+=multiplier; saveUserData(); updateUI(); }
+function tap(){ coins+=multiplier; checkQuest('tap'); checkQuest('coins'); saveUserData(); updateUI(); }
 tapButton.addEventListener('click',tap);
 tapButton.addEventListener('touchstart',e=>{ e.preventDefault(); tap(); });
 
@@ -196,7 +236,7 @@ shopButtons.forEach(button=>{
   button.addEventListener('click',()=>{
     const id = button.dataset.id;
     const cost = upgradeCosts[id];
-    if(coins>=cost){ coins-=cost; multiplier+=parseInt(id); upgradeCosts[id]=Math.floor(cost*2.5); saveUserData(); updateUI(); }
+    if(coins>=cost){ coins-=cost; multiplier+=parseInt(id); upgradeCosts[id]=Math.floor(cost*2.5); checkQuest('upgrade'); saveUserData(); updateUI(); }
     else showAlert('Not enough coins!',alertMsg);
   });
 });
