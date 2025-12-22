@@ -3,12 +3,12 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Tap-to-Earn Game</title>
+<title>Tap-to-Earn with Cosmetics</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap');
 * { box-sizing:border-box; margin:0; padding:0; font-family:'Inter',sans-serif; }
 body { background:#0d0d0d; color:#fff; display:flex; justify-content:center; align-items:center; min-height:100vh; touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
-.screen { display:none; flex-direction:column; align-items:center; gap:15px; }
+.screen { display:none; flex-direction:column; align-items:center; gap:15px; width:100%; max-width:400px; }
 .screen.active { display:flex; }
 h1 { color:#0ff; text-shadow:0 0 10px #0ff,0 0 20px #0ff; text-align:center; }
 input { padding:10px; border-radius:8px; border:none; width:200px; font-size:1rem; }
@@ -16,11 +16,16 @@ button { padding:10px 20px; border:none; border-radius:8px; background:#0ff; col
 button:hover { background:#0cc; }
 .alert { color:#f0f; font-size:0.9rem; text-align:center; opacity:0; transition:opacity 0.3s; }
 .counter, .multiplier { font-size:1.5rem; text-shadow:0 0 5px #0ff,0 0 10px #0ff; }
-.tap-button { width:200px; height:200px; border-radius:50%; border:none; background:linear-gradient(145deg,#0ff,#00f); box-shadow:0 0 20px #0ff,0 0 40px #0ff inset; font-size:2rem; cursor:pointer; transition:0.2s; }
+.tap-button { width:200px; height:200px; border-radius:50%; border:none; background:linear-gradient(145deg,#0ff,#00f); box-shadow:0 0 20px #0ff,0 0 40px #0ff inset; font-size:2rem; cursor:pointer; transition:0.2s; position:relative; }
 .tap-button:active { transform:scale(0.95); box-shadow:0 0 40px #0ff inset,0 0 20px #0ff; }
-.shop { display:flex; flex-direction:column; gap:10px; width:100%; max-width:300px; }
-.shop button { padding:15px; border-radius:12px; border:none; background:#111; color:#0ff; box-shadow:0 0 10px #0ff; transition:0.2s; cursor:pointer; }
-.shop button:hover { transform:scale(1.05); box-shadow:0 0 20px #0ff,0 0 10px #0ff inset; background:#222; }
+.shop, .cosmetics { display:flex; flex-direction:column; gap:10px; width:100%; max-width:300px; }
+.shop button, .cosmetics button { padding:15px; border-radius:12px; border:none; background:#111; color:#0ff; box-shadow:0 0 10px #0ff; transition:0.2s; cursor:pointer; }
+.shop button:hover, .cosmetics button:hover { transform:scale(1.05); box-shadow:0 0 20px #0ff,0 0 10px #0ff inset; background:#222; }
+.nav { display:flex; gap:10px; margin-bottom:10px; }
+.nav button { background:#111; color:#0ff; }
+.nav button:hover { background:#222; }
+.cosmetic-item { display:flex; justify-content:space-between; align-items:center; }
+.cosmetic-item span { font-size:1rem; }
 </style>
 </head>
 <body>
@@ -36,6 +41,10 @@ button:hover { background:#0cc; }
 
 <!-- Game Screen -->
 <div id="gameScreen" class="screen">
+  <div class="nav">
+    <button id="gameTab">Game</button>
+    <button id="cosmeticsTab">Cosmetics</button>
+  </div>
   <h1>Tap-to-Earn</h1>
   <div class="counter">Coins: <span id="coins">0</span></div>
   <div class="multiplier">Multiplier: <span id="multiplier">1x</span></div>
@@ -48,42 +57,80 @@ button:hover { background:#0cc; }
   <div class="alert" id="alertMsg"></div>
 </div>
 
+<!-- Cosmetics Screen -->
+<div id="cosmeticsScreen" class="screen">
+  <div class="nav">
+    <button id="gameTab2">Game</button>
+    <button id="cosmeticsTab2">Cosmetics</button>
+  </div>
+  <h1>Cosmetics</h1>
+  <div class="counter">Coins: <span id="coins2">0</span></div>
+  <div class="cosmetics">
+    <div class="cosmetic-item">
+      <span>Santa Hat</span>
+      <button data-name="santaHat" data-cost="500">Buy 500</button>
+    </div>
+    <div class="cosmetic-item">
+      <span>Neon Glow</span>
+      <button data-name="neonGlow" data-cost="800">Buy 800</button>
+    </div>
+  </div>
+  <div class="alert" id="cosmeticAlert"></div>
+</div>
+
 <script>
 let currentUser = null;
 let coins = 0;
 let multiplier = 1;
 let upgradeCosts = {2:100,5:500,10:2000};
+let cosmeticsOwned = {}; // {santaHat:true, neonGlow:false}
+let selectedCosmetic = null;
 
 // Elements
 const loginScreen = document.getElementById('loginScreen');
 const gameScreen = document.getElementById('gameScreen');
+const cosmeticsScreen = document.getElementById('cosmeticsScreen');
+
 const loginBtn = document.getElementById('loginBtn');
 const usernameInput = document.getElementById('username');
 const passwordInput = document.getElementById('password');
 const loginAlert = document.getElementById('loginAlert');
 
 const coinsEl = document.getElementById('coins');
+const coinsEl2 = document.getElementById('coins2');
 const multiplierEl = document.getElementById('multiplier');
 const tapButton = document.getElementById('tapButton');
 const alertMsg = document.getElementById('alertMsg');
+const cosmeticAlert = document.getElementById('cosmeticAlert');
 const shopButtons = document.querySelectorAll('.shop button');
+const cosmeticButtons = document.querySelectorAll('.cosmetics button');
 
 // Save/load user data
 function saveUserData() {
-  localStorage.setItem('user_' + currentUser, JSON.stringify({coins,multiplier,upgradeCosts}));
+  localStorage.setItem('user_' + currentUser, JSON.stringify({coins,multiplier,upgradeCosts,cosmeticsOwned,selectedCosmetic}));
 }
 function loadUserData() {
   const data = JSON.parse(localStorage.getItem('user_' + currentUser));
-  if(data) { coins=data.coins; multiplier=data.multiplier; upgradeCosts=data.upgradeCosts; }
-  else { coins=0; multiplier=1; upgradeCosts={2:100,5:500,10:2000}; }
+  if(data) { coins=data.coins; multiplier=data.multiplier; upgradeCosts=data.upgradeCosts; cosmeticsOwned=data.cosmeticsOwned || {}; selectedCosmetic=data.selectedCosmetic || null; }
+  else { coins=0; multiplier=1; upgradeCosts={2:100,5:500,10:2000}; cosmeticsOwned={}; selectedCosmetic=null; }
   updateUI();
 }
 
-// UI
+// UI Update
 function updateUI() {
   coinsEl.textContent = coins;
+  coinsEl2.textContent = coins;
   multiplierEl.textContent = multiplier+'x';
   shopButtons.forEach(btn => { btn.querySelector('.cost').textContent = upgradeCosts[btn.dataset.id]; });
+  applyCosmetic();
+}
+
+// Cosmetic display
+function applyCosmetic() {
+  tapButton.style.background = 'linear-gradient(145deg,#0ff,#00f)';
+  tapButton.textContent = 'TAP';
+  if(selectedCosmetic === 'santaHat') tapButton.textContent = '🎅 TAP';
+  if(selectedCosmetic === 'neonGlow') tapButton.style.boxShadow='0 0 30px #f0f,0 0 60px #0ff inset';
 }
 
 // Alerts
@@ -105,25 +152,47 @@ loginBtn.addEventListener('click',()=>{
   gameScreen.classList.add('active');
 });
 
-// Tap button (click + touchstart for mobile fast taps)
+// Tap button
 function tap() { coins += multiplier; saveUserData(); updateUI(); }
 tapButton.addEventListener('click', tap);
 tapButton.addEventListener('touchstart', (e)=>{ e.preventDefault(); tap(); });
 
-// Shop upgrades with stacking
+// Shop upgrades
 shopButtons.forEach(button=>{
   button.addEventListener('click',()=>{
     const id = button.dataset.id;
     const cost = upgradeCosts[id];
     if(coins>=cost){
       coins -= cost;
-      multiplier += parseInt(id); // Add stacking
-      upgradeCosts[id] = Math.floor(cost*2.5); // Increase cost
+      multiplier += parseInt(id);
+      upgradeCosts[id] = Math.floor(cost*2.5);
       saveUserData();
       updateUI();
     } else showAlert('Not enough coins!',alertMsg);
   });
 });
+
+// Cosmetic purchases
+cosmeticButtons.forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    const name = btn.dataset.name;
+    const cost = parseInt(btn.dataset.cost);
+    if(coins>=cost){
+      coins -= cost;
+      cosmeticsOwned[name] = true;
+      selectedCosmetic = name; // auto select
+      saveUserData();
+      updateUI();
+    } else showAlert('Not enough coins!',cosmeticAlert);
+  });
+});
+
+// Navigation between tabs
+document.getElementById('gameTab').addEventListener('click',()=>{ gameScreen.classList.add('active'); cosmeticsScreen.classList.remove('active'); });
+document.getElementById('gameTab2').addEventListener('click',()=>{ gameScreen.classList.add('active'); cosmeticsScreen.classList.remove('active'); });
+document.getElementById('cosmeticsTab').addEventListener('click',()=>{ cosmeticsScreen.classList.add('active'); gameScreen.classList.remove('active'); });
+document.getElementById('cosmeticsTab2').addEventListener('click',()=>{ cosmeticsScreen.classList.add('active'); gameScreen.classList.remove('active'); });
+
 </script>
 
 </body>
