@@ -8,12 +8,7 @@
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap');
 
-*{
-  margin:0;
-  padding:0;
-  box-sizing:border-box;
-  font-family:'Inter',sans-serif;
-}
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Inter',sans-serif;}
 
 body{
   background:#0d0d0d;
@@ -30,11 +25,10 @@ body{
   display:none;
   flex-direction:column;
   align-items:center;
-  gap:15px;
+  gap:14px;
   width:100%;
   max-width:420px;
 }
-
 .screen.active{display:flex;}
 
 h1{
@@ -50,11 +44,7 @@ input{
   background:#111;
   color:#fff;
 }
-
-input:focus{
-  outline:none;
-  box-shadow:0 0 10px #0ff;
-}
+input:focus{outline:none;box-shadow:0 0 10px #0ff;}
 
 button{
   padding:12px 20px;
@@ -66,7 +56,6 @@ button{
   cursor:pointer;
   transition:0.25s;
 }
-
 button:hover{transform:scale(1.05);}
 button:active{transform:scale(0.95);}
 
@@ -77,24 +66,14 @@ button:active{transform:scale(0.95);}
   transition:0.3s;
 }
 
-.nav{
-  display:flex;
-  gap:10px;
-}
-
+.nav{display:flex;gap:10px;}
 .nav button{
   background:#111;
   color:#0ff;
   box-shadow:0 0 10px #0ff;
 }
 
-.counter,.multiplier,.level{
-  font-size:1.1rem;
-}
-
-.tap-wrapper{
-  position:relative;
-}
+.counter,.multiplier,.level{font-size:1.1rem;}
 
 .tap-button{
   width:220px;
@@ -110,17 +89,15 @@ button:active{transform:scale(0.95);}
   transition:0.15s;
   touch-action:manipulation;
 }
-
 .tap-button:active{transform:scale(0.94);}
 
-.shop,.quests,.cosmetics,.characters,.colors{
+.shop,.colors,.characters{
   width:100%;
   display:flex;
   flex-direction:column;
   gap:10px;
 }
-
-.shop button,.cosmetics button,.characters button,.colors button{
+.shop button,.colors button,.characters button{
   background:#111;
   color:#0ff;
   box-shadow:0 0 10px #0ff;
@@ -133,31 +110,41 @@ button:active{transform:scale(0.95);}
   pointer-events:none;
   animation:coinFloat 1s forwards;
 }
-
 @keyframes coinFloat{
-  0%{transform:translate(0,0) scale(1);opacity:1;}
-  100%{transform:translate(var(--x),var(--y)) scale(0.8);opacity:0;}
+  0%{transform:translate(0,0);opacity:1;}
+  100%{transform:translate(var(--x),var(--y));opacity:0;}
 }
 
-/* RIPPLE */
-.ripple{
-  position:absolute;
-  width:20px;
-  height:20px;
-  border-radius:50%;
-  border:2px solid #0ff;
-  animation:ripple 0.6s ease-out forwards;
+/* LEVEL UP OVERLAY */
+#levelUpOverlay{
+  position:fixed;
+  inset:0;
+  background:radial-gradient(circle,#0ff,#000);
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  font-size:3rem;
+  font-weight:700;
+  color:#fff;
+  text-shadow:0 0 30px #fff;
+  opacity:0;
   pointer-events:none;
 }
-
-@keyframes ripple{
-  0%{transform:scale(0.2);opacity:0.8;}
-  100%{transform:scale(6);opacity:0;}
+#levelUpOverlay.active{
+  animation:levelFlash 1.2s ease forwards;
+}
+@keyframes levelFlash{
+  0%{opacity:0;transform:scale(0.6);}
+  20%{opacity:1;transform:scale(1.2);}
+  80%{opacity:1;transform:scale(1);}
+  100%{opacity:0;transform:scale(1.4);}
 }
 </style>
 </head>
 
 <body>
+
+<div id="levelUpOverlay">LEVEL UP!</div>
 
 <!-- LOGIN -->
 <div id="loginScreen" class="screen active">
@@ -172,7 +159,7 @@ button:active{transform:scale(0.95);}
 <div id="gameScreen" class="screen">
   <div class="nav">
     <button id="tabGame">Game</button>
-    <button id="tabCosmetics">Cosmetics</button>
+    <button id="tabCosmetics">Colors</button>
     <button id="tabCharacters">Characters</button>
   </div>
 
@@ -181,9 +168,7 @@ button:active{transform:scale(0.95);}
   <div class="multiplier">Multiplier: <span id="multiplier">1x</span></div>
   <div class="level">Level <span id="level">1</span></div>
 
-  <div class="tap-wrapper">
-    <div class="tap-button" id="tapButton">🐵</div>
-  </div>
+  <div class="tap-button" id="tapButton">🐵</div>
 
   <div class="shop">
     <button data-x="2">Upgrade +2x (100)</button>
@@ -191,18 +176,14 @@ button:active{transform:scale(0.95);}
     <button data-x="10">Upgrade +10x (2000)</button>
   </div>
 
-  <div class="quests">
-    <div id="questText">Tap 20 times</div>
-  </div>
-
   <div class="alert" id="gameAlert"></div>
 </div>
 
-<!-- COSMETICS -->
+<!-- COLORS -->
 <div id="cosmeticsScreen" class="screen">
   <div class="nav">
     <button id="tabGame2">Game</button>
-    <button id="tabCosmetics2">Cosmetics</button>
+    <button id="tabCosmetics2">Colors</button>
     <button id="tabCharacters2">Characters</button>
   </div>
 
@@ -219,13 +200,13 @@ button:active{transform:scale(0.95);}
 <div id="charactersScreen" class="screen">
   <div class="nav">
     <button id="tabGame3">Game</button>
-    <button id="tabCosmetics3">Cosmetics</button>
+    <button id="tabCosmetics3">Colors</button>
     <button id="tabCharacters3">Characters</button>
   </div>
 
   <h1>Characters</h1>
   <div class="characters">
-    <button data-char="🐵">Monkey (free)</button>
+    <button data-char="🐵">Monkey (Free)</button>
     <button data-char="🦄">Unicorn (1000)</button>
     <button data-char="👽">Alien (2000)</button>
   </div>
@@ -236,7 +217,6 @@ let user=null,coins=0,multiplier=1,level=1,xp=0;
 let ownedColors={},selectedColor=null;
 let ownedChars={"🐵":true},selectedChar="🐵";
 let upgradeCost={2:100,5:500,10:2000};
-let taps=0;
 
 const qs=id=>document.getElementById(id);
 
@@ -245,14 +225,17 @@ function save(){
     coins,multiplier,level,xp,
     ownedColors,selectedColor,
     ownedChars,selectedChar,
-    upgradeCost,taps
+    upgradeCost
   }));
 }
 
 function load(){
   const d=JSON.parse(localStorage.getItem("user_"+user));
   if(!d)return;
-  Object.assign(this,d);
+  coins=d.coins;multiplier=d.multiplier;level=d.level;xp=d.xp;
+  ownedColors=d.ownedColors||{};selectedColor=d.selectedColor;
+  ownedChars=d.ownedChars||{"🐵":true};selectedChar=d.selectedChar||"🐵";
+  upgradeCost=d.upgradeCost||upgradeCost;
 }
 
 function updateUI(){
@@ -261,13 +244,8 @@ function updateUI(){
   qs("level").textContent=level;
   qs("tapButton").textContent=selectedChar;
   if(selectedColor){
-    const map={
-      purple:["#a020f0","#8000ff"],
-      red:["#ff4040","#ff0000"],
-      green:["#40ff40","#00ff00"],
-      gold:["#ffd700","#ffb700"]
-    };
-    qs("tapButton").style.background=`linear-gradient(145deg,${map[selectedColor][0]},${map[selectedColor][1]})`;
+    const m={purple:["#a020f0","#8000ff"],red:["#ff4040","#ff0000"],green:["#40ff40","#00ff00"],gold:["#ffd700","#ffb700"]};
+    qs("tapButton").style.background=`linear-gradient(145deg,${m[selectedColor][0]},${m[selectedColor][1]})`;
   }
 }
 
@@ -283,56 +261,43 @@ qs("loginBtn").onclick=()=>{
   const p=qs("password").value.trim();
   if(!u||!p)return alertMsg("Fill fields",qs("loginAlert"));
   const pass=localStorage.getItem("pass_"+u);
-  if(!pass) localStorage.setItem("pass_"+u,p);
-  else if(pass!==p) return alertMsg("Wrong password",qs("loginAlert"));
-  user=u;
-  load();
+  if(!pass)localStorage.setItem("pass_"+u,p);
+  else if(pass!==p)return alertMsg("Wrong password",qs("loginAlert"));
+  user=u;load();
   qs("loginScreen").classList.remove("active");
   qs("gameScreen").classList.add("active");
   updateUI();
 };
 
-/* TAP EFFECTS */
-function spawnCoin(x,y){
-  const c=document.createElement("div");
-  c.className="coin";
-  c.textContent="🪙";
-  c.style.left=x+"px";
-  c.style.top=y+"px";
-  c.style.setProperty("--x",(Math.random()*120-60)+"px");
-  c.style.setProperty("--y",(Math.random()*-120)+"px");
-  document.body.appendChild(c);
-  setTimeout(()=>c.remove(),1000);
-}
-
-function spawnRipple(x,y){
-  const r=document.createElement("div");
-  r.className="ripple";
-  r.style.left=x+"px";
-  r.style.top=y+"px";
-  document.body.appendChild(r);
-  setTimeout(()=>r.remove(),600);
-}
-
+/* TAP */
 qs("tapButton").onclick=e=>{
   coins+=multiplier;
   xp+=multiplier;
-  taps++;
-  if(xp>=level*100){xp=0;level++;multiplier++;}
+  if(xp>=level*100){
+    xp=0;level++;multiplier++;
+    qs("levelUpOverlay").classList.add("active");
+    setTimeout(()=>qs("levelUpOverlay").classList.remove("active"),1200);
+  }
   const rect=e.target.getBoundingClientRect();
-  const cx=rect.left+rect.width/2;
-  const cy=rect.top+rect.height/2;
-  spawnRipple(cx-10,cy-10);
-  for(let i=0;i<multiplier;i++) spawnCoin(cx,cy);
-  save();
-  updateUI();
+  for(let i=0;i<multiplier;i++){
+    const c=document.createElement("div");
+    c.className="coin";
+    c.textContent="🪙";
+    c.style.left=rect.left+rect.width/2+"px";
+    c.style.top=rect.top+rect.height/2+"px";
+    c.style.setProperty("--x",(Math.random()*120-60)+"px");
+    c.style.setProperty("--y",(Math.random()*-120)+"px");
+    document.body.appendChild(c);
+    setTimeout(()=>c.remove(),1000);
+  }
+  save();updateUI();
 };
 
 /* UPGRADES */
 document.querySelectorAll(".shop button").forEach(b=>{
   b.onclick=()=>{
     const x=+b.dataset.x;
-    if(coins<upgradeCost[x]) return alertMsg("Not enough coins",qs("gameAlert"));
+    if(coins<upgradeCost[x])return alertMsg("Not enough coins",qs("gameAlert"));
     coins-=upgradeCost[x];
     multiplier+=x;
     upgradeCost[x]=Math.floor(upgradeCost[x]*2.3);
@@ -345,10 +310,9 @@ document.querySelectorAll(".colors button").forEach(b=>{
   b.onclick=()=>{
     const c=b.dataset.color;
     const cost=c==="gold"?1000:500;
-    if(!ownedColors[c] && coins<cost) return;
+    if(!ownedColors[c]&&coins<cost)return;
     if(!ownedColors[c]){coins-=cost;ownedColors[c]=true;}
-    selectedColor=c;
-    save();updateUI();
+    selectedColor=c;save();updateUI();
   };
 });
 
@@ -357,10 +321,9 @@ document.querySelectorAll(".characters button").forEach(b=>{
   b.onclick=()=>{
     const c=b.dataset.char;
     const cost=c==="🦄"?1000:c==="👽"?2000:0;
-    if(!ownedChars[c] && coins<cost) return;
+    if(!ownedChars[c]&&coins<cost)return;
     if(!ownedChars[c]){coins-=cost;ownedChars[c]=true;}
-    selectedChar=c;
-    save();updateUI();
+    selectedChar=c;save();updateUI();
   };
 });
 
@@ -369,7 +332,6 @@ function show(s){
   ["gameScreen","cosmeticsScreen","charactersScreen"].forEach(x=>qs(x).classList.remove("active"));
   qs(s).classList.add("active");
 }
-
 qs("tabGame").onclick=()=>show("gameScreen");
 qs("tabGame2").onclick=()=>show("gameScreen");
 qs("tabGame3").onclick=()=>show("gameScreen");
