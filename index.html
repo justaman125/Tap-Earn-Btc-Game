@@ -17,7 +17,7 @@ button { padding:10px 20px; border:none; border-radius:8px; background:#0ff; col
 button:hover { background:#0cc; transform:scale(1.05); }
 .alert { color:#f0f; font-size:0.9rem; text-align:center; opacity:0; transition:opacity 0.3s, transform 0.2s; }
 .counter, .multiplier, #levelDisplay { font-size:1.3rem; text-shadow:0 0 5px #0ff,0 0 10px #0ff; transition:0.3s; }
-.tap-button { width:200px; height:200px; border-radius:50%; border:none; background:linear-gradient(145deg,#0ff,#00f); box-shadow:0 0 20px #0ff,0 0 40px #0ff inset; font-size:3rem; cursor:pointer; transition:0.2s, transform 0.1s; display:flex; justify-content:center; align-items:center; position:relative; }
+.tap-button { width:200px; height:200px; border-radius:50%; border:none; background:linear-gradient(145deg,#0ff,#00f); box-shadow:0 0 20px #0ff,0 0 40px #0ff inset; font-size:3rem; cursor:pointer; transition:0.2s, transform 0.1s; display:flex; justify-content:center; align-items:center; position:relative; touch-action: manipulation; }
 .tap-button:active { transform:scale(0.95); box-shadow:0 0 40px #0ff inset,0 0 20px #0ff; }
 .shop, .cosmetics, .character-shop, .button-colors, .quests { display:flex; flex-direction:column; gap:10px; width:100%; max-width:300px; }
 .shop button, .cosmetics button, .character-shop button, .button-colors button { padding:15px; border-radius:12px; border:none; background:#111; color:#0ff; box-shadow:0 0 10px #0ff; transition:0.2s, transform 0.2s; cursor:pointer; }
@@ -117,7 +117,6 @@ button:hover { background:#0cc; transform:scale(1.05); }
 <script>
 let currentUser=null,coins=0,multiplier=1,upgradeCosts={2:100,5:500,10:2000},cosmeticsOwned={},selectedCosmetic=null,selectedCharacter='🐵',charactersOwned={'🐵':true},colorsOwned={},selectedColor=null,xp=0,level=1,nextLevelXP=100,quests=[{desc:'Tap 10 times',type:'tap',target:10,reward:50,progress:0},{desc:'Earn 100 coins',type:'coins',target:100,reward:100,progress:0},{desc:'Buy an upgrade',type:'upgrade',target:1,reward:200,progress:0}],currentQuestIndex=0;
 
-// Elements
 const loginScreen=document.getElementById('loginScreen'),gameScreen=document.getElementById('gameScreen'),cosmeticsScreen=document.getElementById('cosmeticsScreen'),charactersScreen=document.getElementById('charactersScreen');
 const usernameInput=document.getElementById('username'),passwordInput=document.getElementById('password'),loginBtn=document.getElementById('loginBtn'),loginAlert=document.getElementById('loginAlert');
 const coinsEl=document.getElementById('coins'),coinsEl2=document.getElementById('coins2'),coinsEl3=document.getElementById('coins3'),multiplierEl=document.getElementById('multiplier'),tapButton=document.getElementById('tapButton'),alertMsg=document.getElementById('alertMsg'),cosmeticAlert=document.getElementById('cosmeticAlert'),characterAlert=document.getElementById('characterAlert'),shopButtons=document.querySelectorAll('.shop button'),cosmeticButtons=document.querySelectorAll('.cosmetics button'),characterButtons=document.querySelectorAll('.character-shop button'),colorButtons=document.querySelectorAll('.button-colors button'),questDisplay=document.getElementById('questDisplay'),levelDisplay=document.getElementById('levelDisplay');
@@ -148,12 +147,30 @@ function checkQuest(action){ const q=quests[currentQuestIndex]; if(!q) return; i
 
 function checkLevelUp(){ while(xp>=nextLevelXP){ xp-=nextLevelXP; level++; nextLevelXP=Math.floor(level*100); showAlert(`Level Up! Now Level ${level}`,alertMsg); multiplier++; levelDisplay.style.animation='flash 0.5s'; setTimeout(()=>{levelDisplay.style.animation='';},500); } }
 
-loginBtn.addEventListener('click',()=>{ const username=usernameInput.value.trim(),password=passwordInput.value.trim(); if(!username||!password){ showAlert('Enter username & password',loginAlert); return; } const storedPass=localStorage.getItem('pass_'+username); if(!storedPass) localStorage.setItem('pass_'+username,password); else if(storedPass!==password){ showAlert('Wrong password',loginAlert); return; } currentUser=username; loadUserData(); loginScreen.classList.remove('active'); gameScreen.classList.add('active'); });
+loginBtn.addEventListener('click', () => {
+  const username = usernameInput.value.trim();
+  const password = passwordInput.value.trim();
+
+  if(!username || !password){ showAlert('Enter username & password', loginAlert); return; }
+
+  const storedPass = localStorage.getItem('pass_'+username);
+  if(!storedPass) localStorage.setItem('pass_'+username,password);
+  else if(storedPass !== password){ showAlert('Wrong password', loginAlert); return; }
+
+  currentUser = username;
+  loadUserData();
+
+  loginScreen.classList.remove('active');
+  gameScreen.classList.add('active');
+
+  usernameInput.value=''; passwordInput.value='';
+});
 
 function spawnCoin(x,y){ const coin=document.createElement('div'); coin.className='coin'; coin.textContent='🪙'; coin.style.left=`${x}px`; coin.style.top=`${y}px`; document.body.appendChild(coin); setTimeout(()=>coin.remove(),1000); }
 
-function tap(e){ coins+=multiplier; xp+=multiplier; checkLevelUp(); tapButton.style.animation='pulse 0.2s'; setTimeout(()=>{tapButton.style.animation='';},200); checkQuest('tap'); checkQuest('coins'); saveUserData(); updateUI(); // spawn coins let rect=tapButton.getBoundingClientRect(); let clickX=rect.left+rect.width/2-10; let clickY=rect.top+rect.height/2-10; for(let i=0;i<multiplier;i++){ spawnCoin(clickX+(Math.random()*40-20),clickY+(Math.random()*40-20)); } }
-tapButton.addEventListener('click',tap); tapButton.addEventListener('touchstart',e=>{ e.preventDefault(); tap(); });
+function tap(e){ coins+=multiplier; xp+=multiplier; checkLevelUp(); tapButton.style.animation='pulse 0.2s'; setTimeout(()=>{tapButton.style.animation='';},200); checkQuest('tap'); checkQuest('coins'); saveUserData(); updateUI(); let rect=tapButton.getBoundingClientRect(); let clickX=rect.left+rect.width/2-10; let clickY=rect.top+rect.height/2-10; for(let i=0;i<multiplier;i++){ spawnCoin(clickX+(Math.random()*40-20),clickY+(Math.random()*40-20)); } }
+tapButton.addEventListener('click',tap);
+tapButton.addEventListener('touchstart',e=>{ e.preventDefault(); tap(); });
 
 shopButtons.forEach(button=>{ button.addEventListener('click',()=>{ const id=button.dataset.id,cost=upgradeCosts[id]; if(coins>=cost){ coins-=cost; multiplier+=parseInt(id); upgradeCosts[id]=Math.floor(cost*2.5); multiplierEl.style.animation='flash 0.3s'; setTimeout(()=>{multiplierEl.style.animation='';},300); checkQuest('upgrade'); xp+=20; checkLevelUp(); saveUserData(); updateUI(); } else showAlert('Not enough coins!',alertMsg); }); });
 
