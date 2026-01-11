@@ -7,7 +7,6 @@
 
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap');
-
 *{margin:0;padding:0;box-sizing:border-box;font-family:'Inter',sans-serif;}
 
 body{
@@ -27,7 +26,7 @@ body{
   gap:14px;
   width:100%;
   max-width:420px;
-  animation:fadeIn 0.25s ease;
+  animation:fadeIn .25s ease;
 }
 .screen.active{display:flex;}
 
@@ -36,131 +35,49 @@ body{
   to{opacity:1;transform:translateX(0);}
 }
 
-h1{
-  color:#0ff;
-  text-shadow:0 0 12px #0ff;
-}
-
-input{
-  width:220px;
-  padding:12px;
-  border-radius:10px;
-  border:none;
-  background:#111;
-  color:#fff;
-}
-input:focus{outline:none;box-shadow:0 0 10px #0ff;}
+h1{color:#0ff;text-shadow:0 0 12px #0ff;}
 
 button{
   padding:12px 20px;
   border:none;
   border-radius:12px;
   background:#0ff;
-  color:#000;
   font-weight:700;
   cursor:pointer;
-  transition:0.25s;
 }
-button:hover{transform:scale(1.05);}
-button:active{transform:scale(0.95);}
-
-.alert{
-  font-size:0.9rem;
-  color:#f0f;
-  opacity:0;
-  transition:0.3s;
-}
-
-.nav{
-  display:flex;
-  gap:10px;
-  flex-wrap:wrap;
-}
-.nav button{
-  background:#111;
-  color:#0ff;
-  box-shadow:0 0 10px #0ff;
-}
-
-.counter,.multiplier,.level{font-size:1.1rem;}
+.nav{display:flex;gap:10px;flex-wrap:wrap;}
+.nav button{background:#111;color:#0ff;box-shadow:0 0 10px #0ff;}
 
 .tap-button{
-  width:220px;
-  height:220px;
-  border-radius:50%;
+  width:220px;height:220px;border-radius:50%;
   font-size:3.5rem;
   background:linear-gradient(145deg,#0ff,#0055ff);
   box-shadow:0 0 25px #0ff,0 0 60px #0ff inset;
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  cursor:pointer;
-  transition:0.15s;
-  touch-action:manipulation;
+  display:flex;justify-content:center;align-items:center;
 }
-.tap-button:active{transform:scale(0.94);}
+.tap-button:active{transform:scale(.94);}
 
-.shop,.colors,.characters,.leaderboard{
-  width:100%;
-  display:flex;
-  flex-direction:column;
-  gap:10px;
-}
-
-.shop button,.colors button,.characters button{
-  background:#111;
-  color:#0ff;
-  box-shadow:0 0 10px #0ff;
-}
-
-/* COIN FLOAT */
 .coin{
   position:absolute;
-  font-size:1.5rem;
   pointer-events:none;
   animation:coinFloat 1s forwards;
 }
 @keyframes coinFloat{
-  0%{transform:translate(0,0);opacity:1;}
-  100%{transform:translate(var(--x),var(--y));opacity:0;}
+  to{transform:translate(var(--x),var(--y));opacity:0;}
 }
 
-/* LEVEL UP */
 #levelUpOverlay{
-  position:fixed;
-  inset:0;
+  position:fixed;inset:0;
   background:radial-gradient(circle,#0ff,#000);
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  font-size:3rem;
-  font-weight:700;
-  color:#fff;
-  text-shadow:0 0 30px #fff;
-  opacity:0;
-  pointer-events:none;
+  display:flex;justify-content:center;align-items:center;
+  font-size:3rem;font-weight:700;
+  opacity:0;pointer-events:none;
 }
-#levelUpOverlay.active{
-  animation:levelFlash 1.2s ease forwards;
-}
-@keyframes levelFlash{
-  0%{opacity:0;transform:scale(0.6);}
+#levelUpOverlay.active{animation:flash 1.2s ease forwards;}
+@keyframes flash{
+  0%{opacity:0;transform:scale(.6);}
   20%{opacity:1;transform:scale(1.2);}
-  80%{opacity:1;transform:scale(1);}
   100%{opacity:0;transform:scale(1.4);}
-}
-
-/* LEADERBOARD */
-.leaderboard-item{
-  background:#111;
-  border-radius:10px;
-  padding:10px;
-  display:flex;
-  justify-content:space-between;
-  box-shadow:0 0 10px #0ff;
-}
-.leaderboard-item.me{
-  border:2px solid #0ff;
 }
 </style>
 </head>
@@ -170,9 +87,8 @@ button:active{transform:scale(0.95);}
 <div id="levelUpOverlay">LEVEL UP!</div>
 
 <div id="loginScreen" class="screen active">
-  <h1>Login / Sign Up</h1>
+  <h1>Login</h1>
   <input id="username" placeholder="Username">
-  <input id="password" type="password" placeholder="Password">
   <button id="loginBtn">Enter</button>
 </div>
 
@@ -185,95 +101,99 @@ button:active{transform:scale(0.95);}
   </div>
 
   <h1>Tap-to-Earn</h1>
-  <div class="counter">Coins: <span id="coins">0</span></div>
-  <div class="multiplier">Multiplier: <span id="multiplier">1x</span></div>
-  <div class="level">Level <span id="level">1</span></div>
+  <div>Coins: <span id="coins">0</span></div>
+  <div>Multiplier: <span id="multiplier">1x</span></div>
+  <div>Level: <span id="level">1</span></div>
 
   <div class="tap-button" id="tapButton">🐵</div>
-
-  <div class="shop">
-    <button data-x="2">Upgrade +2x (100)</button>
-    <button data-x="5">Upgrade +5x (500)</button>
-    <button data-x="10">Upgrade +10x (2000)</button>
-  </div>
 </div>
 
-<div id="colorsScreen" class="screen">
-  <h1>Button Colors</h1>
-  <div class="colors">
-    <button data-color="purple">Purple (500)</button>
-    <button data-color="red">Red (500)</button>
-    <button data-color="green">Green (500)</button>
-    <button data-color="gold">Gold (1000)</button>
-  </div>
-</div>
-
-<div id="charsScreen" class="screen">
-  <h1>Characters</h1>
-  <div class="characters">
-    <button data-char="🐵">Monkey (Free)</button>
-    <button data-char="🦄">Unicorn (1000)</button>
-    <button data-char="👽">Alien (2000)</button>
-  </div>
-</div>
-
-<div id="leaderboardScreen" class="screen">
-  <h1>🏆 Leaderboard</h1>
-  <div class="leaderboard" id="leaderboardList"></div>
-</div>
+<div id="colorsScreen" class="screen"><h1>Colors</h1></div>
+<div id="charsScreen" class="screen"><h1>Characters</h1></div>
+<div id="leaderboardScreen" class="screen"><h1>Leaderboard</h1></div>
 
 <script>
-let user=null,coins=0,multiplier=1,level=1,xp=0;
-let ownedChars={"🐵":true},selectedChar="🐵";
+let user=null;
+let coins=0,multiplier=1,level=1,xp=0;
 let screenHistory=["gameScreen"];
 let startX=0;
 
 const qs=id=>document.getElementById(id);
 
+/* ===== LOCAL STORAGE ===== */
+function save(){
+  localStorage.setItem("save_"+user,JSON.stringify({
+    coins,multiplier,level,xp
+  }));
+}
+function load(){
+  const d=JSON.parse(localStorage.getItem("save_"+user));
+  if(!d)return;
+  coins=d.coins;
+  multiplier=d.multiplier;
+  level=d.level;
+  xp=d.xp;
+}
+function updateUI(){
+  qs("coins").textContent=coins;
+  qs("multiplier").textContent=multiplier+"x";
+  qs("level").textContent=level;
+}
+
+/* ===== NAV + SWIPE BACK ===== */
 function show(id){
   document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));
   qs(id).classList.add("active");
-  if(screenHistory[screenHistory.length-1]!==id){
-    screenHistory.push(id);
-  }
+  if(screenHistory.at(-1)!==id)screenHistory.push(id);
 }
-
-document.addEventListener("touchstart",e=>{
-  startX=e.touches[0].clientX;
-});
-
+document.addEventListener("touchstart",e=>startX=e.touches[0].clientX);
 document.addEventListener("touchend",e=>{
-  let dx=e.changedTouches[0].clientX-startX;
-  if(dx>80 && screenHistory.length>1){
+  if(e.changedTouches[0].clientX-startX>80 && screenHistory.length>1){
     screenHistory.pop();
-    show(screenHistory[screenHistory.length-1]);
+    show(screenHistory.at(-1));
   }
 });
 
-qs("tabGame").onclick=()=>show("gameScreen");
-qs("tabColors").onclick=()=>show("colorsScreen");
-qs("tabChars").onclick=()=>show("charsScreen");
-qs("tabLeaderboard").onclick=()=>show("leaderboardScreen");
-
+/* ===== LOGIN ===== */
 qs("loginBtn").onclick=()=>{
   user=qs("username").value.trim();
   if(!user)return;
+  load();
+  updateUI();
   qs("loginScreen").classList.remove("active");
   show("gameScreen");
 };
 
+/* ===== TAPPING ===== */
 qs("tapButton").onclick=e=>{
   coins+=multiplier;
   xp+=multiplier;
+
   if(xp>=level*100){
     xp=0;level++;multiplier++;
     qs("levelUpOverlay").classList.add("active");
     setTimeout(()=>qs("levelUpOverlay").classList.remove("active"),1200);
   }
-  qs("coins").textContent=coins;
-  qs("multiplier").textContent=multiplier+"x";
-  qs("level").textContent=level;
+
+  const r=e.target.getBoundingClientRect();
+  const c=document.createElement("div");
+  c.className="coin";c.textContent="🪙";
+  c.style.left=r.left+r.width/2+"px";
+  c.style.top=r.top+r.height/2+"px";
+  c.style.setProperty("--x",(Math.random()*120-60)+"px");
+  c.style.setProperty("--y",(Math.random()*-120)+"px");
+  document.body.appendChild(c);
+  setTimeout(()=>c.remove(),1000);
+
+  save();
+  updateUI();
 };
+
+/* NAV BUTTONS */
+tabGame.onclick=()=>show("gameScreen");
+tabColors.onclick=()=>show("colorsScreen");
+tabChars.onclick=()=>show("charsScreen");
+tabLeaderboard.onclick=()=>show("leaderboardScreen");
 </script>
 
 </body>
