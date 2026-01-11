@@ -7,6 +7,7 @@
 
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap');
+
 *{margin:0;padding:0;box-sizing:border-box;font-family:'Inter',sans-serif;}
 
 body{
@@ -26,7 +27,7 @@ body{
   gap:14px;
   width:100%;
   max-width:420px;
-  animation:fadeIn .25s ease;
+  animation:fadeIn 0.25s ease;
 }
 .screen.active{display:flex;}
 
@@ -35,60 +36,67 @@ body{
   to{opacity:1;transform:translateX(0);}
 }
 
-h1{color:#0ff;text-shadow:0 0 12px #0ff;}
+h1{
+  color:#0ff;
+  text-shadow:0 0 12px #0ff;
+}
+
+input{
+  width:220px;
+  padding:12px;
+  border-radius:10px;
+  border:none;
+  background:#111;
+  color:#fff;
+}
+input:focus{outline:none;box-shadow:0 0 10px #0ff;}
 
 button{
   padding:12px 20px;
   border:none;
   border-radius:12px;
   background:#0ff;
+  color:#000;
   font-weight:700;
   cursor:pointer;
+  transition:0.25s;
 }
-.nav{display:flex;gap:10px;flex-wrap:wrap;}
-.nav button{background:#111;color:#0ff;box-shadow:0 0 10px #0ff;}
+button:active{transform:scale(0.95);}
+
+.nav{
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+}
+.nav button{
+  background:#111;
+  color:#0ff;
+  box-shadow:0 0 10px #0ff;
+}
 
 .tap-button{
-  width:220px;height:220px;border-radius:50%;
+  width:220px;
+  height:220px;
+  border-radius:50%;
   font-size:3.5rem;
   background:linear-gradient(145deg,#0ff,#0055ff);
   box-shadow:0 0 25px #0ff,0 0 60px #0ff inset;
-  display:flex;justify-content:center;align-items:center;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  cursor:pointer;
+  touch-action:manipulation;
 }
-.tap-button:active{transform:scale(.94);}
-
-.coin{
-  position:absolute;
-  pointer-events:none;
-  animation:coinFloat 1s forwards;
-}
-@keyframes coinFloat{
-  to{transform:translate(var(--x),var(--y));opacity:0;}
-}
-
-#levelUpOverlay{
-  position:fixed;inset:0;
-  background:radial-gradient(circle,#0ff,#000);
-  display:flex;justify-content:center;align-items:center;
-  font-size:3rem;font-weight:700;
-  opacity:0;pointer-events:none;
-}
-#levelUpOverlay.active{animation:flash 1.2s ease forwards;}
-@keyframes flash{
-  0%{opacity:0;transform:scale(.6);}
-  20%{opacity:1;transform:scale(1.2);}
-  100%{opacity:0;transform:scale(1.4);}
-}
+.tap-button:active{transform:scale(0.94);}
 </style>
 </head>
 
 <body>
 
-<div id="levelUpOverlay">LEVEL UP!</div>
-
 <div id="loginScreen" class="screen active">
-  <h1>Login</h1>
+  <h1>Login / Sign Up</h1>
   <input id="username" placeholder="Username">
+  <input id="password" type="password" placeholder="Password">
   <button id="loginBtn">Enter</button>
 </div>
 
@@ -103,97 +111,95 @@ button{
   <h1>Tap-to-Earn</h1>
   <div>Coins: <span id="coins">0</span></div>
   <div>Multiplier: <span id="multiplier">1x</span></div>
-  <div>Level: <span id="level">1</span></div>
+  <div>Level <span id="level">1</span></div>
 
   <div class="tap-button" id="tapButton">🐵</div>
 </div>
 
-<div id="colorsScreen" class="screen"><h1>Colors</h1></div>
-<div id="charsScreen" class="screen"><h1>Characters</h1></div>
-<div id="leaderboardScreen" class="screen"><h1>Leaderboard</h1></div>
-
 <script>
 let user=null;
-let coins=0,multiplier=1,level=1,xp=0;
+let coins=0, multiplier=1, level=1, xp=0;
 let screenHistory=["gameScreen"];
 let startX=0;
 
 const qs=id=>document.getElementById(id);
 
-/* ===== LOCAL STORAGE ===== */
+/* ===== SAVE / LOAD (FIXED) ===== */
 function save(){
-  localStorage.setItem("save_"+user,JSON.stringify({
-    coins,multiplier,level,xp
+  if(!user) return;
+  localStorage.setItem("user_"+user, JSON.stringify({
+    coins, multiplier, level, xp
   }));
 }
+
 function load(){
-  const d=JSON.parse(localStorage.getItem("save_"+user));
-  if(!d)return;
-  coins=d.coins;
-  multiplier=d.multiplier;
-  level=d.level;
-  xp=d.xp;
-}
-function updateUI(){
-  qs("coins").textContent=coins;
-  qs("multiplier").textContent=multiplier+"x";
-  qs("level").textContent=level;
+  const data = JSON.parse(localStorage.getItem("user_"+user));
+  if(!data) return;
+  coins = data.coins ?? 0;
+  multiplier = data.multiplier ?? 1;
+  level = data.level ?? 1;
+  xp = data.xp ?? 0;
 }
 
-/* ===== NAV + SWIPE BACK ===== */
+/* ===== UI ===== */
+function updateUI(){
+  qs("coins").textContent = coins;
+  qs("multiplier").textContent = multiplier+"x";
+  qs("level").textContent = level;
+}
+
+/* ===== NAV ===== */
 function show(id){
   document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));
   qs(id).classList.add("active");
-  if(screenHistory.at(-1)!==id)screenHistory.push(id);
+  if(screenHistory[screenHistory.length-1]!==id){
+    screenHistory.push(id);
+  }
 }
-document.addEventListener("touchstart",e=>startX=e.touches[0].clientX);
+
+/* ===== SWIPE BACK ===== */
+document.addEventListener("touchstart",e=>{
+  startX = e.touches[0].clientX;
+});
 document.addEventListener("touchend",e=>{
-  if(e.changedTouches[0].clientX-startX>80 && screenHistory.length>1){
+  if(e.changedTouches[0].clientX - startX > 80 && screenHistory.length>1){
     screenHistory.pop();
-    show(screenHistory.at(-1));
+    show(screenHistory[screenHistory.length-1]);
   }
 });
 
 /* ===== LOGIN ===== */
 qs("loginBtn").onclick=()=>{
-  user=qs("username").value.trim();
-  if(!user)return;
+  const u = qs("username").value.trim();
+  const p = qs("password").value.trim();
+  if(!u || !p) return;
+
+  const pass = localStorage.getItem("pass_"+u);
+  if(!pass) localStorage.setItem("pass_"+u,p);
+  else if(pass!==p) return;
+
+  user = u;
   load();
   updateUI();
+
   qs("loginScreen").classList.remove("active");
   show("gameScreen");
 };
 
-/* ===== TAPPING ===== */
-qs("tapButton").onclick=e=>{
-  coins+=multiplier;
-  xp+=multiplier;
+/* ===== TAP ===== */
+qs("tapButton").onclick=()=>{
+  coins += multiplier;
+  xp += multiplier;
 
-  if(xp>=level*100){
-    xp=0;level++;multiplier++;
-    qs("levelUpOverlay").classList.add("active");
-    setTimeout(()=>qs("levelUpOverlay").classList.remove("active"),1200);
+  if(xp >= level*100){
+    xp = 0;
+    level++;
+    multiplier++;
   }
 
-  const r=e.target.getBoundingClientRect();
-  const c=document.createElement("div");
-  c.className="coin";c.textContent="🪙";
-  c.style.left=r.left+r.width/2+"px";
-  c.style.top=r.top+r.height/2+"px";
-  c.style.setProperty("--x",(Math.random()*120-60)+"px");
-  c.style.setProperty("--y",(Math.random()*-120)+"px");
-  document.body.appendChild(c);
-  setTimeout(()=>c.remove(),1000);
-
-  save();
   updateUI();
+  save();
 };
-
-/* NAV BUTTONS */
-tabGame.onclick=()=>show("gameScreen");
-tabColors.onclick=()=>show("colorsScreen");
-tabChars.onclick=()=>show("charsScreen");
-tabLeaderboard.onclick=()=>show("leaderboardScreen");
 </script>
 
 </body>
