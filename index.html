@@ -16,7 +16,6 @@ body{
   min-height:100vh;
   display:flex;
   justify-content:center;
-  align-items:flex-start;
   padding:20px;
   overflow:hidden;
 }
@@ -66,7 +65,11 @@ button:active{transform:scale(0.95);}
   transition:0.3s;
 }
 
-.nav{display:flex;gap:10px;}
+.nav{
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+}
 .nav button{
   background:#111;
   color:#0ff;
@@ -91,12 +94,13 @@ button:active{transform:scale(0.95);}
 }
 .tap-button:active{transform:scale(0.94);}
 
-.shop,.colors,.characters{
+.shop,.colors,.characters,.leaderboard{
   width:100%;
   display:flex;
   flex-direction:column;
   gap:10px;
 }
+
 .shop button,.colors button,.characters button{
   background:#111;
   color:#0ff;
@@ -139,6 +143,19 @@ button:active{transform:scale(0.95);}
   80%{opacity:1;transform:scale(1);}
   100%{opacity:0;transform:scale(1.4);}
 }
+
+/* LEADERBOARD */
+.leaderboard-item{
+  background:#111;
+  border-radius:10px;
+  padding:10px;
+  display:flex;
+  justify-content:space-between;
+  box-shadow:0 0 10px #0ff;
+}
+.leaderboard-item.me{
+  border:2px solid #0ff;
+}
 </style>
 </head>
 
@@ -159,8 +176,9 @@ button:active{transform:scale(0.95);}
 <div id="gameScreen" class="screen">
   <div class="nav">
     <button id="tabGame">Game</button>
-    <button id="tabCosmetics">Colors</button>
-    <button id="tabCharacters">Characters</button>
+    <button id="tabColors">Colors</button>
+    <button id="tabChars">Characters</button>
+    <button id="tabLeaderboard">Leaderboard</button>
   </div>
 
   <h1>Tap-to-Earn</h1>
@@ -180,13 +198,7 @@ button:active{transform:scale(0.95);}
 </div>
 
 <!-- COLORS -->
-<div id="cosmeticsScreen" class="screen">
-  <div class="nav">
-    <button id="tabGame2">Game</button>
-    <button id="tabCosmetics2">Colors</button>
-    <button id="tabCharacters2">Characters</button>
-  </div>
-
+<div id="colorsScreen" class="screen">
   <h1>Button Colors</h1>
   <div class="colors">
     <button data-color="purple">Purple (500)</button>
@@ -197,19 +209,19 @@ button:active{transform:scale(0.95);}
 </div>
 
 <!-- CHARACTERS -->
-<div id="charactersScreen" class="screen">
-  <div class="nav">
-    <button id="tabGame3">Game</button>
-    <button id="tabCosmetics3">Colors</button>
-    <button id="tabCharacters3">Characters</button>
-  </div>
-
+<div id="charsScreen" class="screen">
   <h1>Characters</h1>
   <div class="characters">
     <button data-char="🐵">Monkey (Free)</button>
     <button data-char="🦄">Unicorn (1000)</button>
     <button data-char="👽">Alien (2000)</button>
   </div>
+</div>
+
+<!-- LEADERBOARD -->
+<div id="leaderboardScreen" class="screen">
+  <h1>🏆 Leaderboard</h1>
+  <div class="leaderboard" id="leaderboardList"></div>
 </div>
 
 <script>
@@ -227,6 +239,11 @@ function save(){
     ownedChars,selectedChar,
     upgradeCost
   }));
+
+  // leaderboard data
+  let lb=JSON.parse(localStorage.getItem("leaderboard")||"{}");
+  lb[user]={username:user,coins,level};
+  localStorage.setItem("leaderboard",JSON.stringify(lb));
 }
 
 function load(){
@@ -243,30 +260,35 @@ function updateUI(){
   qs("multiplier").textContent=multiplier+"x";
   qs("level").textContent=level;
   qs("tapButton").textContent=selectedChar;
-  if(selectedColor){
-    const m={purple:["#a020f0","#8000ff"],red:["#ff4040","#ff0000"],green:["#40ff40","#00ff00"],gold:["#ffd700","#ffb700"]};
-    qs("tapButton").style.background=`linear-gradient(145deg,${m[selectedColor][0]},${m[selectedColor][1]})`;
-  }
 }
 
-function alertMsg(msg,el){
-  el.textContent=msg;
-  el.style.opacity=1;
-  setTimeout(()=>el.style.opacity=0,1000);
+function updateLeaderboard(){
+  const lb=JSON.parse(localStorage.getItem("leaderboard")||"{}");
+  const list=Object.values(lb)
+    .sort((a,b)=>b.level-a.level || b.coins-a.coins)
+    .slice(0,10);
+
+  qs("leaderboardList").innerHTML="";
+  list.forEach((p,i)=>{
+    const div=document.createElement("div");
+    div.className="leaderboard-item"+(p.username===user?" me":"");
+    div.innerHTML=`<span>#${i+1} ${p.username}</span><span>Lvl ${p.level} • ${p.coins}🪙</span>`;
+    qs("leaderboardList").appendChild(div);
+  });
 }
 
 /* LOGIN */
 qs("loginBtn").onclick=()=>{
   const u=qs("username").value.trim();
   const p=qs("password").value.trim();
-  if(!u||!p)return alertMsg("Fill fields",qs("loginAlert"));
+  if(!u||!p)return;
   const pass=localStorage.getItem("pass_"+u);
   if(!pass)localStorage.setItem("pass_"+u,p);
-  else if(pass!==p)return alertMsg("Wrong password",qs("loginAlert"));
-  user=u;load();
+  else if(pass!==p)return;
+  user=u;load();save();
   qs("loginScreen").classList.remove("active");
   qs("gameScreen").classList.add("active");
-  updateUI();
+  updateUI();updateLeaderboard();
 };
 
 /* TAP */
@@ -278,30 +300,29 @@ qs("tapButton").onclick=e=>{
     qs("levelUpOverlay").classList.add("active");
     setTimeout(()=>qs("levelUpOverlay").classList.remove("active"),1200);
   }
-  const rect=e.target.getBoundingClientRect();
+  const r=e.target.getBoundingClientRect();
   for(let i=0;i<multiplier;i++){
     const c=document.createElement("div");
-    c.className="coin";
-    c.textContent="🪙";
-    c.style.left=rect.left+rect.width/2+"px";
-    c.style.top=rect.top+rect.height/2+"px";
+    c.className="coin";c.textContent="🪙";
+    c.style.left=r.left+r.width/2+"px";
+    c.style.top=r.top+r.height/2+"px";
     c.style.setProperty("--x",(Math.random()*120-60)+"px");
     c.style.setProperty("--y",(Math.random()*-120)+"px");
     document.body.appendChild(c);
     setTimeout(()=>c.remove(),1000);
   }
-  save();updateUI();
+  save();updateUI();updateLeaderboard();
 };
 
 /* UPGRADES */
 document.querySelectorAll(".shop button").forEach(b=>{
   b.onclick=()=>{
     const x=+b.dataset.x;
-    if(coins<upgradeCost[x])return alertMsg("Not enough coins",qs("gameAlert"));
+    if(coins<upgradeCost[x])return;
     coins-=upgradeCost[x];
     multiplier+=x;
     upgradeCost[x]=Math.floor(upgradeCost[x]*2.3);
-    save();updateUI();
+    save();updateUI();updateLeaderboard();
   };
 });
 
@@ -328,19 +349,14 @@ document.querySelectorAll(".characters button").forEach(b=>{
 });
 
 /* NAV */
-function show(s){
-  ["gameScreen","cosmeticsScreen","charactersScreen"].forEach(x=>qs(x).classList.remove("active"));
-  qs(s).classList.add("active");
+function show(id){
+  ["gameScreen","colorsScreen","charsScreen","leaderboardScreen"].forEach(s=>qs(s).classList.remove("active"));
+  qs(id).classList.add("active");
 }
 qs("tabGame").onclick=()=>show("gameScreen");
-qs("tabGame2").onclick=()=>show("gameScreen");
-qs("tabGame3").onclick=()=>show("gameScreen");
-qs("tabCosmetics").onclick=()=>show("cosmeticsScreen");
-qs("tabCosmetics2").onclick=()=>show("cosmeticsScreen");
-qs("tabCosmetics3").onclick=()=>show("cosmeticsScreen");
-qs("tabCharacters").onclick=()=>show("charactersScreen");
-qs("tabCharacters2").onclick=()=>show("charactersScreen");
-qs("tabCharacters3").onclick=()=>show("charactersScreen");
+qs("tabColors").onclick=()=>show("colorsScreen");
+qs("tabChars").onclick=()=>show("charsScreen");
+qs("tabLeaderboard").onclick=()=>{show("leaderboardScreen");updateLeaderboard();};
 </script>
 
 </body>
