@@ -2,65 +2,83 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>TapVerse</title>
+<meta name="viewport"
+content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Tap Game</title>
+
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+
 <style>
-*{box-sizing:border-box;margin:0;padding:0;font-family:Poppins,system-ui}
+*{
+  margin:0;
+  padding:0;
+  box-sizing:border-box;
+  font-family:Poppins,system-ui;
+}
 body{
   background:#0d0d0d;
   color:#fff;
   min-height:100vh;
   display:flex;
   justify-content:center;
-  align-items:center;
 }
 .app{
   width:100%;
   max-width:420px;
-  height:100vh;
+  padding:16px;
   display:flex;
   flex-direction:column;
-  padding:16px;
+  transform-origin:top center;
 }
-.screen{display:none;flex:1;flex-direction:column;gap:14px}
+
+.screen{
+  display:none;
+  flex-direction:column;
+  gap:14px;
+  animation:.25s fadeIn;
+}
 .screen.active{display:flex}
+
+@keyframes fadeIn{
+  from{opacity:0;transform:translateX(15px)}
+  to{opacity:1;transform:none}
+}
+
 .top{
   display:flex;
   justify-content:space-between;
-  align-items:center;
 }
 .stat{
   background:#111;
-  padding:8px 14px;
+  padding:10px 14px;
   border-radius:14px;
-  box-shadow:0 0 10px rgba(0,255,255,.3);
+  box-shadow:0 0 10px rgba(0,255,255,.35);
 }
+
 .tap-btn{
-  flex:1;
-  margin:20px 0;
+  margin:30px 0;
+  height:220px;
   border-radius:50%;
-  background:radial-gradient(circle at top,#0ff,#006);
+  background:radial-gradient(circle at top,#0ff,#003);
   box-shadow:0 0 40px #0ff;
   display:flex;
   align-items:center;
   justify-content:center;
-  font-size:26px;
+  font-size:30px;
   font-weight:700;
   user-select:none;
   touch-action:manipulation;
-  transition:transform .15s, box-shadow .15s;
+  transition:.15s;
 }
-.tap-btn:active{
-  transform:scale(.93);
-  box-shadow:0 0 20px #0ff;
-}
+.tap-btn:active{transform:scale(.93)}
+
 .section{
   background:#111;
-  border-radius:18px;
   padding:14px;
-  box-shadow:0 0 12px rgba(140,0,255,.3);
+  border-radius:18px;
+  box-shadow:0 0 14px rgba(140,0,255,.25);
 }
+
 button{
   border:none;
   padding:12px;
@@ -68,23 +86,28 @@ button{
   background:#1a1a1a;
   color:#0ff;
   font-weight:600;
-  cursor:pointer;
-  box-shadow:0 0 10px rgba(0,255,255,.4);
+  box-shadow:0 0 10px rgba(0,255,255,.35);
   transition:.2s;
 }
 button:active{transform:scale(.95)}
-button:disabled{opacity:.4;box-shadow:none}
-.shop-btn{display:flex;justify-content:space-between}
+
+.shop-btn{
+  display:flex;
+  justify-content:space-between;
+}
+
 .nav{
   display:flex;
   gap:10px;
 }
+
 .back-btn{
   width:max-content;
   padding:8px 14px;
   background:#111;
   box-shadow:0 0 10px #0ff;
 }
+
 .alert{
   position:fixed;
   bottom:20px;
@@ -99,22 +122,9 @@ button:disabled{opacity:.4;box-shadow:none}
   transition:.3s;
 }
 .alert.show{opacity:1}
-.levelup{
-  position:fixed;
-  inset:0;
-  background:rgba(0,0,0,.85);
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  font-size:40px;
-  font-weight:700;
-  color:#0ff;
-  text-shadow:0 0 30px #0ff;
-  opacity:0;
-  pointer-events:none;
-  transition:.4s;
-}
-.levelup.show{opacity:1}
+
+input[type=range]{width:100%}
+
 input{
   padding:12px;
   border-radius:14px;
@@ -125,14 +135,15 @@ input{
 }
 </style>
 </head>
+
 <body>
-<div class="app">
+<div class="app" id="app">
 
 <!-- LOGIN -->
 <div id="loginScreen" class="screen active">
-  <h2>TapVerse</h2>
-  <input id="user" placeholder="Username">
-  <input id="pass" type="password" placeholder="Password">
+  <h2>Tap Game</h2>
+  <input id="username" placeholder="Username">
+  <input id="password" type="password" placeholder="Password">
   <button onclick="login()">Login / Signup</button>
 </div>
 
@@ -143,26 +154,27 @@ input{
     <div class="stat">x<span id="multi">1</span></div>
   </div>
 
-  <div class="tap-btn" id="tapBtn">TAP</div>
+  <div id="tapBtn" class="tap-btn">TAP</div>
 
   <div class="section">
-    <h3>Shop</h3>
-    <button class="shop-btn" onclick="buyUpgrade(2)">2x <span>100</span></button>
-    <button class="shop-btn" onclick="buyUpgrade(5)">5x <span>500</span></button>
-    <button class="shop-btn" onclick="buyUpgrade(10)">10x <span>2000</span></button>
+    <h3>Upgrades</h3>
+    <button class="shop-btn" onclick="buy(2,100)">2x <span>100</span></button>
+    <button class="shop-btn" onclick="buy(5,500)">5x <span>500</span></button>
+    <button class="shop-btn" onclick="buy(10,2000)">10x <span>2000</span></button>
   </div>
 
   <div class="nav">
-    <button onclick="show('colorsScreen')">🎨</button>
-    <button onclick="show('charsScreen')">😈</button>
-    <button onclick="show('leaderboardScreen')">🏆</button>
+    <button onclick="go('colorsScreen')">🎨</button>
+    <button onclick="go('charsScreen')">😈</button>
+    <button onclick="go('leaderboardScreen')">🏆</button>
+    <button onclick="go('settingsScreen')">⚙️</button>
   </div>
 </div>
 
 <!-- COLORS -->
 <div id="colorsScreen" class="screen">
   <button class="back-btn" onclick="back()">⬅ Back</button>
-  <h3>Button Colors</h3>
+  <h3>Button Color</h3>
   <button onclick="setColor('#0ff')">Cyan</button>
   <button onclick="setColor('#f0f')">Purple</button>
   <button onclick="setColor('#0f0')">Green</button>
@@ -171,10 +183,10 @@ input{
 <!-- CHARACTERS -->
 <div id="charsScreen" class="screen">
   <button class="back-btn" onclick="back()">⬅ Back</button>
-  <h3>Characters</h3>
-  <button onclick="pickChar('😈')">Devil</button>
-  <button onclick="pickChar('🤖')">Bot</button>
-  <button onclick="pickChar('👽')">Alien</button>
+  <h3>Character</h3>
+  <button onclick="setChar('😈')">Devil</button>
+  <button onclick="setChar('🤖')">Bot</button>
+  <button onclick="setChar('👽')">Alien</button>
 </div>
 
 <!-- LEADERBOARD -->
@@ -184,35 +196,46 @@ input{
   <div id="lb"></div>
 </div>
 
+<!-- SETTINGS -->
+<div id="settingsScreen" class="screen">
+  <button class="back-btn" onclick="back()">⬅ Back</button>
+  <h3>Settings</h3>
+  <label>UI Size</label>
+  <input type="range" min="0.85" max="1.2" step="0.01"
+    id="scaleRange" oninput="setScale(this.value)">
 </div>
 
-<div class="alert" id="alert"></div>
-<div class="levelup" id="levelup">LEVEL UP!</div>
+</div>
+
+<div id="alert" class="alert"></div>
 
 <script>
 const qs=id=>document.getElementById(id)
-let currentUser=null
+let user=null
 let history=[]
-let data={coins:0,multi:1,level:1,color:'#0ff',char:'😈'}
+let data={coins:0,multi:1,color:"#0ff",char:"TAP",scale:1}
 
 function save(){
-  localStorage.setItem("user_"+currentUser,JSON.stringify(data))
-  updateLeaderboard()
+  localStorage.setItem("user_"+user,JSON.stringify(data))
+  updateLB()
 }
 function load(){
-  const d=localStorage.getItem("user_"+currentUser)
+  const d=localStorage.getItem("user_"+user)
   if(d) data=JSON.parse(d)
 }
+
 function login(){
-  const u=qs("user").value
-  const p=qs("pass").value
-  if(!u||!p) return alertMsg("Fill fields")
-  currentUser=u
+  const u=qs("username").value
+  const p=qs("password").value
+  if(!u||!p) return msg("fill fields")
+  user=u
   load()
-  show("gameScreen",true)
-  updateUI()
+  go("gameScreen",true)
+  applyScale()
+  ui()
 }
-function show(id,reset){
+
+function go(id,reset){
   if(!reset){
     const cur=document.querySelector(".screen.active")
     if(cur) history.push(cur.id)
@@ -220,60 +243,75 @@ function show(id,reset){
   document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"))
   qs(id).classList.add("active")
   if(id==="leaderboardScreen") renderLB()
+  if(id==="settingsScreen") qs("scaleRange").value=data.scale
 }
+
 function back(){
   const prev=history.pop()||"gameScreen"
-  show(prev,true)
+  go(prev,true)
 }
+
 qs("tapBtn").onclick=()=>{
   data.coins+=data.multi
-  if(data.coins>=data.level*500){
-    data.level++
-    lvlUp()
-  }
-  save();updateUI()
+  save();ui()
 }
-function buyUpgrade(x){
-  const cost=x===2?100:x===5?500:2000
-  if(data.coins<cost) return alertMsg("Not enough coins")
-  data.coins-=cost
+
+function buy(x,c){
+  if(data.coins<c) return msg("not enough coins")
+  data.coins-=c
   data.multi+=x
-  save();updateUI()
+  save();ui()
 }
-function updateUI(){
+
+function setColor(c){data.color=c;save();ui()}
+function setChar(c){data.char=c;save();ui()}
+
+function setScale(v){
+  data.scale=v
+  applyScale()
+  save()
+}
+function applyScale(){
+  qs("app").style.transform=`scale(${data.scale})`
+}
+
+function ui(){
   qs("coins").textContent=data.coins
   qs("multi").textContent=data.multi
-  qs("tapBtn").style.background=`radial-gradient(circle at top,${data.color},#000)`
+  qs("tapBtn").style.background=
+    `radial-gradient(circle at top,${data.color},#000)`
   qs("tapBtn").textContent=data.char
 }
-function alertMsg(t){
+
+function msg(t){
   const a=qs("alert")
   a.textContent=t
   a.classList.add("show")
-  setTimeout(()=>a.classList.remove("show"),1500)
+  setTimeout(()=>a.classList.remove("show"),1200)
 }
-function lvlUp(){
-  const l=qs("levelup")
-  l.classList.add("show")
-  setTimeout(()=>l.classList.remove("show"),1200)
-}
-function setColor(c){
-  data.color=c;save();updateUI()
-}
-function pickChar(c){
-  data.char=c;save();updateUI()
-}
-function updateLeaderboard(){
-  let lb=JSON.parse(localStorage.getItem("leaderboard")||"{}")
-  lb[currentUser]={coins:data.coins,level:data.level}
-  localStorage.setItem("leaderboard",JSON.stringify(lb))
+
+function updateLB(){
+  let lb=JSON.parse(localStorage.getItem("lb")||"{}")
+  lb[user]={coins:data.coins}
+  localStorage.setItem("lb",JSON.stringify(lb))
 }
 function renderLB(){
-  const lb=JSON.parse(localStorage.getItem("leaderboard")||"{}")
+  let lb=JSON.parse(localStorage.getItem("lb")||"{}")
   qs("lb").innerHTML=Object.entries(lb)
     .sort((a,b)=>b[1].coins-a[1].coins)
-    .map(([u,d])=>`<div>${u} — 🪙${d.coins} | Lv ${d.level}</div>`).join("")
+    .map(([u,d])=>`${u} — 🪙${d.coins}`)
+    .join("<br>")
 }
+
+/* ===== SWIPE BACK ===== */
+let startX=0
+document.addEventListener("touchstart",e=>{
+  startX=e.touches[0].clientX
+})
+document.addEventListener("touchend",e=>{
+  const dx=e.changedTouches[0].clientX-startX
+  if(dx>80) back()
+})
 </script>
 </body>
 </html>
