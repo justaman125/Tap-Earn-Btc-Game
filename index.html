@@ -3,361 +3,277 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Tap-to-Earn Game</title>
-
+<title>TapVerse</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap');
-
-*{margin:0;padding:0;box-sizing:border-box;font-family:'Inter',sans-serif;}
-
+*{box-sizing:border-box;margin:0;padding:0;font-family:Poppins,system-ui}
 body{
   background:#0d0d0d;
   color:#fff;
   min-height:100vh;
   display:flex;
   justify-content:center;
-  padding:20px;
-  overflow:hidden;
-}
-
-.screen{
-  display:none;
-  flex-direction:column;
   align-items:center;
-  gap:14px;
+}
+.app{
   width:100%;
   max-width:420px;
+  height:100vh;
+  display:flex;
+  flex-direction:column;
+  padding:16px;
 }
-.screen.active{display:flex;}
-
-h1{
-  color:#0ff;
-  text-shadow:0 0 12px #0ff;
+.screen{display:none;flex:1;flex-direction:column;gap:14px}
+.screen.active{display:flex}
+.top{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
 }
-
-input{
-  width:220px;
-  padding:12px;
-  border-radius:10px;
-  border:none;
+.stat{
   background:#111;
-  color:#fff;
+  padding:8px 14px;
+  border-radius:14px;
+  box-shadow:0 0 10px rgba(0,255,255,.3);
 }
-input:focus{outline:none;box-shadow:0 0 10px #0ff;}
-
-button{
-  padding:12px 20px;
-  border:none;
-  border-radius:12px;
-  background:#0ff;
-  color:#000;
+.tap-btn{
+  flex:1;
+  margin:20px 0;
+  border-radius:50%;
+  background:radial-gradient(circle at top,#0ff,#006);
+  box-shadow:0 0 40px #0ff;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:26px;
   font-weight:700;
+  user-select:none;
+  touch-action:manipulation;
+  transition:transform .15s, box-shadow .15s;
+}
+.tap-btn:active{
+  transform:scale(.93);
+  box-shadow:0 0 20px #0ff;
+}
+.section{
+  background:#111;
+  border-radius:18px;
+  padding:14px;
+  box-shadow:0 0 12px rgba(140,0,255,.3);
+}
+button{
+  border:none;
+  padding:12px;
+  border-radius:14px;
+  background:#1a1a1a;
+  color:#0ff;
+  font-weight:600;
   cursor:pointer;
-  transition:0.25s;
+  box-shadow:0 0 10px rgba(0,255,255,.4);
+  transition:.2s;
 }
-button:hover{transform:scale(1.05);}
-button:active{transform:scale(0.95);}
-
-.alert{
-  font-size:0.9rem;
-  color:#f0f;
-  opacity:0;
-  transition:0.3s;
-}
-
+button:active{transform:scale(.95)}
+button:disabled{opacity:.4;box-shadow:none}
+.shop-btn{display:flex;justify-content:space-between}
 .nav{
   display:flex;
   gap:10px;
-  flex-wrap:wrap;
 }
-.nav button{
+.back-btn{
+  width:max-content;
+  padding:8px 14px;
   background:#111;
-  color:#0ff;
   box-shadow:0 0 10px #0ff;
 }
-
-.counter,.multiplier,.level{font-size:1.1rem;}
-
-.tap-button{
-  width:220px;
-  height:220px;
-  border-radius:50%;
-  font-size:3.5rem;
-  background:linear-gradient(145deg,#0ff,#0055ff);
-  box-shadow:0 0 25px #0ff,0 0 60px #0ff inset;
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  cursor:pointer;
-  transition:0.15s;
-  touch-action:manipulation;
-}
-.tap-button:active{transform:scale(0.94);}
-
-.shop,.colors,.characters,.leaderboard{
-  width:100%;
-  display:flex;
-  flex-direction:column;
-  gap:10px;
-}
-
-.shop button,.colors button,.characters button{
-  background:#111;
-  color:#0ff;
-  box-shadow:0 0 10px #0ff;
-}
-
-/* COIN FLOAT */
-.coin{
-  position:absolute;
-  font-size:1.5rem;
-  pointer-events:none;
-  animation:coinFloat 1s forwards;
-}
-@keyframes coinFloat{
-  0%{transform:translate(0,0);opacity:1;}
-  100%{transform:translate(var(--x),var(--y));opacity:0;}
-}
-
-/* LEVEL UP OVERLAY */
-#levelUpOverlay{
+.alert{
   position:fixed;
-  inset:0;
-  background:radial-gradient(circle,#0ff,#000);
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  font-size:3rem;
-  font-weight:700;
-  color:#fff;
-  text-shadow:0 0 30px #fff;
+  bottom:20px;
+  left:50%;
+  transform:translateX(-50%);
+  background:#111;
+  padding:10px 16px;
+  border-radius:14px;
+  box-shadow:0 0 14px #f0f;
   opacity:0;
   pointer-events:none;
+  transition:.3s;
 }
-#levelUpOverlay.active{
-  animation:levelFlash 1.2s ease forwards;
-}
-@keyframes levelFlash{
-  0%{opacity:0;transform:scale(0.6);}
-  20%{opacity:1;transform:scale(1.2);}
-  80%{opacity:1;transform:scale(1);}
-  100%{opacity:0;transform:scale(1.4);}
-}
-
-/* LEADERBOARD */
-.leaderboard-item{
-  background:#111;
-  border-radius:10px;
-  padding:10px;
+.alert.show{opacity:1}
+.levelup{
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.85);
   display:flex;
-  justify-content:space-between;
-  box-shadow:0 0 10px #0ff;
+  justify-content:center;
+  align-items:center;
+  font-size:40px;
+  font-weight:700;
+  color:#0ff;
+  text-shadow:0 0 30px #0ff;
+  opacity:0;
+  pointer-events:none;
+  transition:.4s;
 }
-.leaderboard-item.me{
-  border:2px solid #0ff;
+.levelup.show{opacity:1}
+input{
+  padding:12px;
+  border-radius:14px;
+  border:none;
+  background:#111;
+  color:#fff;
+  box-shadow:0 0 10px rgba(0,255,255,.2);
 }
 </style>
 </head>
-
 <body>
-
-<div id="levelUpOverlay">LEVEL UP!</div>
+<div class="app">
 
 <!-- LOGIN -->
 <div id="loginScreen" class="screen active">
-  <h1>Login / Sign Up</h1>
-  <input id="username" placeholder="Username">
-  <input id="password" type="password" placeholder="Password">
-  <button id="loginBtn">Enter</button>
-  <div class="alert" id="loginAlert"></div>
+  <h2>TapVerse</h2>
+  <input id="user" placeholder="Username">
+  <input id="pass" type="password" placeholder="Password">
+  <button onclick="login()">Login / Signup</button>
 </div>
 
 <!-- GAME -->
 <div id="gameScreen" class="screen">
+  <div class="top">
+    <div class="stat">🪙 <span id="coins">0</span></div>
+    <div class="stat">x<span id="multi">1</span></div>
+  </div>
+
+  <div class="tap-btn" id="tapBtn">TAP</div>
+
+  <div class="section">
+    <h3>Shop</h3>
+    <button class="shop-btn" onclick="buyUpgrade(2)">2x <span>100</span></button>
+    <button class="shop-btn" onclick="buyUpgrade(5)">5x <span>500</span></button>
+    <button class="shop-btn" onclick="buyUpgrade(10)">10x <span>2000</span></button>
+  </div>
+
   <div class="nav">
-    <button id="tabGame">Game</button>
-    <button id="tabColors">Colors</button>
-    <button id="tabChars">Characters</button>
-    <button id="tabLeaderboard">Leaderboard</button>
+    <button onclick="show('colorsScreen')">🎨</button>
+    <button onclick="show('charsScreen')">😈</button>
+    <button onclick="show('leaderboardScreen')">🏆</button>
   </div>
-
-  <h1>Tap-to-Earn</h1>
-  <div class="counter">Coins: <span id="coins">0</span></div>
-  <div class="multiplier">Multiplier: <span id="multiplier">1x</span></div>
-  <div class="level">Level <span id="level">1</span></div>
-
-  <div class="tap-button" id="tapButton">🐵</div>
-
-  <div class="shop">
-    <button data-x="2">Upgrade +2x (100)</button>
-    <button data-x="5">Upgrade +5x (500)</button>
-    <button data-x="10">Upgrade +10x (2000)</button>
-  </div>
-
-  <div class="alert" id="gameAlert"></div>
 </div>
 
 <!-- COLORS -->
 <div id="colorsScreen" class="screen">
-  <h1>Button Colors</h1>
-  <div class="colors">
-    <button data-color="purple">Purple (500)</button>
-    <button data-color="red">Red (500)</button>
-    <button data-color="green">Green (500)</button>
-    <button data-color="gold">Gold (1000)</button>
-  </div>
+  <button class="back-btn" onclick="back()">⬅ Back</button>
+  <h3>Button Colors</h3>
+  <button onclick="setColor('#0ff')">Cyan</button>
+  <button onclick="setColor('#f0f')">Purple</button>
+  <button onclick="setColor('#0f0')">Green</button>
 </div>
 
 <!-- CHARACTERS -->
 <div id="charsScreen" class="screen">
-  <h1>Characters</h1>
-  <div class="characters">
-    <button data-char="🐵">Monkey (Free)</button>
-    <button data-char="🦄">Unicorn (1000)</button>
-    <button data-char="👽">Alien (2000)</button>
-  </div>
+  <button class="back-btn" onclick="back()">⬅ Back</button>
+  <h3>Characters</h3>
+  <button onclick="pickChar('😈')">Devil</button>
+  <button onclick="pickChar('🤖')">Bot</button>
+  <button onclick="pickChar('👽')">Alien</button>
 </div>
 
 <!-- LEADERBOARD -->
 <div id="leaderboardScreen" class="screen">
-  <h1>🏆 Leaderboard</h1>
-  <div class="leaderboard" id="leaderboardList"></div>
+  <button class="back-btn" onclick="back()">⬅ Back</button>
+  <h3>Leaderboard</h3>
+  <div id="lb"></div>
 </div>
 
-<script>
-let user=null,coins=0,multiplier=1,level=1,xp=0;
-let ownedColors={},selectedColor=null;
-let ownedChars={"🐵":true},selectedChar="🐵";
-let upgradeCost={2:100,5:500,10:2000};
+</div>
 
-const qs=id=>document.getElementById(id);
+<div class="alert" id="alert"></div>
+<div class="levelup" id="levelup">LEVEL UP!</div>
+
+<script>
+const qs=id=>document.getElementById(id)
+let currentUser=null
+let history=[]
+let data={coins:0,multi:1,level:1,color:'#0ff',char:'😈'}
 
 function save(){
-  localStorage.setItem("user_"+user,JSON.stringify({
-    coins,multiplier,level,xp,
-    ownedColors,selectedColor,
-    ownedChars,selectedChar,
-    upgradeCost
-  }));
-
-  // leaderboard data
-  let lb=JSON.parse(localStorage.getItem("leaderboard")||"{}");
-  lb[user]={username:user,coins,level};
-  localStorage.setItem("leaderboard",JSON.stringify(lb));
+  localStorage.setItem("user_"+currentUser,JSON.stringify(data))
+  updateLeaderboard()
 }
-
 function load(){
-  const d=JSON.parse(localStorage.getItem("user_"+user));
-  if(!d)return;
-  coins=d.coins;multiplier=d.multiplier;level=d.level;xp=d.xp;
-  ownedColors=d.ownedColors||{};selectedColor=d.selectedColor;
-  ownedChars=d.ownedChars||{"🐵":true};selectedChar=d.selectedChar||"🐵";
-  upgradeCost=d.upgradeCost||upgradeCost;
+  const d=localStorage.getItem("user_"+currentUser)
+  if(d) data=JSON.parse(d)
 }
-
+function login(){
+  const u=qs("user").value
+  const p=qs("pass").value
+  if(!u||!p) return alertMsg("Fill fields")
+  currentUser=u
+  load()
+  show("gameScreen",true)
+  updateUI()
+}
+function show(id,reset){
+  if(!reset){
+    const cur=document.querySelector(".screen.active")
+    if(cur) history.push(cur.id)
+  }
+  document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"))
+  qs(id).classList.add("active")
+  if(id==="leaderboardScreen") renderLB()
+}
+function back(){
+  const prev=history.pop()||"gameScreen"
+  show(prev,true)
+}
+qs("tapBtn").onclick=()=>{
+  data.coins+=data.multi
+  if(data.coins>=data.level*500){
+    data.level++
+    lvlUp()
+  }
+  save();updateUI()
+}
+function buyUpgrade(x){
+  const cost=x===2?100:x===5?500:2000
+  if(data.coins<cost) return alertMsg("Not enough coins")
+  data.coins-=cost
+  data.multi+=x
+  save();updateUI()
+}
 function updateUI(){
-  qs("coins").textContent=coins;
-  qs("multiplier").textContent=multiplier+"x";
-  qs("level").textContent=level;
-  qs("tapButton").textContent=selectedChar;
+  qs("coins").textContent=data.coins
+  qs("multi").textContent=data.multi
+  qs("tapBtn").style.background=`radial-gradient(circle at top,${data.color},#000)`
+  qs("tapBtn").textContent=data.char
 }
-
+function alertMsg(t){
+  const a=qs("alert")
+  a.textContent=t
+  a.classList.add("show")
+  setTimeout(()=>a.classList.remove("show"),1500)
+}
+function lvlUp(){
+  const l=qs("levelup")
+  l.classList.add("show")
+  setTimeout(()=>l.classList.remove("show"),1200)
+}
+function setColor(c){
+  data.color=c;save();updateUI()
+}
+function pickChar(c){
+  data.char=c;save();updateUI()
+}
 function updateLeaderboard(){
-  const lb=JSON.parse(localStorage.getItem("leaderboard")||"{}");
-  const list=Object.values(lb)
-    .sort((a,b)=>b.level-a.level || b.coins-a.coins)
-    .slice(0,10);
-
-  qs("leaderboardList").innerHTML="";
-  list.forEach((p,i)=>{
-    const div=document.createElement("div");
-    div.className="leaderboard-item"+(p.username===user?" me":"");
-    div.innerHTML=`<span>#${i+1} ${p.username}</span><span>Lvl ${p.level} • ${p.coins}🪙</span>`;
-    qs("leaderboardList").appendChild(div);
-  });
+  let lb=JSON.parse(localStorage.getItem("leaderboard")||"{}")
+  lb[currentUser]={coins:data.coins,level:data.level}
+  localStorage.setItem("leaderboard",JSON.stringify(lb))
 }
-
-/* LOGIN */
-qs("loginBtn").onclick=()=>{
-  const u=qs("username").value.trim();
-  const p=qs("password").value.trim();
-  if(!u||!p)return;
-  const pass=localStorage.getItem("pass_"+u);
-  if(!pass)localStorage.setItem("pass_"+u,p);
-  else if(pass!==p)return;
-  user=u;load();save();
-  qs("loginScreen").classList.remove("active");
-  qs("gameScreen").classList.add("active");
-  updateUI();updateLeaderboard();
-};
-
-/* TAP */
-qs("tapButton").onclick=e=>{
-  coins+=multiplier;
-  xp+=multiplier;
-  if(xp>=level*100){
-    xp=0;level++;multiplier++;
-    qs("levelUpOverlay").classList.add("active");
-    setTimeout(()=>qs("levelUpOverlay").classList.remove("active"),1200);
-  }
-  const r=e.target.getBoundingClientRect();
-  for(let i=0;i<multiplier;i++){
-    const c=document.createElement("div");
-    c.className="coin";c.textContent="🪙";
-    c.style.left=r.left+r.width/2+"px";
-    c.style.top=r.top+r.height/2+"px";
-    c.style.setProperty("--x",(Math.random()*120-60)+"px");
-    c.style.setProperty("--y",(Math.random()*-120)+"px");
-    document.body.appendChild(c);
-    setTimeout(()=>c.remove(),1000);
-  }
-  save();updateUI();updateLeaderboard();
-};
-
-/* UPGRADES */
-document.querySelectorAll(".shop button").forEach(b=>{
-  b.onclick=()=>{
-    const x=+b.dataset.x;
-    if(coins<upgradeCost[x])return;
-    coins-=upgradeCost[x];
-    multiplier+=x;
-    upgradeCost[x]=Math.floor(upgradeCost[x]*2.3);
-    save();updateUI();updateLeaderboard();
-  };
-});
-
-/* COLORS */
-document.querySelectorAll(".colors button").forEach(b=>{
-  b.onclick=()=>{
-    const c=b.dataset.color;
-    const cost=c==="gold"?1000:500;
-    if(!ownedColors[c]&&coins<cost)return;
-    if(!ownedColors[c]){coins-=cost;ownedColors[c]=true;}
-    selectedColor=c;save();updateUI();
-  };
-});
-
-/* CHARACTERS */
-document.querySelectorAll(".characters button").forEach(b=>{
-  b.onclick=()=>{
-    const c=b.dataset.char;
-    const cost=c==="🦄"?1000:c==="👽"?2000:0;
-    if(!ownedChars[c]&&coins<cost)return;
-    if(!ownedChars[c]){coins-=cost;ownedChars[c]=true;}
-    selectedChar=c;save();updateUI();
-  };
-});
-
-/* NAV */
-function show(id){
-  ["gameScreen","colorsScreen","charsScreen","leaderboardScreen"].forEach(s=>qs(s).classList.remove("active"));
-  qs(id).classList.add("active");
+function renderLB(){
+  const lb=JSON.parse(localStorage.getItem("leaderboard")||"{}")
+  qs("lb").innerHTML=Object.entries(lb)
+    .sort((a,b)=>b[1].coins-a[1].coins)
+    .map(([u,d])=>`<div>${u} — 🪙${d.coins} | Lv ${d.level}</div>`).join("")
 }
-qs("tabGame").onclick=()=>show("gameScreen");
-qs("tabColors").onclick=()=>show("colorsScreen");
-qs("tabChars").onclick=()=>show("charsScreen");
-qs("tabLeaderboard").onclick=()=>{show("leaderboardScreen");updateLeaderboard();};
 </script>
-
 </body>
 </html>
