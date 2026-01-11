@@ -27,8 +27,14 @@ body{
   gap:14px;
   width:100%;
   max-width:420px;
+  animation:fadeIn 0.25s ease;
 }
 .screen.active{display:flex;}
+
+@keyframes fadeIn{
+  from{opacity:0;transform:translateX(20px);}
+  to{opacity:1;transform:translateX(0);}
+}
 
 h1{
   color:#0ff;
@@ -119,7 +125,7 @@ button:active{transform:scale(0.95);}
   100%{transform:translate(var(--x),var(--y));opacity:0;}
 }
 
-/* LEVEL UP OVERLAY */
+/* LEVEL UP */
 #levelUpOverlay{
   position:fixed;
   inset:0;
@@ -163,16 +169,13 @@ button:active{transform:scale(0.95);}
 
 <div id="levelUpOverlay">LEVEL UP!</div>
 
-<!-- LOGIN -->
 <div id="loginScreen" class="screen active">
   <h1>Login / Sign Up</h1>
   <input id="username" placeholder="Username">
   <input id="password" type="password" placeholder="Password">
   <button id="loginBtn">Enter</button>
-  <div class="alert" id="loginAlert"></div>
 </div>
 
-<!-- GAME -->
 <div id="gameScreen" class="screen">
   <div class="nav">
     <button id="tabGame">Game</button>
@@ -193,11 +196,8 @@ button:active{transform:scale(0.95);}
     <button data-x="5">Upgrade +5x (500)</button>
     <button data-x="10">Upgrade +10x (2000)</button>
   </div>
-
-  <div class="alert" id="gameAlert"></div>
 </div>
 
-<!-- COLORS -->
 <div id="colorsScreen" class="screen">
   <h1>Button Colors</h1>
   <div class="colors">
@@ -208,7 +208,6 @@ button:active{transform:scale(0.95);}
   </div>
 </div>
 
-<!-- CHARACTERS -->
 <div id="charsScreen" class="screen">
   <h1>Characters</h1>
   <div class="characters">
@@ -218,7 +217,6 @@ button:active{transform:scale(0.95);}
   </div>
 </div>
 
-<!-- LEADERBOARD -->
 <div id="leaderboardScreen" class="screen">
   <h1>🏆 Leaderboard</h1>
   <div class="leaderboard" id="leaderboardList"></div>
@@ -226,72 +224,44 @@ button:active{transform:scale(0.95);}
 
 <script>
 let user=null,coins=0,multiplier=1,level=1,xp=0;
-let ownedColors={},selectedColor=null;
 let ownedChars={"🐵":true},selectedChar="🐵";
-let upgradeCost={2:100,5:500,10:2000};
+let screenHistory=["gameScreen"];
+let startX=0;
 
 const qs=id=>document.getElementById(id);
 
-function save(){
-  localStorage.setItem("user_"+user,JSON.stringify({
-    coins,multiplier,level,xp,
-    ownedColors,selectedColor,
-    ownedChars,selectedChar,
-    upgradeCost
-  }));
-
-  // leaderboard data
-  let lb=JSON.parse(localStorage.getItem("leaderboard")||"{}");
-  lb[user]={username:user,coins,level};
-  localStorage.setItem("leaderboard",JSON.stringify(lb));
+function show(id){
+  document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));
+  qs(id).classList.add("active");
+  if(screenHistory[screenHistory.length-1]!==id){
+    screenHistory.push(id);
+  }
 }
 
-function load(){
-  const d=JSON.parse(localStorage.getItem("user_"+user));
-  if(!d)return;
-  coins=d.coins;multiplier=d.multiplier;level=d.level;xp=d.xp;
-  ownedColors=d.ownedColors||{};selectedColor=d.selectedColor;
-  ownedChars=d.ownedChars||{"🐵":true};selectedChar=d.selectedChar||"🐵";
-  upgradeCost=d.upgradeCost||upgradeCost;
-}
+document.addEventListener("touchstart",e=>{
+  startX=e.touches[0].clientX;
+});
 
-function updateUI(){
-  qs("coins").textContent=coins;
-  qs("multiplier").textContent=multiplier+"x";
-  qs("level").textContent=level;
-  qs("tapButton").textContent=selectedChar;
-}
+document.addEventListener("touchend",e=>{
+  let dx=e.changedTouches[0].clientX-startX;
+  if(dx>80 && screenHistory.length>1){
+    screenHistory.pop();
+    show(screenHistory[screenHistory.length-1]);
+  }
+});
 
-function updateLeaderboard(){
-  const lb=JSON.parse(localStorage.getItem("leaderboard")||"{}");
-  const list=Object.values(lb)
-    .sort((a,b)=>b.level-a.level || b.coins-a.coins)
-    .slice(0,10);
+qs("tabGame").onclick=()=>show("gameScreen");
+qs("tabColors").onclick=()=>show("colorsScreen");
+qs("tabChars").onclick=()=>show("charsScreen");
+qs("tabLeaderboard").onclick=()=>show("leaderboardScreen");
 
-  qs("leaderboardList").innerHTML="";
-  list.forEach((p,i)=>{
-    const div=document.createElement("div");
-    div.className="leaderboard-item"+(p.username===user?" me":"");
-    div.innerHTML=`<span>#${i+1} ${p.username}</span><span>Lvl ${p.level} • ${p.coins}🪙</span>`;
-    qs("leaderboardList").appendChild(div);
-  });
-}
-
-/* LOGIN */
 qs("loginBtn").onclick=()=>{
-  const u=qs("username").value.trim();
-  const p=qs("password").value.trim();
-  if(!u||!p)return;
-  const pass=localStorage.getItem("pass_"+u);
-  if(!pass)localStorage.setItem("pass_"+u,p);
-  else if(pass!==p)return;
-  user=u;load();save();
+  user=qs("username").value.trim();
+  if(!user)return;
   qs("loginScreen").classList.remove("active");
-  qs("gameScreen").classList.add("active");
-  updateUI();updateLeaderboard();
+  show("gameScreen");
 };
 
-/* TAP */
 qs("tapButton").onclick=e=>{
   coins+=multiplier;
   xp+=multiplier;
@@ -300,63 +270,10 @@ qs("tapButton").onclick=e=>{
     qs("levelUpOverlay").classList.add("active");
     setTimeout(()=>qs("levelUpOverlay").classList.remove("active"),1200);
   }
-  const r=e.target.getBoundingClientRect();
-  for(let i=0;i<multiplier;i++){
-    const c=document.createElement("div");
-    c.className="coin";c.textContent="🪙";
-    c.style.left=r.left+r.width/2+"px";
-    c.style.top=r.top+r.height/2+"px";
-    c.style.setProperty("--x",(Math.random()*120-60)+"px");
-    c.style.setProperty("--y",(Math.random()*-120)+"px");
-    document.body.appendChild(c);
-    setTimeout(()=>c.remove(),1000);
-  }
-  save();updateUI();updateLeaderboard();
+  qs("coins").textContent=coins;
+  qs("multiplier").textContent=multiplier+"x";
+  qs("level").textContent=level;
 };
-
-/* UPGRADES */
-document.querySelectorAll(".shop button").forEach(b=>{
-  b.onclick=()=>{
-    const x=+b.dataset.x;
-    if(coins<upgradeCost[x])return;
-    coins-=upgradeCost[x];
-    multiplier+=x;
-    upgradeCost[x]=Math.floor(upgradeCost[x]*2.3);
-    save();updateUI();updateLeaderboard();
-  };
-});
-
-/* COLORS */
-document.querySelectorAll(".colors button").forEach(b=>{
-  b.onclick=()=>{
-    const c=b.dataset.color;
-    const cost=c==="gold"?1000:500;
-    if(!ownedColors[c]&&coins<cost)return;
-    if(!ownedColors[c]){coins-=cost;ownedColors[c]=true;}
-    selectedColor=c;save();updateUI();
-  };
-});
-
-/* CHARACTERS */
-document.querySelectorAll(".characters button").forEach(b=>{
-  b.onclick=()=>{
-    const c=b.dataset.char;
-    const cost=c==="🦄"?1000:c==="👽"?2000:0;
-    if(!ownedChars[c]&&coins<cost)return;
-    if(!ownedChars[c]){coins-=cost;ownedChars[c]=true;}
-    selectedChar=c;save();updateUI();
-  };
-});
-
-/* NAV */
-function show(id){
-  ["gameScreen","colorsScreen","charsScreen","leaderboardScreen"].forEach(s=>qs(s).classList.remove("active"));
-  qs(id).classList.add("active");
-}
-qs("tabGame").onclick=()=>show("gameScreen");
-qs("tabColors").onclick=()=>show("colorsScreen");
-qs("tabChars").onclick=()=>show("charsScreen");
-qs("tabLeaderboard").onclick=()=>{show("leaderboardScreen");updateLeaderboard();};
 </script>
 
 </body>
