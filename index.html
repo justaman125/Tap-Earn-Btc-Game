@@ -12,24 +12,28 @@ body{background:#0d0d0d;color:#fff;min-height:100vh;display:flex;justify-content
 .screen{display:none;flex-direction:column;align-items:center;gap:14px;width:100%;max-width:420px;animation:fadeIn 0.25s ease;}
 .screen.active{display:flex;}
 @keyframes fadeIn{from{opacity:0;transform:translateX(20px);}to{opacity:1;transform:translateX(0);}}
-h1{color:#0ff;text-shadow:0 0 12px #0ff;}
-input{width:220px;padding:12px;border-radius:10px;border:none;background:#111;color:#fff;}
+h1{color:#0ff;text-shadow:0 0 12px #0ff;font-size:2.2rem;margin-bottom:10px;}
+input{width:220px;padding:12px;border-radius:10px;border:none;background:#111;color:#fff;font-size:1rem;}
+input::placeholder{color:#666;}
 input:focus{outline:none;box-shadow:0 0 10px #0ff;}
-button{padding:12px 20px;border:none;border-radius:12px;background:#0ff;color:#000;font-weight:700;cursor:pointer;transition:0.25s;}
+button{padding:12px 20px;border:none;border-radius:12px;background:#0ff;color:#000;font-weight:700;cursor:pointer;transition:0.25s;font-size:0.95rem;}
 button:hover{transform:scale(1.05);}
 button:active{transform:scale(0.95);}
-.nav{display:flex;gap:10px;flex-wrap:wrap;}
-.nav button{background:#111;color:#0ff;box-shadow:0 0 10px #0ff;}
-.counter,.multiplier,.level{font-size:1.1rem;}
-.tap-button{width:220px;height:220px;border-radius:50%;font-size:3.5rem;background:linear-gradient(145deg,#0ff,#0055ff);box-shadow:0 0 25px #0ff,0 0 60px #0ff inset;display:flex;justify-content:center;align-items:center;cursor:pointer;transition:0.15s;touch-action:manipulation;}
+.nav{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-bottom:10px;}
+.nav button{background:#111;color:#0ff;box-shadow:0 0 10px #0ff;font-size:0.85rem;padding:8px 12px;}
+.counter,.multiplier,.level{font-size:1.1rem;background:#111;padding:8px 15px;border-radius:8px;margin:5px 0;width:100%;max-width:300px;}
+.tap-button{width:220px;height:220px;border-radius:50%;font-size:3.5rem;background:linear-gradient(145deg,#0ff,#0055ff);box-shadow:0 0 25px #0ff,0 0 60px #0ff inset;display:flex;justify-content:center;align-items:center;cursor:pointer;transition:0.15s;touch-action:manipulation;user-select:none;}
 .tap-button:active{transform:scale(0.94);}
 .shop,.colors,.characters,.leaderboard{width:100%;display:flex;flex-direction:column;gap:10px;}
-.shop button,.colors button,.characters button{background:#111;color:#0ff;box-shadow:0 0 10px #0ff;}
-#levelUpOverlay{position:fixed;inset:0;background:radial-gradient(circle,#0ff,#000);display:flex;justify-content:center;align-items:center;font-size:3rem;font-weight:700;color:#fff;text-shadow:0 0 30px #fff;opacity:0;pointer-events:none;}
+.shop button,.colors button,.characters button{background:#111;color:#0ff;box-shadow:0 0 10px #0ff;text-align:left;padding:10px 15px;}
+#levelUpOverlay{position:fixed;inset:0;background:radial-gradient(circle,#0ff,#000);display:flex;justify-content:center;align-items:center;font-size:3rem;font-weight:700;color:#fff;text-shadow:0 0 30px #fff;opacity:0;pointer-events:none;z-index:1000;}
 #levelUpOverlay.active{animation:levelFlash 1.2s ease forwards;}
 @keyframes levelFlash{0%{opacity:0;transform:scale(0.6);}20%{opacity:1;transform:scale(1.2);}80%{opacity:1;transform:scale(1);}100%{opacity:0;transform:scale(1.4);}}
-.leaderboard-item{background:#111;border-radius:10px;padding:10px;display:flex;justify-content:space-between;box-shadow:0 0 10px #0ff;}
-.leaderboard-item.me{border:2px solid #0ff;}
+.leaderboard-item{background:#111;border-radius:10px;padding:10px;display:flex;justify-content:space-between;box-shadow:0 0 10px #0ff;align-items:center;}
+.leaderboard-item.me{border:2px solid #0ff;background:#1a1a2e;}
+.back-btn{background:#111;color:#0ff;box-shadow:0 0 10px #0ff;margin-top:10px;}
+.coin-balance{font-size:1.3rem;font-weight:bold;color:#ffd700;margin:10px 0;}
+.upgrade-info{font-size:0.85rem;color:#666;margin-top:5px;}
 </style>
 </head>
 
@@ -39,86 +43,107 @@ button:active{transform:scale(0.95);}
 
 <!-- Login Screen -->
 <div id="loginScreen" class="screen active">
-  <h1>🚀 Login / Sign Up</h1>
-  <input id="username" placeholder="Kasutajanimi">
-  <input id="password" type="password" placeholder="Parool">
-  <button id="loginBtn">🚪 Sisse logima</button>
+  <h1>🚀 Tap-to-Earn Game</h1>
+  <p style="color:#666;margin-bottom:15px;">Create your account to start earning coins!</p>
+  <input id="username" placeholder="Username" autocomplete="username">
+  <input id="password" type="password" placeholder="Password" autocomplete="current-password">
+  <button id="loginBtn">🚪 Login / Sign Up</button>
+  <p style="color:#666;font-size:0.8rem;margin-top:20px;">*No real data is stored. Everything is saved in your browser.</p>
 </div>
 
 <!-- Game Screen -->
 <div id="gameScreen" class="screen">
   <div class="nav">
-    <button id="tabGame">🎮 Mäng</button>
-    <button id="tabShop">🛒 Pood</button>
-    <button id="tabColors">🎨 Värvid</button>
-    <button id="tabChars">🎭 Iseloomud</button>
-    <button id="tabLeaderboard">🏆 Edetabel</button>
+    <button id="tabGame">🎮 Game</button>
+    <button id="tabShop">🛒 Shop</button>
+    <button id="tabColors">🎨 Colors</button>
+    <button id="tabChars">🎭 Characters</button>
+    <button id="tabLeaderboard">🏆 Leaderboard</button>
   </div>
 
   <h1>💰 Tap-to-Earn</h1>
-  <div class="counter">Mündid: <span id="coins">0</span></div>
-  <div class="multiplier">Kordaja: <span id="multiplier">1x</span></div>
-  <div class="level">Tase <span id="level">1</span></div>
+  <div class="coin-balance">💰 Coins: <span id="coins">0</span></div>
+  <div class="multiplier">⚡ Multiplier: <span id="multiplier">1x</span></div>
+  <div class="level">🎯 Level <span id="level">1</span></div>
+  <div class="counter">XP: <span id="xpBar">0</span>/<span id="xpMax">100</span></div>
 
   <div class="tap-button" id="tapButton">🐵</div>
 
   <div class="shop" id="shopSection">
-    <button data-x="2">📈 +2x Kordaja (100)</button>
-    <button data-x="5">🚀 +5x Kordaja (500)</button>
-    <button data-x="10">⚡ +10x Kordaja (2000)</button>
+    <div style="background:#111;padding:10px;border-radius:8px;">
+      <div style="font-size:0.9rem;color:#666;margin-bottom:8px;">📈 Buy Multipliers</div>
+      <button class="upgrade-btn" data-x="2" data-base-cost="100">+2x Multiplier (<span class="cost">100</span>💰)</button>
+      <button class="upgrade-btn" data-x="5" data-base-cost="500">+5x Multiplier (<span class="cost">500</span>💰)</button>
+      <button class="upgrade-btn" data-x="10" data-base-cost="2000">+10x Multiplier (<span class="cost">2000</span>💰)</button>
+    </div>
   </div>
 </div>
 
 <!-- Colors Screen -->
 <div id="colorsScreen" class="screen">
-  <h1>🎨 Nupu Värvid</h1>
+  <h1>🎨 Button Colors</h1>
+  <p style="color:#666;margin-bottom:15px;">Customize your tap button appearance</p>
   <div class="colors">
-    <button data-color="purple">🟣 Lilla (500)</button>
-    <button data-color="red">🔴 Punane (500)</button>
-    <button data-color="green">🟢 Roheline (500)</button>
-    <button data-color="gold">🟡 Kuldne (1000)</button>
+    <button class="color-btn" data-color="purple" data-base-cost="500">🟣 Purple (<span class="cost">500</span>💰)</button>
+    <button class="color-btn" data-color="red" data-base-cost="500">🔴 Red (<span class="cost">500</span>💰)</button>
+    <button class="color-btn" data-color="green" data-base-cost="500">🟢 Green (<span class="cost">500</span>💰)</button>
+    <button class="color-btn" data-color="gold" data-base-cost="1000">🟡 Gold (<span class="cost">1000</span>💰)</button>
+    <button class="color-btn" data-color="default" data-base-cost="0">🔵 Default (Free)</button>
   </div>
-  <button id="backToGame1">🔙 Tagasi mängu</button>
+  <button id="backToGame1" class="back-btn">🔙 Back to Game</button>
 </div>
 
 <!-- Characters Screen -->
 <div id="charsScreen" class="screen">
-  <h1>🎭 Iseloomud</h1>
+  <h1>🎭 Characters</h1>
+  <p style="color:#666;margin-bottom:15px;">Change your tap button character</p>
   <div class="characters">
-    <button data-char="🐵">🐵 Ahv (Tasuta)</button>
-    <button data-char="🦄">🦄 Ükssarv (1000)</button>
-    <button data-char="👽">👽 Tulnukas (2000)</button>
-    <button data-char="🐱">🐱 Kass (1500)</button>
-    <button data-char="🐶">🐶 Koer (1500)</button>
-    <button data-char="🐉">🐉 Draakon (5000)</button>
+    <button class="char-btn" data-char="🐵" data-base-cost="0">🐵 Monkey (Free)</button>
+    <button class="char-btn" data-char="🐱" data-base-cost="500">🐱 Cat (<span class="cost">500</span>💰)</button>
+    <button class="char-btn" data-char="🐶" data-base-cost="500">🐶 Dog (<span class="cost">500</span>💰)</button>
+    <button class="char-btn" data-char="🦄" data-base-cost="1000">🦄 Unicorn (<span class="cost">1000</span>💰)</button>
+    <button class="char-btn" data-char="👽" data-base-cost="1500">👽 Alien (<span class="cost">1500</span>💰)</button>
+    <button class="char-btn" data-char="🐉" data-base-cost="3000">🐉 Dragon (<span class="cost">3000</span>💰)</button>
+    <button class="char-btn" data-char="🤖" data-base-cost="5000">🤖 Robot (<span class="cost">5000</span>💰)</button>
+    <button class="char-btn" data-char="👻" data-base-cost="2000">👻 Ghost (<span class="cost">2000</span>💰)</button>
   </div>
-  <button id="backToGame2">🔙 Tagasi mängu</button>
+  <button id="backToGame2" class="back-btn">🔙 Back to Game</button>
 </div>
 
 <!-- Leaderboard Screen -->
 <div id="leaderboardScreen" class="screen">
-  <h1>🏆 Edetabel</h1>
-  <div class="leaderboard" id="leaderboardList"></div>
-  <button id="backToGame3">🔙 Tagasi mängu</button>
+  <h1>🏆 Leaderboard</h1>
+  <p style="color:#666;margin-bottom:15px;">Top 10 Players</p>
+  <div class="leaderboard" id="leaderboardList">
+    <div style="text-align:center;padding:20px;color:#666;">Loading...</div>
+  </div>
+  <button id="backToGame3" class="back-btn">🔙 Back to Game</button>
 </div>
 
 <script>
-// ========== MÄNGU MUUTUJAD ==========
+// ========== GAME VARIABLES ==========
 let user = null;
 let coins = 0;
 let multiplier = 1;
 let level = 1;
 let xp = 0;
-let buttonColor = "";
+let buttonColor = "default";
 let character = "🐵";
 let startX = 0;
+
+// Dynamic pricing multipliers
+const PRICE_INCREASE_FACTOR = 1.5; // Each purchase increases price by 50%
+const upgradeCounts = { "2": 0, "5": 0, "10": 0 };
+const colorCounts = { "purple": 0, "red": 0, "green": 0, "gold": 0 };
+const charCounts = { "🐱": 0, "🐶": 0, "🦄": 0, "👽": 0, "🐉": 0, "🤖": 0, "👻": 0 };
+
 const qs = id => document.getElementById(id);
 
-// ========== SALVESTAMINE / LAADIMINE ==========
+// ========== SAVE / LOAD ==========
 function save() {
   if (!user) return;
   localStorage.setItem("user_" + user, JSON.stringify({
-    coins, multiplier, level, xp, buttonColor, character
+    coins, multiplier, level, xp, buttonColor, character, upgradeCounts, colorCounts, charCounts
   }));
 }
 
@@ -131,21 +156,27 @@ function load() {
   multiplier = data.multiplier ?? 1;
   level = data.level ?? 1;
   xp = data.xp ?? 0;
-  buttonColor = data.buttonColor ?? "";
+  buttonColor = data.buttonColor ?? "default";
   character = data.character ?? "🐵";
+  if (data.upgradeCounts) Object.assign(upgradeCounts, data.upgradeCounts);
+  if (data.colorCounts) Object.assign(colorCounts, data.colorCounts);
+  if (data.charCounts) Object.assign(charCounts, data.charCounts);
   
   applyButtonStyle();
   qs("tapButton").textContent = character;
+  updateUpgradePrices();
 }
 
-// ========== KASUTAJALIIKKESKKOND ==========
+// ========== UI UPDATE ==========
 function updateUI() {
-  qs("coins").textContent = coins;
+  qs("coins").textContent = coins.toLocaleString();
   qs("multiplier").textContent = multiplier + "x";
   qs("level").textContent = level;
+  qs("xpBar").textContent = xp;
+  qs("xpMax").textContent = level * 100;
 }
 
-// ========== EKRAANIDE NÄITAMINE ==========
+// ========== SCREEN MANAGEMENT ==========
 let screenHistory = ["gameScreen"];
 
 function show(id) {
@@ -155,9 +186,14 @@ function show(id) {
   if (screenHistory[screenHistory.length - 1] !== id) {
     screenHistory.push(id);
   }
+  
+  // Refresh leaderboard when shown
+  if (id === "leaderboardScreen") {
+    setTimeout(loadLeaderboard, 100);
+  }
 }
 
-// ========== SWIPE TAGASI (MOBIIL) ==========
+// ========== SWIPE BACK (MOBILE) ==========
 document.addEventListener("touchstart", e => {
   startX = e.touches[0].clientX;
 });
@@ -169,27 +205,29 @@ document.addEventListener("touchend", e => {
   }
 });
 
-// ========== NAVIGATSIOONINUPUD ==========
+// ========== NAVIGATION BUTTONS ==========
 qs("tabGame").onclick = () => show("gameScreen");
 qs("tabShop").onclick = () => show("gameScreen");
 qs("tabColors").onclick = () => show("colorsScreen");
 qs("tabChars").onclick = () => show("charsScreen");
-qs("tabLeaderboard").onclick = () => {
-  show("leaderboardScreen");
-  loadLeaderboard();
-};
+qs("tabLeaderboard").onclick = () => show("leaderboardScreen");
 
 qs("backToGame1").onclick = () => show("gameScreen");
 qs("backToGame2").onclick = () => show("gameScreen");
 qs("backToGame3").onclick = () => show("gameScreen");
 
-// ========== SISSELOGIMINE ==========
+// ========== LOGIN ==========
 qs("loginBtn").onclick = () => {
   const username = qs("username").value.trim();
   const password = qs("password").value;
   
-  if (!username || !password) {
-    alert("⚠️ Palun sisesta kasutajanimi ja parool!");
+  if (!username || username.length < 3) {
+    alert("⚠️ Please enter a username (at least 3 characters)!");
+    return;
+  }
+  
+  if (!password || password.length < 4) {
+    alert("⚠️ Please enter a password (at least 4 characters)!");
     return;
   }
   
@@ -198,32 +236,33 @@ qs("loginBtn").onclick = () => {
   updateUI();
   qs("loginScreen").classList.remove("active");
   show("gameScreen");
-  loadLeaderboard();
   
-  // Tere tulemast sõnum
+  // Welcome message
   setTimeout(() => {
-    alert(`👋 Tere tulemast, ${user}!`);
+    alert(`👋 Welcome, ${user}!\n\nStart tapping to earn coins and buy upgrades!`);
   }, 500);
 };
 
-// ========== KLÕPSAMINE MÜNDEDE SAAmiseks ==========
+// ========== TAP TO EARN ==========
 qs("tapButton").onclick = () => {
   coins += multiplier;
   xp += multiplier;
   
-  // Taseme tõus
+  // Level up system
   if (xp >= level * 100) {
     xp = 0; 
     level++; 
     multiplier++;
     
-    // Level up animatsioon
+    // Level up animation
     qs("levelUpOverlay").classList.add("active");
     setTimeout(() => qs("levelUpOverlay").classList.remove("active"), 1200);
     
-    // Tähistus iga 5. taseme juures
+    // Celebration every 5 levels
     if (level % 5 === 0) {
-      alert(`🎉 ÕNNITLUSED!\nSaavutasid ${level}. taseme!\nSinu kordaja on nüüd ${multiplier}x!`);
+      alert(`🎉 CONGRATULATIONS!\n\nYou reached Level ${level}!\nYour multiplier increased to ${multiplier}x!`);
+    } else {
+      alert(`✨ Level Up!\n\nYou reached Level ${level}!\nMultiplier: ${multiplier}x`);
     }
   }
   
@@ -231,25 +270,70 @@ qs("tapButton").onclick = () => {
   save();
 };
 
-// ========== POOD - KORDAJA UUENDUSED ==========
-document.querySelectorAll(".shop button").forEach(btn => {
+// ========== UPDATE UPGRADE PRICES ==========
+function calculatePrice(baseCost, count) {
+  return Math.floor(baseCost * Math.pow(PRICE_INCREASE_FACTOR, count));
+}
+
+function updateUpgradePrices() {
+  // Update multiplier upgrade prices
+  document.querySelectorAll(".upgrade-btn").forEach(btn => {
+    const baseCost = parseInt(btn.dataset.baseCost);
+    const xValue = btn.dataset.x;
+    const count = upgradeCounts[xValue] || 0;
+    const newPrice = calculatePrice(baseCost, count);
+    btn.querySelector(".cost").textContent = newPrice.toLocaleString();
+  });
+  
+  // Update color prices
+  document.querySelectorAll(".color-btn").forEach(btn => {
+    const baseCost = parseInt(btn.dataset.baseCost);
+    const color = btn.dataset.color;
+    if (baseCost > 0 && colorCounts[color] !== undefined) {
+      const count = colorCounts[color] || 0;
+      const newPrice = calculatePrice(baseCost, count);
+      btn.querySelector(".cost")?.textContent = newPrice.toLocaleString();
+    }
+  });
+  
+  // Update character prices
+  document.querySelectorAll(".char-btn").forEach(btn => {
+    const baseCost = parseInt(btn.dataset.baseCost);
+    const char = btn.dataset.char;
+    if (baseCost > 0 && charCounts[char] !== undefined) {
+      const count = charCounts[char] || 0;
+      const newPrice = calculatePrice(baseCost, count);
+      btn.querySelector(".cost")?.textContent = newPrice.toLocaleString();
+    }
+  });
+}
+
+// ========== SHOP - MULTIPLIER UPGRADES ==========
+document.querySelectorAll(".upgrade-btn").forEach(btn => {
   btn.onclick = () => {
-    const cost = parseInt(btn.textContent.match(/\((\d+)\)/)[1]);
-    const addX = parseInt(btn.dataset.x);
+    const baseCost = parseInt(btn.dataset.baseCost);
+    const xValue = btn.dataset.x;
+    const currentCount = upgradeCounts[xValue] || 0;
+    const cost = calculatePrice(baseCost, currentCount);
+    const addX = parseInt(xValue);
     
     if (coins >= cost) {
       coins -= cost;
       multiplier += addX;
+      upgradeCounts[xValue] = currentCount + 1;
+      
       updateUI();
+      updateUpgradePrices();
       save();
-      alert(`✅ Kordaja uuendatud!\nUus kordaja: ${multiplier}x`);
+      
+      alert(`✅ Upgrade Purchased!\n\n+${addX}x Multiplier\nNew Multiplier: ${multiplier}x\nCoins spent: ${cost.toLocaleString()}💰`);
     } else {
-      alert(`❌ Pole piisavalt münte!\nVaja: ${cost}💰\nSul on: ${coins}💰`);
+      alert(`❌ Not Enough Coins!\n\nCost: ${cost.toLocaleString()}💰\nYou have: ${coins.toLocaleString()}💰\n\nKeep tapping to earn more!`);
     }
   };
 });
 
-// ========== VÄRVISÜSTEEM ==========
+// ========== COLOR SYSTEM ==========
 function applyButtonStyle() {
   const tapBtn = qs("tapButton");
   
@@ -271,56 +355,87 @@ function applyButtonStyle() {
   }
 }
 
-document.querySelectorAll(".colors button").forEach(btn => {
+document.querySelectorAll(".color-btn").forEach(btn => {
   btn.onclick = () => {
-    const cost = parseInt(btn.textContent.match(/\((\d+)\)/)[1]);
+    const baseCost = parseInt(btn.dataset.baseCost);
     const color = btn.dataset.color;
+    const currentCount = colorCounts[color] || 0;
+    const cost = baseCost > 0 ? calculatePrice(baseCost, currentCount) : 0;
     
     if (coins >= cost) {
-      coins -= cost;
+      if (baseCost > 0) {
+        coins -= cost;
+        colorCounts[color] = currentCount + 1;
+      }
+      
       buttonColor = color;
       applyButtonStyle();
+      
       updateUI();
+      updateUpgradePrices();
       save();
-      alert(`🎨 Värv muudetud edukalt!`);
+      
+      const colorNames = {
+        "purple": "Purple",
+        "red": "Red", 
+        "green": "Green",
+        "gold": "Gold",
+        "default": "Default"
+      };
+      
+      alert(`🎨 Color Changed!\n\nButton color updated to ${colorNames[color]}${cost > 0 ? `\nCoins spent: ${cost.toLocaleString()}💰` : ""}`);
     } else {
-      alert(`❌ Pole piisavalt münke!\nVaja: ${cost}💰\nSul on: ${coins}💰`);
+      alert(`❌ Not Enough Coins!\n\nCost: ${cost.toLocaleString()}💰\nYou have: ${coins.toLocaleString()}💰`);
     }
   };
 });
 
-// ========== ISELOOMUDE SÜSTEEM ==========
-document.querySelectorAll(".characters button").forEach(btn => {
+// ========== CHARACTER SYSTEM ==========
+document.querySelectorAll(".char-btn").forEach(btn => {
   btn.onclick = () => {
-    const cost = parseInt(btn.textContent.match(/\((\d+)\)/)[1]);
+    const baseCost = parseInt(btn.dataset.baseCost);
     const char = btn.dataset.char;
+    const currentCount = charCounts[char] || 0;
+    const cost = baseCost > 0 ? calculatePrice(baseCost, currentCount) : 0;
     
     if (coins >= cost) {
-      coins -= cost;
+      if (baseCost > 0) {
+        coins -= cost;
+        charCounts[char] = currentCount + 1;
+      }
+      
       character = char;
       qs("tapButton").textContent = character;
+      
       updateUI();
+      updateUpgradePrices();
       save();
-      alert(`🎭 Iseloom vahetatud!\nUus iseloom: ${char}`);
+      
+      alert(`🎭 Character Changed!\n\nNew character: ${char}${cost > 0 ? `\nCoins spent: ${cost.toLocaleString()}💰` : ""}`);
     } else {
-      alert(`❌ Pole piisavalt münke!\nVaja: ${cost}💰\nSul on: ${coins}💰`);
+      alert(`❌ Not Enough Coins!\n\nCost: ${cost.toLocaleString()}💰\nYou have: ${coins.toLocaleString()}💰`);
     }
   };
 });
 
-// ========== EDETABEL ==========
+// ========== LEADERBOARD ==========
 function getLeaderboard() {
   const leaderboard = [];
   
   for (let i = 0; i < localStorage.length; i++) {
     const key = localStorage.key(i);
     if (key.startsWith("user_")) {
-      const data = JSON.parse(localStorage.getItem(key));
-      leaderboard.push({
-        username: key.replace("user_", ""),
-        coins: data.coins ?? 0,
-        level: data.level ?? 1
-      });
+      try {
+        const data = JSON.parse(localStorage.getItem(key));
+        leaderboard.push({
+          username: key.replace("user_", ""),
+          coins: data.coins ?? 0,
+          level: data.level ?? 1,
+          multiplier: data.multiplier ?? 1
+        });
+      } catch (e) {
+        console.log("Error parsing:", key);
+      }
     }
   }
   
@@ -334,7 +449,7 @@ function loadLeaderboard() {
   const leaderboard = getLeaderboard();
   
   if (leaderboard.length === 0) {
-    list.innerHTML = "<div style='text-align:center;padding:20px;color:#666;'>Tabel on tühi!</div>";
+    list.innerHTML = "<div style='text-align:center;padding:20px;color:#666;'>Leaderboard is empty!</div>";
     return;
   }
   
@@ -350,25 +465,58 @@ function loadLeaderboard() {
     else if (idx === 2) medal = "🥉 ";
     
     item.innerHTML = `
-      <span><strong>${medal}${idx + 1}. ${player.username}</strong></span>
-      <span>💰 ${player.coins.toLocaleString()} | 🎯 Level ${player.level}</span>
+      <div style="display:flex;flex-direction:column;align-items:flex-start;">
+        <span style="font-weight:bold;font-size:1.1rem;">${medal}${idx + 1}. ${player.username}${isMe ? " (You)" : ""}</span>
+        <span style="font-size:0.85rem;color:#666;">Level ${player.level} • ${player.multiplier}x Multiplier</span>
+      </div>
+      <span style="font-weight:bold;font-size:1.2rem;color:#ffd700;">${player.coins.toLocaleString()}💰</span>
     `;
     list.appendChild(item);
   });
 }
 
-// ========== DEMO ANDMED (TESTIMISEKS) ==========
-if (localStorage.getItem("demo_mode") === null) {
-  localStorage.setItem("user_Alice", JSON.stringify({coins: 5000, multiplier: 10, level: 8, xp: 0, buttonColor: "gold", character: "🦄"}));
-  localStorage.setItem("user_Bob", JSON.stringify({coins: 3200, multiplier: 7, level: 5, xp: 0, buttonColor: "red", character: "🐱"}));
-  localStorage.setItem("user_Chris", JSON.stringify({coins: 1800, multiplier: 5, level: 3, xp: 0, buttonColor: "green", character: "🐶"}));
-  localStorage.setItem("demo_mode", "true");
+// ========== DEMO DATA (FOR TESTING) ==========
+if (localStorage.getItem("demo_initialized") === null) {
+  // Create demo players
+  localStorage.setItem("user_Alice", JSON.stringify({
+    coins: 15000, multiplier: 25, level: 12, xp: 50, 
+    buttonColor: "gold", character: "🦄",
+    upgradeCounts: {"2": 3, "5": 2, "10": 1},
+    colorCounts: {"gold": 1},
+    charCounts: {"🦄": 1}
+  }));
+  
+  localStorage.setItem("user_Bob", JSON.stringify({
+    coins: 8500, multiplier: 15, level: 8, xp: 30,
+    buttonColor: "red", character: "🐉",
+    upgradeCounts: {"2": 2, "5": 1, "10": 0},
+    colorCounts: {"red": 1},
+    charCounts: {"🐉": 1}
+  }));
+  
+  localStorage.setItem("user_Chris", JSON.stringify({
+    coins: 4200, multiplier: 8, level: 5, xp: 10,
+    buttonColor: "green", character: "🐱",
+    upgradeCounts: {"2": 1, "5": 1, "10": 0},
+    colorCounts: {"green": 1},
+    charCounts: {"🐱": 1}
+  }));
+  
+  localStorage.setItem("user_Diana", JSON.stringify({
+    coins: 2800, multiplier: 6, level: 4, xp: 80,
+    buttonColor: "purple", character: "👽",
+    upgradeCounts: {"2": 2, "5": 0, "10": 0},
+    colorCounts: {"purple": 1},
+    charCounts: {"👽": 1}
+  }));
+  
+  localStorage.setItem("demo_initialized", "true");
 }
 
-// ========== TERVITUS SÕNUM ==========
+// ========== WELCOME MESSAGE ==========
 setTimeout(() => {
   if (!user) {
-    alert("👋 Tere tulemast Tap-to-Earn mängu!\n\nSisesta oma kasutajanimi ja parool,\nette alustada mündikogumist!");
+    alert("👋 Welcome to Tap-to-Earn Game!\n\n👉 Create an account to start earning coins\n👉 Tap the button to earn money\n👉 Buy upgrades to increase your multiplier\n👉 Customize your button with colors and characters\n👉 Compete on the leaderboard!\n\nLet's start tapping! 🚀");
   }
 }, 1000);
 </script>
