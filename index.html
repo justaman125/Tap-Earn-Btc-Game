@@ -33,7 +33,6 @@ button:active{transform:scale(0.95);}
 .leaderboard-item.me{border:2px solid #0ff;background:#1a1a2e;}
 .back-btn{background:#111;color:#0ff;box-shadow:0 0 10px #0ff;margin-top:10px;}
 .coin-balance{font-size:1.3rem;font-weight:bold;color:#ffd700;margin:10px 0;}
-.upgrade-info{font-size:0.85rem;color:#666;margin-top:5px;}
 .error-message{color:#ff5252;font-size:0.85rem;margin-top:5px;display:none;}
 </style>
 </head>
@@ -135,7 +134,6 @@ let level = 1;
 let xp = 0;
 let buttonColor = "default";
 let character = "🐵";
-let startX = 0;
 
 // Dynamic pricing multipliers
 const PRICE_INCREASE_FACTOR = 1.5;
@@ -200,6 +198,7 @@ function show(id) {
 }
 
 // ========== SWIPE BACK (MOBILE) ==========
+let startX = 0;
 document.addEventListener("touchstart", e => {
   startX = e.touches[0].clientX;
 });
@@ -212,341 +211,338 @@ document.addEventListener("touchend", e => {
 });
 
 // ========== NAVIGATION BUTTONS ==========
-document.addEventListener("DOMContentLoaded", function() {
-  // Navigation buttons
-  qs("tabGame")?.addEventListener("click", () => show("gameScreen"));
-  qs("tabShop")?.addEventListener("click", () => show("gameScreen"));
-  qs("tabColors")?.addEventListener("click", () => show("colorsScreen"));
-  qs("tabChars")?.addEventListener("click", () => show("charsScreen"));
-  qs("tabLeaderboard")?.addEventListener("click", () => show("leaderboardScreen"));
+qs("tabGame").onclick = () => show("gameScreen");
+qs("tabShop").onclick = () => show("gameScreen");
+qs("tabColors").onclick = () => show("colorsScreen");
+qs("tabChars").onclick = () => show("charsScreen");
+qs("tabLeaderboard").onclick = () => show("leaderboardScreen");
 
-  qs("backToGame1")?.addEventListener("click", () => show("gameScreen"));
-  qs("backToGame2")?.addEventListener("click", () => show("gameScreen"));
-  qs("backToGame3")?.addEventListener("click", () => show("gameScreen"));
+qs("backToGame1").onclick = () => show("gameScreen");
+qs("backToGame2").onclick = () => show("gameScreen");
+qs("backToGame3").onclick = () => show("gameScreen");
 
-  // ========== LOGIN BUTTON ==========
-  qs("loginBtn")?.addEventListener("click", function() {
-    const username = qs("username").value.trim();
-    const password = qs("password").value;
-    let hasError = false;
-    
-    // Clear previous errors
-    qs("usernameError").style.display = "none";
-    qs("passwordError").style.display = "none";
-    
-    // Validate username
-    if (!username) {
-      qs("usernameError").textContent = "⚠️ Username is required";
-      qs("usernameError").style.display = "block";
-      hasError = true;
-    } else if (username.length < 3) {
-      qs("usernameError").textContent = "⚠️ Username must be at least 3 characters";
-      qs("usernameError").style.display = "block";
-      hasError = true;
-    }
-    
-    // Validate password
-    if (!password) {
-      qs("passwordError").textContent = "⚠️ Password is required";
-      qs("passwordError").style.display = "block";
-      hasError = true;
-    } else if (password.length < 4) {
-      qs("passwordError").textContent = "⚠️ Password must be at least 4 characters";
-      qs("passwordError").style.display = "block";
-      hasError = true;
-    }
-    
-    if (hasError) return;
-    
-    // Login successful
-    user = username;
-    load();
-    updateUI();
-    qs("loginScreen").classList.remove("active");
-    show("gameScreen");
-    
-    // Welcome message
-    setTimeout(() => {
-      alert(`👋 Welcome, ${user}!\n\nStart tapping to earn coins and buy upgrades!`);
-    }, 500);
-  });
-
-  // ========== TAP TO EARN ==========
-  qs("tapButton")?.addEventListener("click", function() {
-    coins += multiplier;
-    xp += multiplier;
-    
-    // Level up system
-    if (xp >= level * 100) {
-      xp = 0; 
-      level++; 
-      multiplier++;
-      
-      // Level up animation
-      qs("levelUpOverlay").classList.add("active");
-      setTimeout(() => qs("levelUpOverlay").classList.remove("active"), 1200);
-      
-      // Celebration every 5 levels
-      if (level % 5 === 0) {
-        alert(`🎉 CONGRATULATIONS!\n\nYou reached Level ${level}!\nYour multiplier increased to ${multiplier}x!`);
-      } else {
-        alert(`✨ Level Up!\n\nYou reached Level ${level}!\nMultiplier: ${multiplier}x`);
-      }
-    }
-    
-    updateUI();
-    save();
-  });
-
-  // ========== UPDATE UPGRADE PRICES ==========
-  function calculatePrice(baseCost, count) {
-    return Math.floor(baseCost * Math.pow(PRICE_INCREASE_FACTOR, count));
+// ========== LOGIN BUTTON ==========
+qs("loginBtn").onclick = function() {
+  const username = qs("username").value.trim();
+  const password = qs("password").value;
+  let hasError = false;
+  
+  // Clear previous errors
+  qs("usernameError").style.display = "none";
+  qs("passwordError").style.display = "none";
+  
+  // Validate username
+  if (!username) {
+    qs("usernameError").textContent = "⚠️ Username is required";
+    qs("usernameError").style.display = "block";
+    hasError = true;
+  } else if (username.length < 3) {
+    qs("usernameError").textContent = "⚠️ Username must be at least 3 characters";
+    qs("usernameError").style.display = "block";
+    hasError = true;
   }
-
-  function updateUpgradePrices() {
-    // Update multiplier upgrade prices
-    document.querySelectorAll(".upgrade-btn").forEach(btn => {
-      const baseCost = parseInt(btn.dataset.baseCost);
-      const xValue = btn.dataset.x;
-      const count = upgradeCounts[xValue] || 0;
-      const newPrice = calculatePrice(baseCost, count);
-      btn.querySelector(".cost").textContent = newPrice.toLocaleString();
-    });
-    
-    // Update color prices
-    document.querySelectorAll(".color-btn").forEach(btn => {
-      const baseCost = parseInt(btn.dataset.baseCost);
-      const color = btn.dataset.color;
-      if (baseCost > 0 && colorCounts[color] !== undefined) {
-        const count = colorCounts[color] || 0;
-        const newPrice = calculatePrice(baseCost, count);
-        btn.querySelector(".cost")?.textContent = newPrice.toLocaleString();
-      }
-    });
-    
-    // Update character prices
-    document.querySelectorAll(".char-btn").forEach(btn => {
-      const baseCost = parseInt(btn.dataset.baseCost);
-      const char = btn.dataset.char;
-      if (baseCost > 0 && charCounts[char] !== undefined) {
-        const count = charCounts[char] || 0;
-        const newPrice = calculatePrice(baseCost, count);
-        btn.querySelector(".cost")?.textContent = newPrice.toLocaleString();
-      }
-    });
+  
+  // Validate password
+  if (!password) {
+    qs("passwordError").textContent = "⚠️ Password is required";
+    qs("passwordError").style.display = "block";
+    hasError = true;
+  } else if (password.length < 4) {
+    qs("passwordError").textContent = "⚠️ Password must be at least 4 characters";
+    qs("passwordError").style.display = "block";
+    hasError = true;
   }
-
-  // ========== SHOP - MULTIPLIER UPGRADES ==========
-  document.querySelectorAll(".upgrade-btn").forEach(btn => {
-    btn.addEventListener("click", function() {
-      const baseCost = parseInt(btn.dataset.baseCost);
-      const xValue = btn.dataset.x;
-      const currentCount = upgradeCounts[xValue] || 0;
-      const cost = calculatePrice(baseCost, currentCount);
-      const addX = parseInt(xValue);
-      
-      if (coins >= cost) {
-        coins -= cost;
-        multiplier += addX;
-        upgradeCounts[xValue] = currentCount + 1;
-        
-        updateUI();
-        updateUpgradePrices();
-        save();
-        
-        alert(`✅ Upgrade Purchased!\n\n+${addX}x Multiplier\nNew Multiplier: ${multiplier}x\nCoins spent: ${cost.toLocaleString()}💰`);
-      } else {
-        alert(`❌ Not Enough Coins!\n\nCost: ${cost.toLocaleString()}💰\nYou have: ${coins.toLocaleString()}💰\n\nKeep tapping to earn more!`);
-      }
-    });
-  });
-
-  // ========== COLOR SYSTEM ==========
-  function applyButtonStyle() {
-    const tapBtn = qs("tapButton");
-    
-    if (buttonColor === "purple") {
-      tapBtn.style.background = "linear-gradient(145deg,#9c27b0,#6a1b9a)";
-      tapBtn.style.boxShadow = "0 0 25px #9c27b0, 0 0 60px #9c27b0 inset";
-    } else if (buttonColor === "red") {
-      tapBtn.style.background = "linear-gradient(145deg,#f44336,#c62828)";
-      tapBtn.style.boxShadow = "0 0 25px #f44336, 0 0 60px #f44336 inset";
-    } else if (buttonColor === "green") {
-      tapBtn.style.background = "linear-gradient(145deg,#4caf50,#2e7d32)";
-      tapBtn.style.boxShadow = "0 0 25px #4caf50, 0 0 60px #4caf50 inset";
-    } else if (buttonColor === "gold") {
-      tapBtn.style.background = "linear-gradient(145deg,#ffc107,#ff8f00)";
-      tapBtn.style.boxShadow = "0 0 25px #ffc107, 0 0 60px #ffc107 inset";
-    } else {
-      tapBtn.style.background = "linear-gradient(145deg,#0ff,#0055ff)";
-      tapBtn.style.boxShadow = "0 0 25px #0ff, 0 0 60px #0ff inset";
-    }
-  }
-
-  document.querySelectorAll(".color-btn").forEach(btn => {
-    btn.addEventListener("click", function() {
-      const baseCost = parseInt(btn.dataset.baseCost);
-      const color = btn.dataset.color;
-      const currentCount = colorCounts[color] || 0;
-      const cost = baseCost > 0 ? calculatePrice(baseCost, currentCount) : 0;
-      
-      if (coins >= cost) {
-        if (baseCost > 0) {
-          coins -= cost;
-          colorCounts[color] = currentCount + 1;
-        }
-        
-        buttonColor = color;
-        applyButtonStyle();
-        
-        updateUI();
-        updateUpgradePrices();
-        save();
-        
-        const colorNames = {
-          "purple": "Purple",
-          "red": "Red", 
-          "green": "Green",
-          "gold": "Gold",
-          "default": "Default"
-        };
-        
-        alert(`🎨 Color Changed!\n\nButton color updated to ${colorNames[color]}${cost > 0 ? `\nCoins spent: ${cost.toLocaleString()}💰` : ""}`);
-      } else {
-        alert(`❌ Not Enough Coins!\n\nCost: ${cost.toLocaleString()}💰\nYou have: ${coins.toLocaleString()}💰`);
-      }
-    });
-  });
-
-  // ========== CHARACTER SYSTEM ==========
-  document.querySelectorAll(".char-btn").forEach(btn => {
-    btn.addEventListener("click", function() {
-      const baseCost = parseInt(btn.dataset.baseCost);
-      const char = btn.dataset.char;
-      const currentCount = charCounts[char] || 0;
-      const cost = baseCost > 0 ? calculatePrice(baseCost, currentCount) : 0;
-      
-      if (coins >= cost) {
-        if (baseCost > 0) {
-          coins -= cost;
-          charCounts[char] = currentCount + 1;
-        }
-        
-        character = char;
-        qs("tapButton").textContent = character;
-        
-        updateUI();
-        updateUpgradePrices();
-        save();
-        
-        alert(`🎭 Character Changed!\n\nNew character: ${char}${cost > 0 ? `\nCoins spent: ${cost.toLocaleString()}💰` : ""}`);
-      } else {
-        alert(`❌ Not Enough Coins!\n\nCost: ${cost.toLocaleString()}💰\nYou have: ${coins.toLocaleString()}💰`);
-      }
-    });
-  });
-
-  // ========== LEADERBOARD ==========
-  function getLeaderboard() {
-    const leaderboard = [];
-    
-    for (let i = 0; i < localStorage.length; i++) {
-      const key = localStorage.key(i);
-      if (key.startsWith("user_")) {
-        try {
-          const data = JSON.parse(localStorage.getItem(key));
-          leaderboard.push({
-            username: key.replace("user_", ""),
-            coins: data.coins ?? 0,
-            level: data.level ?? 1,
-            multiplier: data.multiplier ?? 1
-          });
-        } catch (e) {
-          console.log("Error parsing:", key);
-        }
-      }
-    }
-    
-    return leaderboard.sort((a, b) => b.coins - a.coins).slice(0, 10);
-  }
-
-  function loadLeaderboard() {
-    const list = qs("leaderboardList");
-    list.innerHTML = "";
-    
-    const leaderboard = getLeaderboard();
-    
-    if (leaderboard.length === 0) {
-      list.innerHTML = "<div style='text-align:center;padding:20px;color:#666;'>Leaderboard is empty!</div>";
-      return;
-    }
-    
-    leaderboard.forEach((player, idx) => {
-      const isMe = user === player.username;
-      const item = document.createElement("div");
-      item.className = "leaderboard-item" + (isMe ? " me" : "");
-      
-      // Medals for top 3
-      let medal = "";
-      if (idx === 0) medal = "🥇 ";
-      else if (idx === 1) medal = "🥈 ";
-      else if (idx === 2) medal = "🥉 ";
-      
-      item.innerHTML = `
-        <div style="display:flex;flex-direction:column;align-items:flex-start;">
-          <span style="font-weight:bold;font-size:1.1rem;">${medal}${idx + 1}. ${player.username}${isMe ? " (You)" : ""}</span>
-          <span style="font-size:0.85rem;color:#666;">Level ${player.level} • ${player.multiplier}x Multiplier</span>
-        </div>
-        <span style="font-weight:bold;font-size:1.2rem;color:#ffd700;">${player.coins.toLocaleString()}💰</span>
-      `;
-      list.appendChild(item);
-    });
-  }
-
-  // ========== DEMO DATA (FOR TESTING) ==========
-  if (localStorage.getItem("demo_initialized") === null) {
-    localStorage.setItem("user_Alice", JSON.stringify({
-      coins: 15000, multiplier: 25, level: 12, xp: 50, 
-      buttonColor: "gold", character: "🦄",
-      upgradeCounts: {"2": 3, "5": 2, "10": 1},
-      colorCounts: {"gold": 1},
-      charCounts: {"🦄": 1}
-    }));
-    
-    localStorage.setItem("user_Bob", JSON.stringify({
-      coins: 8500, multiplier: 15, level: 8, xp: 30,
-      buttonColor: "red", character: "🐉",
-      upgradeCounts: {"2": 2, "5": 1, "10": 0},
-      colorCounts: {"red": 1},
-      charCounts: {"🐉": 1}
-    }));
-    
-    localStorage.setItem("user_Chris", JSON.stringify({
-      coins: 4200, multiplier: 8, level: 5, xp: 10,
-      buttonColor: "green", character: "🐱",
-      upgradeCounts: {"2": 1, "5": 1, "10": 0},
-      colorCounts: {"green": 1},
-      charCounts: {"🐱": 1}
-    }));
-    
-    localStorage.setItem("user_Diana", JSON.stringify({
-      coins: 2800, multiplier: 6, level: 4, xp: 80,
-      buttonColor: "purple", character: "👽",
-      upgradeCounts: {"2": 2, "5": 0, "10": 0},
-      colorCounts: {"purple": 1},
-      charCounts: {"👽": 1}
-    }));
-    
-    localStorage.setItem("demo_initialized", "true");
-  }
-
-  // ========== WELCOME MESSAGE ==========
+  
+  if (hasError) return;
+  
+  // Login successful
+  user = username;
+  load();
+  updateUI();
+  qs("loginScreen").classList.remove("active");
+  show("gameScreen");
+  
+  // Welcome message
   setTimeout(() => {
-    if (!user) {
-      alert("👋 Welcome to Tap-to-Earn Game!\n\n👉 Create an account to start earning coins\n👉 Tap the button to earn money\n👉 Buy upgrades to increase your multiplier\n👉 Customize your button with colors and characters\n👉 Compete on the leaderboard!\n\nLet's start tapping! 🚀");
+    alert(`👋 Welcome, ${user}!\n\nStart tapping to earn coins and buy upgrades!`);
+  }, 500);
+};
+
+// ========== TAP TO EARN ==========
+qs("tapButton").onclick = function() {
+  coins += multiplier;
+  xp += multiplier;
+  
+  // Level up system
+  if (xp >= level * 100) {
+    xp = 0; 
+    level++; 
+    multiplier++;
+    
+    // Level up animation
+    qs("levelUpOverlay").classList.add("active");
+    setTimeout(() => qs("levelUpOverlay").classList.remove("active"), 1200);
+    
+    // Celebration every 5 levels
+    if (level % 5 === 0) {
+      alert(`🎉 CONGRATULATIONS!\n\nYou reached Level ${level}!\nYour multiplier increased to ${multiplier}x!`);
+    } else {
+      alert(`✨ Level Up!\n\nYou reached Level ${level}!\nMultiplier: ${multiplier}x`);
     }
-  }, 1000);
+  }
+  
+  updateUI();
+  save();
+};
+
+// ========== UPDATE UPGRADE PRICES ==========
+function calculatePrice(baseCost, count) {
+  return Math.floor(baseCost * Math.pow(PRICE_INCREASE_FACTOR, count));
+}
+
+function updateUpgradePrices() {
+  // Update multiplier upgrade prices
+  document.querySelectorAll(".upgrade-btn").forEach(btn => {
+    const baseCost = parseInt(btn.dataset.baseCost);
+    const xValue = btn.dataset.x;
+    const count = upgradeCounts[xValue] || 0;
+    const newPrice = calculatePrice(baseCost, count);
+    btn.querySelector(".cost").textContent = newPrice.toLocaleString();
+  });
+  
+  // Update color prices
+  document.querySelectorAll(".color-btn").forEach(btn => {
+    const baseCost = parseInt(btn.dataset.baseCost);
+    const color = btn.dataset.color;
+    if (baseCost > 0 && colorCounts[color] !== undefined) {
+      const count = colorCounts[color] || 0;
+      const newPrice = calculatePrice(baseCost, count);
+      btn.querySelector(".cost")?.textContent = newPrice.toLocaleString();
+    }
+  });
+  
+  // Update character prices
+  document.querySelectorAll(".char-btn").forEach(btn => {
+    const baseCost = parseInt(btn.dataset.baseCost);
+    const char = btn.dataset.char;
+    if (baseCost > 0 && charCounts[char] !== undefined) {
+      const count = charCounts[char] || 0;
+      const newPrice = calculatePrice(baseCost, count);
+      btn.querySelector(".cost")?.textContent = newPrice.toLocaleString();
+    }
+  });
+}
+
+// ========== SHOP - MULTIPLIER UPGRADES ==========
+document.querySelectorAll(".upgrade-btn").forEach(btn => {
+  btn.onclick = function() {
+    const baseCost = parseInt(btn.dataset.baseCost);
+    const xValue = btn.dataset.x;
+    const currentCount = upgradeCounts[xValue] || 0;
+    const cost = calculatePrice(baseCost, currentCount);
+    const addX = parseInt(xValue);
+    
+    if (coins >= cost) {
+      coins -= cost;
+      multiplier += addX;
+      upgradeCounts[xValue] = currentCount + 1;
+      
+      updateUI();
+      updateUpgradePrices();
+      save();
+      
+      alert(`✅ Upgrade Purchased!\n\n+${addX}x Multiplier\nNew Multiplier: ${multiplier}x\nCoins spent: ${cost.toLocaleString()}💰`);
+    } else {
+      alert(`❌ Not Enough Coins!\n\nCost: ${cost.toLocaleString()}💰\nYou have: ${coins.toLocaleString()}💰\n\nKeep tapping to earn more!`);
+    }
+  };
 });
+
+// ========== COLOR SYSTEM ==========
+function applyButtonStyle() {
+  const tapBtn = qs("tapButton");
+  
+  if (buttonColor === "purple") {
+    tapBtn.style.background = "linear-gradient(145deg,#9c27b0,#6a1b9a)";
+    tapBtn.style.boxShadow = "0 0 25px #9c27b0, 0 0 60px #9c27b0 inset";
+  } else if (buttonColor === "red") {
+    tapBtn.style.background = "linear-gradient(145deg,#f44336,#c62828)";
+    tapBtn.style.boxShadow = "0 0 25px #f44336, 0 0 60px #f44336 inset";
+  } else if (buttonColor === "green") {
+    tapBtn.style.background = "linear-gradient(145deg,#4caf50,#2e7d32)";
+    tapBtn.style.boxShadow = "0 0 25px #4caf50, 0 0 60px #4caf50 inset";
+  } else if (buttonColor === "gold") {
+    tapBtn.style.background = "linear-gradient(145deg,#ffc107,#ff8f00)";
+    tapBtn.style.boxShadow = "0 0 25px #ffc107, 0 0 60px #ffc107 inset";
+  } else {
+    tapBtn.style.background = "linear-gradient(145deg,#0ff,#0055ff)";
+    tapBtn.style.boxShadow = "0 0 25px #0ff, 0 0 60px #0ff inset";
+  }
+}
+
+document.querySelectorAll(".color-btn").forEach(btn => {
+  btn.onclick = function() {
+    const baseCost = parseInt(btn.dataset.baseCost);
+    const color = btn.dataset.color;
+    const currentCount = colorCounts[color] || 0;
+    const cost = baseCost > 0 ? calculatePrice(baseCost, currentCount) : 0;
+    
+    if (coins >= cost) {
+      if (baseCost > 0) {
+        coins -= cost;
+        colorCounts[color] = currentCount + 1;
+      }
+      
+      buttonColor = color;
+      applyButtonStyle();
+      
+      updateUI();
+      updateUpgradePrices();
+      save();
+      
+      const colorNames = {
+        "purple": "Purple",
+        "red": "Red", 
+        "green": "Green",
+        "gold": "Gold",
+        "default": "Default"
+      };
+      
+      alert(`🎨 Color Changed!\n\nButton color updated to ${colorNames[color]}${cost > 0 ? `\nCoins spent: ${cost.toLocaleString()}💰` : ""}`);
+    } else {
+      alert(`❌ Not Enough Coins!\n\nCost: ${cost.toLocaleString()}💰\nYou have: ${coins.toLocaleString()}💰`);
+    }
+  };
+});
+
+// ========== CHARACTER SYSTEM ==========
+document.querySelectorAll(".char-btn").forEach(btn => {
+  btn.onclick = function() {
+    const baseCost = parseInt(btn.dataset.baseCost);
+    const char = btn.dataset.char;
+    const currentCount = charCounts[char] || 0;
+    const cost = baseCost > 0 ? calculatePrice(baseCost, currentCount) : 0;
+    
+    if (coins >= cost) {
+      if (baseCost > 0) {
+        coins -= cost;
+        charCounts[char] = currentCount + 1;
+      }
+      
+      character = char;
+      qs("tapButton").textContent = character;
+      
+      updateUI();
+      updateUpgradePrices();
+      save();
+      
+      alert(`🎭 Character Changed!\n\nNew character: ${char}${cost > 0 ? `\nCoins spent: ${cost.toLocaleString()}💰` : ""}`);
+    } else {
+      alert(`❌ Not Enough Coins!\n\nCost: ${cost.toLocaleString()}💰\nYou have: ${coins.toLocaleString()}💰`);
+    }
+  };
+});
+
+// ========== LEADERBOARD ==========
+function getLeaderboard() {
+  const leaderboard = [];
+  
+  for (let i = 0; i < localStorage.length; i++) {
+    const key = localStorage.key(i);
+    if (key.startsWith("user_")) {
+      try {
+        const data = JSON.parse(localStorage.getItem(key));
+        leaderboard.push({
+          username: key.replace("user_", ""),
+          coins: data.coins ?? 0,
+          level: data.level ?? 1,
+          multiplier: data.multiplier ?? 1
+        });
+      } catch (e) {
+        console.log("Error parsing:", key);
+      }
+    }
+  }
+  
+  return leaderboard.sort((a, b) => b.coins - a.coins).slice(0, 10);
+}
+
+function loadLeaderboard() {
+  const list = qs("leaderboardList");
+  list.innerHTML = "";
+  
+  const leaderboard = getLeaderboard();
+  
+  if (leaderboard.length === 0) {
+    list.innerHTML = "<div style='text-align:center;padding:20px;color:#666;'>Leaderboard is empty!</div>";
+    return;
+  }
+  
+  leaderboard.forEach((player, idx) => {
+    const isMe = user === player.username;
+    const item = document.createElement("div");
+    item.className = "leaderboard-item" + (isMe ? " me" : "");
+    
+    // Medals for top 3
+    let medal = "";
+    if (idx === 0) medal = "🥇 ";
+    else if (idx === 1) medal = "🥈 ";
+    else if (idx === 2) medal = "🥉 ";
+    
+    item.innerHTML = `
+      <div style="display:flex;flex-direction:column;align-items:flex-start;">
+        <span style="font-weight:bold;font-size:1.1rem;">${medal}${idx + 1}. ${player.username}${isMe ? " (You)" : ""}</span>
+        <span style="font-size:0.85rem;color:#666;">Level ${player.level} • ${player.multiplier}x Multiplier</span>
+      </div>
+      <span style="font-weight:bold;font-size:1.2rem;color:#ffd700;">${player.coins.toLocaleString()}💰</span>
+    `;
+    list.appendChild(item);
+  });
+}
+
+// ========== DEMO DATA (FOR TESTING) ==========
+if (localStorage.getItem("demo_initialized") === null) {
+  localStorage.setItem("user_Alice", JSON.stringify({
+    coins: 15000, multiplier: 25, level: 12, xp: 50, 
+    buttonColor: "gold", character: "🦄",
+    upgradeCounts: {"2": 3, "5": 2, "10": 1},
+    colorCounts: {"gold": 1},
+    charCounts: {"🦄": 1}
+  }));
+  
+  localStorage.setItem("user_Bob", JSON.stringify({
+    coins: 8500, multiplier: 15, level: 8, xp: 30,
+    buttonColor: "red", character: "🐉",
+    upgradeCounts: {"2": 2, "5": 1, "10": 0},
+    colorCounts: {"red": 1},
+    charCounts: {"🐉": 1}
+  }));
+  
+  localStorage.setItem("user_Chris", JSON.stringify({
+    coins: 4200, multiplier: 8, level: 5, xp: 10,
+    buttonColor: "green", character: "🐱",
+    upgradeCounts: {"2": 1, "5": 1, "10": 0},
+    colorCounts: {"green": 1},
+    charCounts: {"🐱": 1}
+  }));
+  
+  localStorage.setItem("user_Diana", JSON.stringify({
+    coins: 2800, multiplier: 6, level: 4, xp: 80,
+    buttonColor: "purple", character: "👽",
+    upgradeCounts: {"2": 2, "5": 0, "10": 0},
+    colorCounts: {"purple": 1},
+    charCounts: {"👽": 1}
+  }));
+  
+  localStorage.setItem("demo_initialized", "true");
+}
+
+// ========== WELCOME MESSAGE ==========
+setTimeout(() => {
+  if (!user) {
+    alert("👋 Welcome to Tap-to-Earn Game!\n\n👉 Create an account to start earning coins\n👉 Tap the button to earn money\n👉 Buy upgrades to increase your multiplier\n👉 Customize your button with colors and characters\n👉 Compete on the leaderboard!\n\nLet's start tapping! 🚀");
+  }
+}, 1000);
 </script>
 
 </body>
