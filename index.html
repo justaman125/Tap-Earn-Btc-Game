@@ -3,37 +3,38 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Tap-to-Earn Game</title>
+<title>Tap-to-Earn BTC</title>
 
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap');
 *{margin:0;padding:0;box-sizing:border-box;font-family:'Inter',sans-serif;}
-body{background:#0d0d0d;color:#fff;min-height:100vh;display:flex;justify-content:center;padding:20px;overflow:hidden;}
+body{background:linear-gradient(135deg,#1a1a1a,#0d0d0d);color:#fff;min-height:100vh;display:flex;justify-content:center;padding:20px;overflow:hidden;}
 .screen{display:none;flex-direction:column;align-items:center;gap:14px;width:100%;max-width:420px;animation:fadeIn 0.25s ease;}
 .screen.active{display:flex;}
 @keyframes fadeIn{from{opacity:0;transform:translateX(20px);}to{opacity:1;transform:translateX(0);}}
-h1{color:#0ff;text-shadow:0 0 12px #0ff;font-size:2.2rem;margin-bottom:10px;}
+h1{color:#f7931a;text-shadow:0 0 12px #f7931a;font-size:2.2rem;margin-bottom:10px;}
 input{width:220px;padding:12px;border-radius:10px;border:none;background:#111;color:#fff;font-size:1rem;}
 input::placeholder{color:#666;}
-input:focus{outline:none;box-shadow:0 0 10px #0ff;}
-button{padding:12px 20px;border:none;border-radius:12px;background:#0ff;color:#000;font-weight:700;cursor:pointer;transition:0.25s;font-size:0.95rem;}
+input:focus{outline:none;box-shadow:0 0 10px #f7931a;}
+button{padding:12px 20px;border:none;border-radius:12px;background:linear-gradient(135deg,#f7931a,#ff9900);color:#000;font-weight:700;cursor:pointer;transition:0.25s;font-size:0.95rem;}
 button:hover{transform:scale(1.05);}
 button:active{transform:scale(0.95);}
 .nav{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-bottom:10px;}
-.nav button{background:#111;color:#0ff;box-shadow:0 0 10px #0ff;font-size:0.85rem;padding:8px 12px;}
+.nav button{background:#111;color:#f7931a;box-shadow:0 0 10px #f7931a;font-size:0.85rem;padding:8px 12px;}
 .counter,.multiplier,.level{font-size:1.1rem;background:#111;padding:8px 15px;border-radius:8px;margin:5px 0;width:100%;max-width:300px;}
-.tap-button{width:220px;height:220px;border-radius:50%;font-size:3.5rem;background:linear-gradient(145deg,#0ff,#0055ff);box-shadow:0 0 25px #0ff,0 0 60px #0ff inset;display:flex;justify-content:center;align-items:center;cursor:pointer;transition:0.15s;touch-action:manipulation;user-select:none;}
+.tap-button{width:220px;height:220px;border-radius:50%;font-size:3.5rem;background:linear-gradient(145deg,#f7931a,#ff9900);box-shadow:0 0 25px #f7931a,0 0 60px #f7931a inset;display:flex;justify-content:center;align-items:center;cursor:pointer;transition:0.15s;touch-action:manipulation;user-select:none;}
 .tap-button:active{transform:scale(0.94);}
 .shop,.colors,.characters,.leaderboard{width:100%;display:flex;flex-direction:column;gap:10px;}
-.shop button,.colors button,.characters button{background:#111;color:#0ff;box-shadow:0 0 10px #0ff;text-align:left;padding:10px 15px;}
-#levelUpOverlay{position:fixed;inset:0;background:radial-gradient(circle,#0ff,#000);display:flex;justify-content:center;align-items:center;font-size:3rem;font-weight:700;color:#fff;text-shadow:0 0 30px #fff;opacity:0;pointer-events:none;z-index:1000;}
+.shop button,.colors button,.characters button{background:#111;color:#f7931a;box-shadow:0 0 10px #f7931a;text-align:left;padding:10px 15px;}
+#levelUpOverlay{position:fixed;inset:0;background:radial-gradient(circle,#f7931a,#000);display:flex;justify-content:center;align-items:center;font-size:3rem;font-weight:700;color:#fff;text-shadow:0 0 30px #fff;opacity:0;pointer-events:none;z-index:1000;}
 #levelUpOverlay.active{animation:levelFlash 1.2s ease forwards;}
 @keyframes levelFlash{0%{opacity:0;transform:scale(0.6);}20%{opacity:1;transform:scale(1.2);}80%{opacity:1;transform:scale(1);}100%{opacity:0;transform:scale(1.4);}}
-.leaderboard-item{background:#111;border-radius:10px;padding:10px;display:flex;justify-content:space-between;box-shadow:0 0 10px #0ff;align-items:center;}
-.leaderboard-item.me{border:2px solid #0ff;background:#1a1a2e;}
-.back-btn{background:#111;color:#0ff;box-shadow:0 0 10px #0ff;margin-top:10px;}
-.coin-balance{font-size:1.3rem;font-weight:bold;color:#ffd700;margin:10px 0;}
+.leaderboard-item{background:#111;border-radius:10px;padding:10px;display:flex;justify-content:space-between;box-shadow:0 0 10px #f7931a;align-items:center;}
+.leaderboard-item.me{border:2px solid #f7931a;background:#1a1a2e;}
+.back-btn{background:#111;color:#f7931a;box-shadow:0 0 10px #f7931a;margin-top:10px;}
+.btc-balance{font-size:1.3rem;font-weight:bold;color:#f7931a;margin:10px 0;}
 .error-message{color:#ff5252;font-size:0.85rem;margin-top:5px;display:none;}
+.btc-symbol{font-size:1.2em;}
 </style>
 </head>
 
@@ -43,8 +44,8 @@ button:active{transform:scale(0.95);}
 
 <!-- Login Screen -->
 <div id="loginScreen" class="screen active">
-  <h1>🚀 Tap-to-Earn Game</h1>
-  <p style="color:#666;margin-bottom:15px;">Create your account to start earning coins!</p>
+  <h1>🚀 Tap-to-Earn BTC</h1>
+  <p style="color:#666;margin-bottom:15px;">Create your account to start mining Bitcoin!</p>
   
   <input id="username" placeholder="Username" autocomplete="username">
   <div id="usernameError" class="error-message"></div>
@@ -53,7 +54,7 @@ button:active{transform:scale(0.95);}
   <div id="passwordError" class="error-message"></div>
   
   <button id="loginBtn">🚪 Login / Sign Up</button>
-  <p style="color:#666;font-size:0.8rem;margin-top:20px;">*No real data is stored. Everything is saved in your browser.</p>
+  <p style="color:#666;font-size:0.8rem;margin-top:20px;">*No real BTC is stored. Everything is saved in your browser.</p>
 </div>
 
 <!-- Game Screen -->
@@ -66,20 +67,20 @@ button:active{transform:scale(0.95);}
     <button id="tabLeaderboard">🏆 Leaderboard</button>
   </div>
 
-  <h1>💰 Tap-to-Earn</h1>
-  <div class="coin-balance">💰 Coins: <span id="coins">0</span></div>
-  <div class="multiplier">⚡ Multiplier: <span id="multiplier">1x</span></div>
+  <h1>₿ Tap-to-Earn BTC</h1>
+  <div class="btc-balance">₿ BTC: <span id="coins">0.00000000</span></div>
+  <div class="multiplier">⚡ Hashrate: <span id="multiplier">1x</span></div>
   <div class="level">🎯 Level <span id="level">1</span></div>
   <div class="counter">XP: <span id="xpBar">0</span>/<span id="xpMax">100</span></div>
 
-  <div class="tap-button" id="tapButton">🐵</div>
+  <div class="tap-button" id="tapButton">₿</div>
 
   <div class="shop" id="shopSection">
     <div style="background:#111;padding:10px;border-radius:8px;">
-      <div style="font-size:0.9rem;color:#666;margin-bottom:8px;">📈 Buy Multipliers</div>
-      <button class="upgrade-btn" data-x="2" data-base-cost="100">+2x Multiplier (<span class="cost">100</span>💰)</button>
-      <button class="upgrade-btn" data-x="5" data-base-cost="500">+5x Multiplier (<span class="cost">500</span>💰)</button>
-      <button class="upgrade-btn" data-x="10" data-base-cost="2000">+10x Multiplier (<span class="cost">2000</span>💰)</button>
+      <div style="font-size:0.9rem;color:#666;margin-bottom:8px;">📈 Upgrade Hashrate</div>
+      <button class="upgrade-btn" data-x="2" data-base-cost="0.00001000">+2x Hashrate (<span class="cost">0.00001000</span> ₿)</button>
+      <button class="upgrade-btn" data-x="5" data-base-cost="0.00005000">+5x Hashrate (<span class="cost">0.00005000</span> ₿)</button>
+      <button class="upgrade-btn" data-x="10" data-base-cost="0.00020000">+10x Hashrate (<span class="cost">0.00020000</span> ₿)</button>
     </div>
   </div>
 </div>
@@ -87,12 +88,12 @@ button:active{transform:scale(0.95);}
 <!-- Colors Screen -->
 <div id="colorsScreen" class="screen">
   <h1>🎨 Button Colors</h1>
-  <p style="color:#666;margin-bottom:15px;">Customize your tap button appearance</p>
+  <p style="color:#666;margin-bottom:15px;">Customize your mining button</p>
   <div class="colors">
-    <button class="color-btn" data-color="purple" data-base-cost="500">🟣 Purple (<span class="cost">500</span>💰)</button>
-    <button class="color-btn" data-color="red" data-base-cost="500">🔴 Red (<span class="cost">500</span>💰)</button>
-    <button class="color-btn" data-color="green" data-base-cost="500">🟢 Green (<span class="cost">500</span>💰)</button>
-    <button class="color-btn" data-color="gold" data-base-cost="1000">🟡 Gold (<span class="cost">1000</span>💰)</button>
+    <button class="color-btn" data-color="purple" data-base-cost="0.00005000">🟣 Purple (<span class="cost">0.00005000</span> ₿)</button>
+    <button class="color-btn" data-color="red" data-base-cost="0.00005000">🔴 Red (<span class="cost">0.00005000</span> ₿)</button>
+    <button class="color-btn" data-color="green" data-base-cost="0.00005000">🟢 Green (<span class="cost">0.00005000</span> ₿)</button>
+    <button class="color-btn" data-color="gold" data-base-cost="0.00010000">🟡 Gold (<span class="cost">0.00010000</span> ₿)</button>
     <button class="color-btn" data-color="default" data-base-cost="0">🔵 Default (Free)</button>
   </div>
   <button id="backToGame1" class="back-btn">🔙 Back to Game</button>
@@ -100,25 +101,25 @@ button:active{transform:scale(0.95);}
 
 <!-- Characters Screen -->
 <div id="charsScreen" class="screen">
-  <h1>🎭 Characters</h1>
-  <p style="color:#666;margin-bottom:15px;">Change your tap button character</p>
+  <h1>🎭 Mining Characters</h1>
+  <p style="color:#666;margin-bottom:15px;">Change your mining rig character</p>
   <div class="characters">
-    <button class="char-btn" data-char="🐵" data-base-cost="0">🐵 Monkey (Free)</button>
-    <button class="char-btn" data-char="🐱" data-base-cost="500">🐱 Cat (<span class="cost">500</span>💰)</button>
-    <button class="char-btn" data-char="🐶" data-base-cost="500">🐶 Dog (<span class="cost">500</span>💰)</button>
-    <button class="char-btn" data-char="🦄" data-base-cost="1000">🦄 Unicorn (<span class="cost">1000</span>💰)</button>
-    <button class="char-btn" data-char="👽" data-base-cost="1500">👽 Alien (<span class="cost">1500</span>💰)</button>
-    <button class="char-btn" data-char="🐉" data-base-cost="3000">🐉 Dragon (<span class="cost">3000</span>💰)</button>
-    <button class="char-btn" data-char="🤖" data-base-cost="5000">🤖 Robot (<span class="cost">5000</span>💰)</button>
-    <button class="char-btn" data-char="👻" data-base-cost="2000">👻 Ghost (<span class="cost">2000</span>💰)</button>
+    <button class="char-btn" data-char="₿" data-base-cost="0">₿ Bitcoin (Free)</button>
+    <button class="char-btn" data-char="💻" data-base-cost="0.00005000">💻 Computer (<span class="cost">0.00005000</span> ₿)</button>
+    <button class="char-btn" data-char="⛏️" data-base-cost="0.00005000">⛏️ Miner (<span class="cost">0.00005000</span> ₿)</button>
+    <button class="char-btn" data-char="🚀" data-base-cost="0.00010000">🚀 Rocket (<span class="cost">0.00010000</span> ₿)</button>
+    <button class="char-btn" data-char="💎" data-base-cost="0.00015000">💎 Diamond (<span class="cost">0.00015000</span> ₿)</button>
+    <button class="char-btn" data-char="🔥" data-base-cost="0.00030000">🔥 Fire (<span class="cost">0.00030000</span> ₿)</button>
+    <button class="char-btn" data-char="⚡" data-base-cost="0.00050000">⚡ Lightning (<span class="cost">0.00050000</span> ₿)</button>
+    <button class="char-btn" data-char="💰" data-base-cost="0.00020000">💰 Money Bag (<span class="cost">0.00020000</span> ₿)</button>
   </div>
   <button id="backToGame2" class="back-btn">🔙 Back to Game</button>
 </div>
 
 <!-- Leaderboard Screen -->
 <div id="leaderboardScreen" class="screen">
-  <h1>🏆 Leaderboard</h1>
-  <p style="color:#666;margin-bottom:15px;">Top 10 Players</p>
+  <h1>🏆 Bitcoin Leaderboard</h1>
+  <p style="color:#666;margin-bottom:15px;">Top 10 Bitcoin Miners</p>
   <div class="leaderboard" id="leaderboardList">
     <div style="text-align:center;padding:20px;color:#666;">Loading...</div>
   </div>
@@ -128,26 +129,31 @@ button:active{transform:scale(0.95);}
 <script>
 // ========== GAME VARIABLES ==========
 let user = null;
-let coins = 0;
+let btc = 0; // Changed from coins to btc
 let multiplier = 1;
 let level = 1;
 let xp = 0;
 let buttonColor = "default";
-let character = "🐵";
+let character = "₿";
 
 // Dynamic pricing multipliers
 const PRICE_INCREASE_FACTOR = 1.5;
 const upgradeCounts = { "2": 0, "5": 0, "10": 0 };
 const colorCounts = { "purple": 0, "red": 0, "green": 0, "gold": 0 };
-const charCounts = { "🐱": 0, "🐶": 0, "🦄": 0, "👽": 0, "🐉": 0, "🤖": 0, "👻": 0 };
+const charCounts = { "💻": 0, "⛏️": 0, "🚀": 0, "💎": 0, "🔥": 0, "⚡": 0, "💰": 0 };
 
 const qs = id => document.getElementById(id);
+
+// ========== FORMAT BTC (8 decimal places) ==========
+function formatBTC(amount) {
+  return amount.toFixed(8);
+}
 
 // ========== SAVE / LOAD ==========
 function save() {
   if (!user) return;
   localStorage.setItem("user_" + user, JSON.stringify({
-    coins, multiplier, level, xp, buttonColor, character, upgradeCounts, colorCounts, charCounts
+    btc, multiplier, level, xp, buttonColor, character, upgradeCounts, colorCounts, charCounts
   }));
 }
 
@@ -156,12 +162,12 @@ function load() {
   const data = JSON.parse(localStorage.getItem("user_" + user));
   if (!data) return;
   
-  coins = data.coins ?? 0;
+  btc = data.btc ?? 0;
   multiplier = data.multiplier ?? 1;
   level = data.level ?? 1;
   xp = data.xp ?? 0;
   buttonColor = data.buttonColor ?? "default";
-  character = data.character ?? "🐵";
+  character = data.character ?? "₿";
   if (data.upgradeCounts) Object.assign(upgradeCounts, data.upgradeCounts);
   if (data.colorCounts) Object.assign(colorCounts, data.colorCounts);
   if (data.charCounts) Object.assign(charCounts, data.charCounts);
@@ -173,7 +179,7 @@ function load() {
 
 // ========== UI UPDATE ==========
 function updateUI() {
-  qs("coins").textContent = coins.toLocaleString();
+  qs("coins").textContent = formatBTC(btc);
   qs("multiplier").textContent = multiplier + "x";
   qs("level").textContent = level;
   qs("xpBar").textContent = xp;
@@ -264,13 +270,13 @@ qs("loginBtn").onclick = function() {
   
   // Welcome message
   setTimeout(() => {
-    alert(`👋 Welcome, ${user}!\n\nStart tapping to earn coins and buy upgrades!`);
+    alert(`👋 Welcome, ${user}!\n\nStart mining Bitcoin and build your crypto fortune!`);
   }, 500);
 };
 
-// ========== TAP TO EARN ==========
+// ========== TAP TO MINE BTC ==========
 qs("tapButton").onclick = function() {
-  coins += multiplier;
+  btc += multiplier * 0.00000001; // Earn in satoshis (0.00000001 BTC per tap)
   xp += multiplier;
   
   // Level up system
@@ -285,9 +291,9 @@ qs("tapButton").onclick = function() {
     
     // Celebration every 5 levels
     if (level % 5 === 0) {
-      alert(`🎉 CONGRATULATIONS!\n\nYou reached Level ${level}!\nYour multiplier increased to ${multiplier}x!`);
+      alert(`🎉 CONGRATULATIONS!\n\nYou reached Level ${level}!\nYour hashrate increased to ${multiplier}x!`);
     } else {
-      alert(`✨ Level Up!\n\nYou reached Level ${level}!\nMultiplier: ${multiplier}x`);
+      alert(`✨ Level Up!\n\nYou reached Level ${level}!\nHashrate: ${multiplier}x`);
     }
   }
   
@@ -297,53 +303,53 @@ qs("tapButton").onclick = function() {
 
 // ========== UPDATE UPGRADE PRICES ==========
 function calculatePrice(baseCost, count) {
-  return Math.floor(baseCost * Math.pow(PRICE_INCREASE_FACTOR, count));
+  return baseCost * Math.pow(PRICE_INCREASE_FACTOR, count);
 }
 
 function updateUpgradePrices() {
-  // Update multiplier upgrade prices
+  // Update hashrate upgrade prices
   document.querySelectorAll(".upgrade-btn").forEach(btn => {
-    const baseCost = parseInt(btn.dataset.baseCost);
+    const baseCost = parseFloat(btn.dataset.baseCost);
     const xValue = btn.dataset.x;
     const count = upgradeCounts[xValue] || 0;
     const newPrice = calculatePrice(baseCost, count);
-    btn.querySelector(".cost").textContent = newPrice.toLocaleString();
+    btn.querySelector(".cost").textContent = formatBTC(newPrice);
   });
   
   // Update color prices
   document.querySelectorAll(".color-btn").forEach(btn => {
-    const baseCost = parseInt(btn.dataset.baseCost);
+    const baseCost = parseFloat(btn.dataset.baseCost);
     const color = btn.dataset.color;
     if (baseCost > 0 && colorCounts[color] !== undefined) {
       const count = colorCounts[color] || 0;
       const newPrice = calculatePrice(baseCost, count);
-      btn.querySelector(".cost")?.textContent = newPrice.toLocaleString();
+      btn.querySelector(".cost")?.textContent = formatBTC(newPrice);
     }
   });
   
   // Update character prices
   document.querySelectorAll(".char-btn").forEach(btn => {
-    const baseCost = parseInt(btn.dataset.baseCost);
+    const baseCost = parseFloat(btn.dataset.baseCost);
     const char = btn.dataset.char;
     if (baseCost > 0 && charCounts[char] !== undefined) {
       const count = charCounts[char] || 0;
       const newPrice = calculatePrice(baseCost, count);
-      btn.querySelector(".cost")?.textContent = newPrice.toLocaleString();
+      btn.querySelector(".cost")?.textContent = formatBTC(newPrice);
     }
   });
 }
 
-// ========== SHOP - MULTIPLIER UPGRADES ==========
+// ========== SHOP - HASHRATE UPGRADES ==========
 document.querySelectorAll(".upgrade-btn").forEach(btn => {
   btn.onclick = function() {
-    const baseCost = parseInt(btn.dataset.baseCost);
+    const baseCost = parseFloat(btn.dataset.baseCost);
     const xValue = btn.dataset.x;
     const currentCount = upgradeCounts[xValue] || 0;
     const cost = calculatePrice(baseCost, currentCount);
     const addX = parseInt(xValue);
     
-    if (coins >= cost) {
-      coins -= cost;
+    if (btc >= cost) {
+      btc -= cost;
       multiplier += addX;
       upgradeCounts[xValue] = currentCount + 1;
       
@@ -351,9 +357,9 @@ document.querySelectorAll(".upgrade-btn").forEach(btn => {
       updateUpgradePrices();
       save();
       
-      alert(`✅ Upgrade Purchased!\n\n+${addX}x Multiplier\nNew Multiplier: ${multiplier}x\nCoins spent: ${cost.toLocaleString()}💰`);
+      alert(`✅ Upgrade Purchased!\n\n+${addX}x Hashrate\nNew Hashrate: ${multiplier}x\nBTC spent: ${formatBTC(cost)} ₿`);
     } else {
-      alert(`❌ Not Enough Coins!\n\nCost: ${cost.toLocaleString()}💰\nYou have: ${coins.toLocaleString()}💰\n\nKeep tapping to earn more!`);
+      alert(`❌ Not Enough BTC!\n\nCost: ${formatBTC(cost)} ₿\nYou have: ${formatBTC(btc)} ₿\n\nKeep mining to earn more!`);
     }
   };
 });
@@ -375,21 +381,21 @@ function applyButtonStyle() {
     tapBtn.style.background = "linear-gradient(145deg,#ffc107,#ff8f00)";
     tapBtn.style.boxShadow = "0 0 25px #ffc107, 0 0 60px #ffc107 inset";
   } else {
-    tapBtn.style.background = "linear-gradient(145deg,#0ff,#0055ff)";
-    tapBtn.style.boxShadow = "0 0 25px #0ff, 0 0 60px #0ff inset";
+    tapBtn.style.background = "linear-gradient(145deg,#f7931a,#ff9900)";
+    tapBtn.style.boxShadow = "0 0 25px #f7931a, 0 0 60px #f7931a inset";
   }
 }
 
 document.querySelectorAll(".color-btn").forEach(btn => {
   btn.onclick = function() {
-    const baseCost = parseInt(btn.dataset.baseCost);
+    const baseCost = parseFloat(btn.dataset.baseCost);
     const color = btn.dataset.color;
     const currentCount = colorCounts[color] || 0;
     const cost = baseCost > 0 ? calculatePrice(baseCost, currentCount) : 0;
     
-    if (coins >= cost) {
+    if (btc >= cost) {
       if (baseCost > 0) {
-        coins -= cost;
+        btc -= cost;
         colorCounts[color] = currentCount + 1;
       }
       
@@ -408,9 +414,9 @@ document.querySelectorAll(".color-btn").forEach(btn => {
         "default": "Default"
       };
       
-      alert(`🎨 Color Changed!\n\nButton color updated to ${colorNames[color]}${cost > 0 ? `\nCoins spent: ${cost.toLocaleString()}💰` : ""}`);
+      alert(`🎨 Color Changed!\n\nButton color updated to ${colorNames[color]}${cost > 0 ? `\nBTC spent: ${formatBTC(cost)} ₿` : ""}`);
     } else {
-      alert(`❌ Not Enough Coins!\n\nCost: ${cost.toLocaleString()}💰\nYou have: ${coins.toLocaleString()}💰`);
+      alert(`❌ Not Enough BTC!\n\nCost: ${formatBTC(cost)} ₿\nYou have: ${formatBTC(btc)} ₿`);
     }
   };
 });
@@ -418,14 +424,14 @@ document.querySelectorAll(".color-btn").forEach(btn => {
 // ========== CHARACTER SYSTEM ==========
 document.querySelectorAll(".char-btn").forEach(btn => {
   btn.onclick = function() {
-    const baseCost = parseInt(btn.dataset.baseCost);
+    const baseCost = parseFloat(btn.dataset.baseCost);
     const char = btn.dataset.char;
     const currentCount = charCounts[char] || 0;
     const cost = baseCost > 0 ? calculatePrice(baseCost, currentCount) : 0;
     
-    if (coins >= cost) {
+    if (btc >= cost) {
       if (baseCost > 0) {
-        coins -= cost;
+        btc -= cost;
         charCounts[char] = currentCount + 1;
       }
       
@@ -436,9 +442,9 @@ document.querySelectorAll(".char-btn").forEach(btn => {
       updateUpgradePrices();
       save();
       
-      alert(`🎭 Character Changed!\n\nNew character: ${char}${cost > 0 ? `\nCoins spent: ${cost.toLocaleString()}💰` : ""}`);
+      alert(`🎭 Character Changed!\n\nNew character: ${char}${cost > 0 ? `\nBTC spent: ${formatBTC(cost)} ₿` : ""}`);
     } else {
-      alert(`❌ Not Enough Coins!\n\nCost: ${cost.toLocaleString()}💰\nYou have: ${coins.toLocaleString()}💰`);
+      alert(`❌ Not Enough BTC!\n\nCost: ${formatBTC(cost)} ₿\nYou have: ${formatBTC(btc)} ₿`);
     }
   };
 });
@@ -454,7 +460,7 @@ function getLeaderboard() {
         const data = JSON.parse(localStorage.getItem(key));
         leaderboard.push({
           username: key.replace("user_", ""),
-          coins: data.coins ?? 0,
+          btc: data.btc ?? 0,
           level: data.level ?? 1,
           multiplier: data.multiplier ?? 1
         });
@@ -464,7 +470,7 @@ function getLeaderboard() {
     }
   }
   
-  return leaderboard.sort((a, b) => b.coins - a.coins).slice(0, 10);
+  return leaderboard.sort((a, b) => b.btc - a.btc).slice(0, 10);
 }
 
 function loadLeaderboard() {
@@ -492,9 +498,9 @@ function loadLeaderboard() {
     item.innerHTML = `
       <div style="display:flex;flex-direction:column;align-items:flex-start;">
         <span style="font-weight:bold;font-size:1.1rem;">${medal}${idx + 1}. ${player.username}${isMe ? " (You)" : ""}</span>
-        <span style="font-size:0.85rem;color:#666;">Level ${player.level} • ${player.multiplier}x Multiplier</span>
+        <span style="font-size:0.85rem;color:#666;">Level ${player.level} • ${player.multiplier}x Hashrate</span>
       </div>
-      <span style="font-weight:bold;font-size:1.2rem;color:#ffd700;">${player.coins.toLocaleString()}💰</span>
+      <span style="font-weight:bold;font-size:1.2rem;color:#f7931a;">${formatBTC(player.btc)} ₿</span>
     `;
     list.appendChild(item);
   });
@@ -502,36 +508,36 @@ function loadLeaderboard() {
 
 // ========== DEMO DATA (FOR TESTING) ==========
 if (localStorage.getItem("demo_initialized") === null) {
-  localStorage.setItem("user_Alice", JSON.stringify({
-    coins: 15000, multiplier: 25, level: 12, xp: 50, 
-    buttonColor: "gold", character: "🦄",
+  localStorage.setItem("user_Satoshi", JSON.stringify({
+    btc: 0.00150000, multiplier: 25, level: 12, xp: 50, 
+    buttonColor: "gold", character: "🚀",
     upgradeCounts: {"2": 3, "5": 2, "10": 1},
     colorCounts: {"gold": 1},
-    charCounts: {"🦄": 1}
+    charCounts: {"🚀": 1}
   }));
   
-  localStorage.setItem("user_Bob", JSON.stringify({
-    coins: 8500, multiplier: 15, level: 8, xp: 30,
-    buttonColor: "red", character: "🐉",
+  localStorage.setItem("user_Vitalik", JSON.stringify({
+    btc: 0.00085000, multiplier: 15, level: 8, xp: 30,
+    buttonColor: "red", character: "🔥",
     upgradeCounts: {"2": 2, "5": 1, "10": 0},
     colorCounts: {"red": 1},
-    charCounts: {"🐉": 1}
+    charCounts: {"🔥": 1}
   }));
   
-  localStorage.setItem("user_Chris", JSON.stringify({
-    coins: 4200, multiplier: 8, level: 5, xp: 10,
-    buttonColor: "green", character: "🐱",
+  localStorage.setItem("user_CryptoKing", JSON.stringify({
+    btc: 0.00042000, multiplier: 8, level: 5, xp: 10,
+    buttonColor: "green", character: "💎",
     upgradeCounts: {"2": 1, "5": 1, "10": 0},
     colorCounts: {"green": 1},
-    charCounts: {"🐱": 1}
+    charCounts: {"💎": 1}
   }));
   
-  localStorage.setItem("user_Diana", JSON.stringify({
-    coins: 2800, multiplier: 6, level: 4, xp: 80,
-    buttonColor: "purple", character: "👽",
+  localStorage.setItem("user_BitcoinMaxi", JSON.stringify({
+    btc: 0.00028000, multiplier: 6, level: 4, xp: 80,
+    buttonColor: "purple", character: "⛏️",
     upgradeCounts: {"2": 2, "5": 0, "10": 0},
     colorCounts: {"purple": 1},
-    charCounts: {"👽": 1}
+    charCounts: {"⛏️": 1}
   }));
   
   localStorage.setItem("demo_initialized", "true");
@@ -540,7 +546,7 @@ if (localStorage.getItem("demo_initialized") === null) {
 // ========== WELCOME MESSAGE ==========
 setTimeout(() => {
   if (!user) {
-    alert("👋 Welcome to Tap-to-Earn Game!\n\n👉 Create an account to start earning coins\n👉 Tap the button to earn money\n👉 Buy upgrades to increase your multiplier\n👉 Customize your button with colors and characters\n👉 Compete on the leaderboard!\n\nLet's start tapping! 🚀");
+    alert("👋 Welcome to Tap-to-Earn BTC!\n\n👉 Create an account to start mining Bitcoin\n👉 Tap to earn satoshis (0.00000001 ₿)\n👉 Upgrade your hashrate to mine faster\n👉 Customize your mining rig\n👉 Compete on the leaderboard!\n\nHappy Mining! ⛏️");
   }
 }, 1000);
 </script>
