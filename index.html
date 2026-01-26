@@ -37,134 +37,340 @@ button:active{transform:scale(0.95);}
 
 <div id="levelUpOverlay">LEVEL UP!</div>
 
+<!-- Login Screen -->
 <div id="loginScreen" class="screen active">
-  <h1>Login / Sign Up</h1>
-  <input id="username" placeholder="Username">
-  <input id="password" type="password" placeholder="Password">
-  <button id="loginBtn">Enter</button>
+  <h1>🚀 Login / Sign Up</h1>
+  <input id="username" placeholder="Kasutajanimi">
+  <input id="password" type="password" placeholder="Parool">
+  <button id="loginBtn">🚪 Sisse logima</button>
 </div>
 
+<!-- Game Screen -->
 <div id="gameScreen" class="screen">
   <div class="nav">
-    <button id="tabGame">Game</button>
-    <button id="tabColors">Colors</button>
-    <button id="tabChars">Characters</button>
-    <button id="tabLeaderboard">Leaderboard</button>
+    <button id="tabGame">🎮 Mäng</button>
+    <button id="tabShop">🛒 Pood</button>
+    <button id="tabColors">🎨 Värvid</button>
+    <button id="tabChars">🎭 Iseloomud</button>
+    <button id="tabLeaderboard">🏆 Edetabel</button>
   </div>
 
-  <h1>Tap-to-Earn</h1>
-  <div class="counter">Coins: <span id="coins">0</span></div>
-  <div class="multiplier">Multiplier: <span id="multiplier">1x</span></div>
-  <div class="level">Level <span id="level">1</span></div>
+  <h1>💰 Tap-to-Earn</h1>
+  <div class="counter">Mündid: <span id="coins">0</span></div>
+  <div class="multiplier">Kordaja: <span id="multiplier">1x</span></div>
+  <div class="level">Tase <span id="level">1</span></div>
 
   <div class="tap-button" id="tapButton">🐵</div>
 
-  <div class="shop">
-    <button data-x="2">Upgrade +2x (100)</button>
-    <button data-x="5">Upgrade +5x (500)</button>
-    <button data-x="10">Upgrade +10x (2000)</button>
+  <div class="shop" id="shopSection">
+    <button data-x="2">📈 +2x Kordaja (100)</button>
+    <button data-x="5">🚀 +5x Kordaja (500)</button>
+    <button data-x="10">⚡ +10x Kordaja (2000)</button>
   </div>
 </div>
 
+<!-- Colors Screen -->
 <div id="colorsScreen" class="screen">
-  <h1>Button Colors</h1>
+  <h1>🎨 Nupu Värvid</h1>
   <div class="colors">
-    <button data-color="purple">Purple (500)</button>
-    <button data-color="red">Red (500)</button>
-    <button data-color="green">Green (500)</button>
-    <button data-color="gold">Gold (1000)</button>
+    <button data-color="purple">🟣 Lilla (500)</button>
+    <button data-color="red">🔴 Punane (500)</button>
+    <button data-color="green">🟢 Roheline (500)</button>
+    <button data-color="gold">🟡 Kuldne (1000)</button>
   </div>
+  <button id="backToGame1">🔙 Tagasi mängu</button>
 </div>
 
+<!-- Characters Screen -->
 <div id="charsScreen" class="screen">
-  <h1>Characters</h1>
+  <h1>🎭 Iseloomud</h1>
   <div class="characters">
-    <button data-char="🐵">Monkey (Free)</button>
-    <button data-char="🦄">Unicorn (1000)</button>
-    <button data-char="👽">Alien (2000)</button>
+    <button data-char="🐵">🐵 Ahv (Tasuta)</button>
+    <button data-char="🦄">🦄 Ükssarv (1000)</button>
+    <button data-char="👽">👽 Tulnukas (2000)</button>
+    <button data-char="🐱">🐱 Kass (1500)</button>
+    <button data-char="🐶">🐶 Koer (1500)</button>
+    <button data-char="🐉">🐉 Draakon (5000)</button>
   </div>
+  <button id="backToGame2">🔙 Tagasi mängu</button>
 </div>
 
+<!-- Leaderboard Screen -->
 <div id="leaderboardScreen" class="screen">
-  <h1>🏆 Leaderboard</h1>
+  <h1>🏆 Edetabel</h1>
   <div class="leaderboard" id="leaderboardList"></div>
+  <button id="backToGame3">🔙 Tagasi mängu</button>
 </div>
 
 <script>
-let user=null, coins=0, multiplier=1, level=1, xp=0;
-let screenHistory=["gameScreen"];
-let startX=0;
-const qs=id=>document.getElementById(id);
+// ========== MÄNGU MUUTUJAD ==========
+let user = null;
+let coins = 0;
+let multiplier = 1;
+let level = 1;
+let xp = 0;
+let buttonColor = "";
+let character = "🐵";
+let startX = 0;
+const qs = id => document.getElementById(id);
 
-/* ===== SAVE / LOAD coins per user ===== */
-function save(){
-  if(!user) return;
-  localStorage.setItem("user_"+user, JSON.stringify({coins,multiplier,level,xp}));
+// ========== SALVESTAMINE / LAADIMINE ==========
+function save() {
+  if (!user) return;
+  localStorage.setItem("user_" + user, JSON.stringify({
+    coins, multiplier, level, xp, buttonColor, character
+  }));
 }
 
-function load(){
-  if(!user) return;
-  const data=JSON.parse(localStorage.getItem("user_"+user));
-  if(!data) return;
-  coins=data.coins??0;
-  multiplier=data.multiplier??1;
-  level=data.level??1;
-  xp=data.xp??0;
+function load() {
+  if (!user) return;
+  const data = JSON.parse(localStorage.getItem("user_" + user));
+  if (!data) return;
+  
+  coins = data.coins ?? 0;
+  multiplier = data.multiplier ?? 1;
+  level = data.level ?? 1;
+  xp = data.xp ?? 0;
+  buttonColor = data.buttonColor ?? "";
+  character = data.character ?? "🐵";
+  
+  applyButtonStyle();
+  qs("tapButton").textContent = character;
 }
 
-/* ===== UI ===== */
-function updateUI(){
-  qs("coins").textContent=coins;
-  qs("multiplier").textContent=multiplier+"x";
-  qs("level").textContent=level;
+// ========== KASUTAJALIIKKESKKOND ==========
+function updateUI() {
+  qs("coins").textContent = coins;
+  qs("multiplier").textContent = multiplier + "x";
+  qs("level").textContent = level;
 }
 
-/* ===== NAV ===== */
-function show(id){
-  document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));
+// ========== EKRAANIDE NÄITAMINE ==========
+let screenHistory = ["gameScreen"];
+
+function show(id) {
+  document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
   qs(id).classList.add("active");
-  if(screenHistory[screenHistory.length-1]!==id){
+  
+  if (screenHistory[screenHistory.length - 1] !== id) {
     screenHistory.push(id);
   }
 }
 
-/* ===== SWIPE BACK ===== */
-document.addEventListener("touchstart",e=>{startX=e.touches[0].clientX;});
-document.addEventListener("touchend",e=>{
-  if(e.changedTouches[0].clientX - startX > 80 && screenHistory.length>1){
+// ========== SWIPE TAGASI (MOBIIL) ==========
+document.addEventListener("touchstart", e => {
+  startX = e.touches[0].clientX;
+});
+
+document.addEventListener("touchend", e => {
+  if (e.changedTouches[0].clientX - startX > 80 && screenHistory.length > 1) {
     screenHistory.pop();
-    show(screenHistory[screenHistory.length-1]);
+    show(screenHistory[screenHistory.length - 1]);
   }
 });
 
-/* ===== NAV BUTTONS ===== */
-qs("tabGame").onclick=()=>show("gameScreen");
-qs("tabColors").onclick=()=>show("colorsScreen");
-qs("tabChars").onclick=()=>show("charsScreen");
-qs("tabLeaderboard").onclick=()=>show("leaderboardScreen");
+// ========== NAVIGATSIOONINUPUD ==========
+qs("tabGame").onclick = () => show("gameScreen");
+qs("tabShop").onclick = () => show("gameScreen");
+qs("tabColors").onclick = () => show("colorsScreen");
+qs("tabChars").onclick = () => show("charsScreen");
+qs("tabLeaderboard").onclick = () => {
+  show("leaderboardScreen");
+  loadLeaderboard();
+};
 
-/* ===== LOGIN ===== */
-qs("loginBtn").onclick=()=>{
-  user=qs("username").value.trim();
-  if(!user) return;
+qs("backToGame1").onclick = () => show("gameScreen");
+qs("backToGame2").onclick = () => show("gameScreen");
+qs("backToGame3").onclick = () => show("gameScreen");
+
+// ========== SISSELOGIMINE ==========
+qs("loginBtn").onclick = () => {
+  const username = qs("username").value.trim();
+  const password = qs("password").value;
+  
+  if (!username || !password) {
+    alert("⚠️ Palun sisesta kasutajanimi ja parool!");
+    return;
+  }
+  
+  user = username;
   load();
   updateUI();
   qs("loginScreen").classList.remove("active");
   show("gameScreen");
+  loadLeaderboard();
+  
+  // Tere tulemast sõnum
+  setTimeout(() => {
+    alert(`👋 Tere tulemast, ${user}!`);
+  }, 500);
 };
 
-/* ===== TAP ===== */
-qs("tapButton").onclick=()=>{
-  coins+=multiplier;
-  xp+=multiplier;
-  if(xp>=level*100){
-    xp=0; level++; multiplier++;
+// ========== KLÕPSAMINE MÜNDEDE SAAmiseks ==========
+qs("tapButton").onclick = () => {
+  coins += multiplier;
+  xp += multiplier;
+  
+  // Taseme tõus
+  if (xp >= level * 100) {
+    xp = 0; 
+    level++; 
+    multiplier++;
+    
+    // Level up animatsioon
     qs("levelUpOverlay").classList.add("active");
-    setTimeout(()=>qs("levelUpOverlay").classList.remove("active"),1200);
+    setTimeout(() => qs("levelUpOverlay").classList.remove("active"), 1200);
+    
+    // Tähistus iga 5. taseme juures
+    if (level % 5 === 0) {
+      alert(`🎉 ÕNNITLUSED!\nSaavutasid ${level}. taseme!\nSinu kordaja on nüüd ${multiplier}x!`);
+    }
   }
+  
   updateUI();
   save();
 };
+
+// ========== POOD - KORDAJA UUENDUSED ==========
+document.querySelectorAll(".shop button").forEach(btn => {
+  btn.onclick = () => {
+    const cost = parseInt(btn.textContent.match(/\((\d+)\)/)[1]);
+    const addX = parseInt(btn.dataset.x);
+    
+    if (coins >= cost) {
+      coins -= cost;
+      multiplier += addX;
+      updateUI();
+      save();
+      alert(`✅ Kordaja uuendatud!\nUus kordaja: ${multiplier}x`);
+    } else {
+      alert(`❌ Pole piisavalt münke!\nVaja: ${cost}💰\nSul on: ${coins}💰`);
+    }
+  };
+});
+
+// ========== VÄRVISÜSTEEM ==========
+function applyButtonStyle() {
+  const tapBtn = qs("tapButton");
+  
+  if (buttonColor === "purple") {
+    tapBtn.style.background = "linear-gradient(145deg,#9c27b0,#6a1b9a)";
+    tapBtn.style.boxShadow = "0 0 25px #9c27b0, 0 0 60px #9c27b0 inset";
+  } else if (buttonColor === "red") {
+    tapBtn.style.background = "linear-gradient(145deg,#f44336,#c62828)";
+    tapBtn.style.boxShadow = "0 0 25px #f44336, 0 0 60px #f44336 inset";
+  } else if (buttonColor === "green") {
+    tapBtn.style.background = "linear-gradient(145deg,#4caf50,#2e7d32)";
+    tapBtn.style.boxShadow = "0 0 25px #4caf50, 0 0 60px #4caf50 inset";
+  } else if (buttonColor === "gold") {
+    tapBtn.style.background = "linear-gradient(145deg,#ffc107,#ff8f00)";
+    tapBtn.style.boxShadow = "0 0 25px #ffc107, 0 0 60px #ffc107 inset";
+  } else {
+    tapBtn.style.background = "linear-gradient(145deg,#0ff,#0055ff)";
+    tapBtn.style.boxShadow = "0 0 25px #0ff, 0 0 60px #0ff inset";
+  }
+}
+
+document.querySelectorAll(".colors button").forEach(btn => {
+  btn.onclick = () => {
+    const cost = parseInt(btn.textContent.match(/\((\d+)\)/)[1]);
+    const color = btn.dataset.color;
+    
+    if (coins >= cost) {
+      coins -= cost;
+      buttonColor = color;
+      applyButtonStyle();
+      updateUI();
+      save();
+      alert(`🎨 Värv muudetud edukalt!`);
+    } else {
+      alert(`❌ Pole piisavalt münke!\nVaja: ${cost}💰\nSul on: ${coins}💰`);
+    }
+  };
+});
+
+// ========== ISELOOMUDE SÜSTEEM ==========
+document.querySelectorAll(".characters button").forEach(btn => {
+  btn.onclick = () => {
+    const cost = parseInt(btn.textContent.match(/\((\d+)\)/)[1]);
+    const char = btn.dataset.char;
+    
+    if (coins >= cost) {
+      coins -= cost;
+      character = char;
+      qs("tapButton").textContent = character;
+      updateUI();
+      save();
+      alert(`🎭 Iseloom vahetatud!\nUus iseloom: ${char}`);
+    } else {
+      alert(`❌ Pole piisavalt münke!\nVaja: ${cost}💰\nSul on: ${coins}💰`);
+    }
+  };
+});
+
+// ========== EDETABEL ==========
+function getLeaderboard() {
+  const leaderboard = [];
+  
+  for (let i = 0; i < localStorage.length; i++) {
+    const key = localStorage.key(i);
+    if (key.startsWith("user_")) {
+      const data = JSON.parse(localStorage.getItem(key));
+      leaderboard.push({
+        username: key.replace("user_", ""),
+        coins: data.coins ?? 0,
+        level: data.level ?? 1
+      });
+    }
+  }
+  
+  return leaderboard.sort((a, b) => b.coins - a.coins).slice(0, 10);
+}
+
+function loadLeaderboard() {
+  const list = qs("leaderboardList");
+  list.innerHTML = "";
+  
+  const leaderboard = getLeaderboard();
+  
+  if (leaderboard.length === 0) {
+    list.innerHTML = "<div style='text-align:center;padding:20px;color:#666;'>Tabel on tühi!</div>";
+    return;
+  }
+  
+  leaderboard.forEach((player, idx) => {
+    const isMe = user === player.username;
+    const item = document.createElement("div");
+    item.className = "leaderboard-item" + (isMe ? " me" : "");
+    
+    // Medals for top 3
+    let medal = "";
+    if (idx === 0) medal = "🥇 ";
+    else if (idx === 1) medal = "🥈 ";
+    else if (idx === 2) medal = "🥉 ";
+    
+    item.innerHTML = `
+      <span><strong>${medal}${idx + 1}. ${player.username}</strong></span>
+      <span>💰 ${player.coins.toLocaleString()} | 🎯 Level ${player.level}</span>
+    `;
+    list.appendChild(item);
+  });
+}
+
+// ========== DEMO ANDMED (TESTIMISEKS) ==========
+if (localStorage.getItem("demo_mode") === null) {
+  localStorage.setItem("user_Alice", JSON.stringify({coins: 5000, multiplier: 10, level: 8, xp: 0, buttonColor: "gold", character: "🦄"}));
+  localStorage.setItem("user_Bob", JSON.stringify({coins: 3200, multiplier: 7, level: 5, xp: 0, buttonColor: "red", character: "🐱"}));
+  localStorage.setItem("user_Chris", JSON.stringify({coins: 1800, multiplier: 5, level: 3, xp: 0, buttonColor: "green", character: "🐶"}));
+  localStorage.setItem("demo_mode", "true");
+}
+
+// ========== TERVITUS SÕNUM ==========
+setTimeout(() => {
+  if (!user) {
+    alert("👋 Tere tulemast Tap-to-Earn mängu!\n\nSisesta oma kasutajanimi ja parool,\nette alustada mündikogumist!");
+  }
+}, 1000);
 </script>
 
 </body>
