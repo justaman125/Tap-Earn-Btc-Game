@@ -3,20 +3,29 @@ let gameState = {
     btc: 0.00000001,
     multiplier: 1,
     totalEarned: 0.00000001,
-    tapCount: 0
+    tapCount: 0,
+    multiplierPurchases: {
+        2: 0,
+        5: 0,
+        10: 0,
+        25: 0,
+        50: 0,
+        100: 0
+    }
 };
 
-// Multiplier config
+// Multiplier config with base costs
 const multipliers = [
-    { level: 2, cost: 0.00000010, label: '2x' },
-    { level: 5, cost: 0.00000100, label: '5x' },
-    { level: 10, cost: 0.00001000, label: '10x' },
-    { level: 25, cost: 0.00010000, label: '25x' },
-    { level: 50, cost: 0.00100000, label: '50x' },
-    { level: 100, cost: 0.01000000, label: '100x' }
+    { level: 2, baseCost: 0.00000010, label: '2x' },
+    { level: 5, baseCost: 0.00000100, label: '5x' },
+    { level: 10, baseCost: 0.00001000, label: '10x' },
+    { level: 25, baseCost: 0.00010000, label: '25x' },
+    { level: 50, baseCost: 0.00100000, label: '50x' },
+    { level: 100, baseCost: 0.01000000, label: '100x' }
 ];
 
 const EARN_PER_TAP = 0.00000001;
+const PRICE_INCREASE_MULTIPLIER = 1.15; // 15% price increase per purchase
 
 // ===== DOM ELEMENTS =====
 const tapButton = document.getElementById('tapButton');
@@ -36,12 +45,31 @@ function init() {
     updateDisplay();
 }
 
+// ===== HELPER FUNCTIONS =====
+function calculateCurrentCost(multiplierLevel) {
+    const baseCost = multipliers.find(m => m.level === multiplierLevel).baseCost;
+    const purchases = gameState.multiplierPurchases[multiplierLevel] || 0;
+    return baseCost * Math.pow(PRICE_INCREASE_MULTIPLIER, purchases);
+}
+
 // ===== LOAD/SAVE GAME =====
 function loadGame() {
     const saved = localStorage.getItem('btcGameState');
     if (saved) {
         try {
-            gameState = JSON.parse(saved);
+            const loaded = JSON.parse(saved);
+            gameState = loaded;
+            // Ensure multiplierPurchases object exists
+            if (!gameState.multiplierPurchases) {
+                gameState.multiplierPurchases = {
+                    2: 0,
+                    5: 0,
+                    10: 0,
+                    25: 0,
+                    50: 0,
+                    100: 0
+                };
+            }
         } catch (e) {
             console.error('Error loading game state:', e);
             saveGame();
@@ -98,36 +126,37 @@ function createShopButtons() {
         button.className = 'upgrade-button';
         
         const isCurrentMultiplier = m.level === gameState.multiplier;
-        const isAffordable = gameState.btc >= m.cost;
-        const isUpgrade = idx > getCurrentMultiplierIndex();
+        const currentCost = calculateCurrentCost(m.level);
+        const isAffordable = gameState.btc >= currentCost;
+        const purchases = gameState.multiplierPurchases[m.level] || 0;
         
         // Set classes
         if (isCurrentMultiplier) {
             button.classList.add('active');
-        } else if (isAffordable && isUpgrade) {
+        } else if (isAffordable) {
             button.classList.add('available');
         } else {
             button.classList.add('disabled');
         }
         
-        // Create button content
+        // Create button content with purchase count
         button.innerHTML = `
             <div class="button-shine"></div>
             <div class="button-inner">
-                <span class="upgrade-label">${m.label}</span>
-                <span class="upgrade-cost">${m.cost.toFixed(8)}</span>
+                <span class="upgrade-label">${m.label} <span class="purchase-count">(${purchases})</span></span>
+                <span class="upgrade-cost">${currentCost.toFixed(8)}</span>
             </div>
             ${isCurrentMultiplier ? '<div class="active-dot"></div>' : ''}
         `;
         
         // Add click handler
         button.addEventListener('click', () => {
-            if (isUpgrade && isAffordable) {
+            if (isAffordable) {
                 buyMultiplier(m);
             }
         });
         
-        button.disabled = !(isUpgrade && isAffordable);
+        button.disabled = !isAffordable;
         
         shopGrid.appendChild(button);
     });
@@ -138,9 +167,11 @@ function getCurrentMultiplierIndex() {
 }
 
 function buyMultiplier(multiplierData) {
-    if (gameState.btc >= multiplierData.cost) {
-        gameState.btc -= multiplierData.cost;
+    const currentCost = calculateCurrentCost(multiplierData.level);
+    if (gameState.btc >= currentCost) {
+        gameState.btc -= currentCost;
         gameState.multiplier = multiplierData.level;
+        gameState.multiplierPurchases[multiplierData.level] = (gameState.multiplierPurchases[multiplierData.level] || 0) + 1;
         
         updateDisplay();
         createShopButtons();
@@ -168,7 +199,15 @@ function attachEventListeners() {
                 btc: 0.00000001,
                 multiplier: 1,
                 totalEarned: 0.00000001,
-                tapCount: 0
+                tapCount: 0,
+                multiplierPurchases: {
+                    2: 0,
+                    5: 0,
+                    10: 0,
+                    25: 0,
+                    50: 0,
+                    100: 0
+                }
             };
             updateDisplay();
             createShopButtons();
