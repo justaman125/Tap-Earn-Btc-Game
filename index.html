@@ -1,1 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="BTC Tap Game - Tap to earn Bitcoin">
+    <title>BTC Tap Game</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="game-container">
+        <!-- Animated background -->
+        <div class="grid-background"></div>
 
+        <div class="game-content">
+            <!-- Header -->
+            <div class="header">
+                <div class="title-wrapper">
+                    <span class="coin-icon">₿</span>
+                    <h1 class="title">BTC TAP</h1>
+                    <span class="coin-icon">₿</span>
+                </div>
+                <p class="subtitle">EARN • STACK • MULTIPLY</p>
+            </div>
+
+            <!-- Main Stats -->
+            <div class="stats-section">
+                <!-- BTC Balance -->
+                <div class="balance-card">
+                    <p class="card-label">BALANCE</p>
+                    <p class="balance-amount">
+                        <span id="btcDisplay">0.00000001</span>
+                        <span class="btc-label">BTC</span>
+                    </p>
+                </div>
+
+                <!-- Multiplier and Clicks Stats -->
+                <div class="multiplier-stats">
+                    <div class="stat-card multiplier-card">
+                        <p class="card-label">MULTIPLIER</p>
+                        <p class="stat-value">
+                            ⚡ <span id="multiplierDisplay">1</span>x
+                        </p>
+                    </div>
+                    <div class="stat-card clicks-card">
+                        <p class="card-label">CLICKS</p>
+                        <p class="stat-value" id="clicksDisplay">0</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Main Tap Button -->
+            <div class="tap-button-wrapper">
+                <button id="tapButton" class="tap-button">
+                    <span class="ripple-effect"></span>
+                    <span class="button-content">
+                        <span class="button-icon">₿</span>
+                        <span>TAP</span>
+                    </span>
+                </button>
+            </div>
+
+            <!-- Shop Section -->
+            <div class="shop-section">
+                <p class="shop-label">⚡ UPGRADE MULTIPLIER</p>
+                <div class="shop-grid" id="shopGrid">
+                    <!-- Upgrade buttons will be generated here by JS -->
+                </div>
+            </div>
+
+            <!-- Footer Stats -->
+            <div class="footer-stats">
+                <p>Total Earned: <span class="stat-highlight" id="totalEarnedDisplay">0.00000001</span> BTC</p>
+                <p>Earnings Per Tap: <span class="stat-highlight" id="earningsPerTapDisplay">0.00000001</span> BTC</p>
+            </div>
+
+            <!-- Reset Button (hidden, for debugging) -->
+            <button id="resetButton" class="reset-button" style="display: none;">Reset Game</button>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
