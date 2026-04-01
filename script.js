@@ -17,19 +17,27 @@ const logoutBtn = document.getElementById("logoutBtn");
 
 let currentUser = null;
 
-// ===== AUTH SYSTEM =====
+// ===== STORAGE =====
 
 function getUsers() {
-  return JSON.parse(localStorage.getItem("users")) || {};
+  try {
+    return JSON.parse(localStorage.getItem("users")) || {};
+  } catch {
+    return {};
+  }
 }
 
 function saveUsers(users) {
   localStorage.setItem("users", JSON.stringify(users));
 }
 
-signupBtn.onclick = () => {
+// ===== SIGN UP =====
+
+signupBtn.addEventListener("click", () => {
   const username = usernameInput.value.trim();
   const password = passwordInput.value.trim();
+
+  authMessage.textContent = "";
 
   if (!username || !password) {
     authMessage.textContent = "Fill all fields";
@@ -52,12 +60,20 @@ signupBtn.onclick = () => {
 
   saveUsers(users);
 
-  authMessage.textContent = "Successfully created new account";
-};
+  authMessage.textContent = "Account created successfully";
 
-loginBtn.onclick = () => {
+  // AUTO LOGIN AFTER SIGNUP (IMPORTANT UX FIX)
+  currentUser = username;
+  loadGame();
+});
+
+// ===== LOGIN =====
+
+loginBtn.addEventListener("click", () => {
   const username = usernameInput.value.trim();
   const password = passwordInput.value.trim();
+
+  authMessage.textContent = "";
 
   let users = getUsers();
 
@@ -75,14 +91,13 @@ loginBtn.onclick = () => {
   authMessage.textContent = "Successfully signed in!";
 
   loadGame();
-};
+});
 
 // ===== GAME =====
 
 function loadGame() {
   authBox.style.display = "none";
   gameBox.style.display = "block";
-
   updateUI();
 }
 
@@ -90,26 +105,33 @@ function updateUI() {
   const users = getUsers();
   const user = users[currentUser];
 
+  if (!user) return;
+
   btcDisplay.textContent = "BTC: " + user.btc.toFixed(8);
   multiplierDisplay.textContent = "Multiplier: x" + user.multiplier;
   upgradeCostDisplay.textContent = user.upgradeCost.toFixed(8);
-
   welcome.textContent = "User: " + currentUser;
 }
 
-tapBtn.onclick = () => {
+// TAP
+tapBtn.addEventListener("click", () => {
   let users = getUsers();
   let user = users[currentUser];
+
+  if (!user) return;
 
   user.btc += 0.00000001 * user.multiplier;
 
   saveUsers(users);
   updateUI();
-};
+});
 
-upgradeBtn.onclick = () => {
+// UPGRADE
+upgradeBtn.addEventListener("click", () => {
   let users = getUsers();
   let user = users[currentUser];
+
+  if (!user) return;
 
   if (user.btc < user.upgradeCost) {
     alert("Not enough BTC");
@@ -118,15 +140,19 @@ upgradeBtn.onclick = () => {
 
   user.btc -= user.upgradeCost;
   user.multiplier += 1;
-
   user.upgradeCost *= 1.8;
 
   saveUsers(users);
   updateUI();
-};
+});
 
-logoutBtn.onclick = () => {
+// LOGOUT
+logoutBtn.addEventListener("click", () => {
   currentUser = null;
   gameBox.style.display = "none";
   authBox.style.display = "block";
-};
+
+  usernameInput.value = "";
+  passwordInput.value = "";
+  authMessage.textContent = "";
+});
