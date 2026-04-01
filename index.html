@@ -1,1 +1,1001 @@
+<!DOCTYPE html>
 
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#09090f">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>Satoshi Clicker</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+/* ── RESET & BASE ── */
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+:root {
+–bg:      #09090f;
+–s1:      #0f0f1a;
+–s2:      #161626;
+–s3:      #1e1e32;
+–border:  rgba(255,255,255,0.07);
+–gold:    #f7931a;
+–gold-l:  #ffb84d;
+–gold-d:  #b56a10;
+–glow:    rgba(247,147,26,0.22);
+–glow-sm: rgba(247,147,26,0.09);
+–green:   #10d48e;
+–red:     #f05555;
+–text:    #ededf8;
+–muted:   #7878a0;
+–dim:     #3a3a58;
+–mono:    ‘Space Mono’, monospace;
+–sans:    ‘Outfit’, sans-serif;
+}
+
+html { height: 100%; background: var(–bg); }
+
+body {
+font-family: var(–sans);
+background: var(–bg);
+color: var(–text);
+min-height: 100%;
+min-height: 100dvh;
+overflow-x: hidden;
+}
+
+/* ── SCREENS ── */
+.screen {
+min-height: 100vh;
+min-height: 100dvh;
+display: flex;
+align-items: center;
+justify-content: center;
+padding: 24px 16px;
+}
+
+.screen.gone { display: none; }
+
+/* ══════════════════════════════════════
+AUTH SCREEN
+══════════════════════════════════════ */
+#auth {
+background:
+radial-gradient(ellipse 80% 50% at 50% -10%, rgba(247,147,26,0.12) 0%, transparent 70%),
+var(–bg);
+flex-direction: column;
+}
+
+.auth-wrap {
+width: 100%;
+max-width: 400px;
+display: flex;
+flex-direction: column;
+gap: 28px;
+}
+
+/* logo */
+.logo {
+text-align: center;
+}
+
+.logo-coin {
+font-size: clamp(56px, 16vw, 80px);
+line-height: 1;
+filter: drop-shadow(0 0 28px rgba(247,147,26,0.75));
+animation: bob 3.2s ease-in-out infinite;
+display: block;
+}
+
+@keyframes bob {
+0%,100% { transform: translateY(0); }
+50%      { transform: translateY(-10px); }
+}
+
+.logo h1 {
+font-family: var(–sans);
+font-size: clamp(26px, 7vw, 34px);
+font-weight: 800;
+letter-spacing: 3px;
+color: var(–gold);
+text-transform: uppercase;
+margin-top: 8px;
+}
+
+.logo p {
+font-family: var(–mono);
+font-size: 11px;
+color: var(–muted);
+letter-spacing: 2px;
+margin-top: 6px;
+}
+
+/* card */
+.auth-card {
+background: var(–s2);
+border: 1px solid var(–border);
+border-radius: 24px;
+padding: clamp(20px, 6vw, 32px);
+position: relative;
+overflow: hidden;
+}
+
+.auth-card::after {
+content: ‘’;
+position: absolute;
+top: 0; left: 0; right: 0;
+height: 2px;
+background: linear-gradient(90deg, transparent, var(–gold), transparent);
+}
+
+.tabs {
+display: flex;
+background: var(–s1);
+border-radius: 14px;
+padding: 4px;
+gap: 4px;
+margin-bottom: 22px;
+}
+
+.tab {
+flex: 1;
+padding: 11px 8px;
+border: none;
+border-radius: 11px;
+background: transparent;
+color: var(–muted);
+font-family: var(–sans);
+font-size: 15px;
+font-weight: 600;
+cursor: pointer;
+transition: all 0.2s;
+}
+
+.tab.on {
+background: var(–gold);
+color: #000;
+}
+
+.fields { display: flex; flex-direction: column; gap: 12px; }
+
+.field {
+position: relative;
+}
+
+.field-ico {
+position: absolute;
+left: 14px;
+top: 50%;
+transform: translateY(-50%);
+font-size: 17px;
+pointer-events: none;
+opacity: 0.45;
+}
+
+.field input {
+width: 100%;
+background: var(–s1);
+border: 1.5px solid var(–border);
+border-radius: 13px;
+padding: 14px 14px 14px 44px;
+color: var(–text);
+font-family: var(–sans);
+font-size: 16px;
+font-weight: 400;
+outline: none;
+transition: border-color 0.2s, box-shadow 0.2s;
+-webkit-appearance: none;
+}
+
+.field input:focus {
+border-color: var(–gold);
+box-shadow: 0 0 0 3px var(–glow-sm);
+}
+
+.field input::placeholder { color: var(–dim); }
+
+.msg {
+border-radius: 11px;
+padding: 11px 14px;
+font-size: 14px;
+font-weight: 500;
+text-align: center;
+display: none;
+}
+
+.msg.ok  { display: block; background: rgba(16,212,142,0.1);  color: var(–green); border: 1px solid rgba(16,212,142,0.2); }
+.msg.err { display: block; background: rgba(240,85,85,0.1);   color: var(–red);   border: 1px solid rgba(240,85,85,0.2);  }
+
+.submit-btn {
+width: 100%;
+padding: 16px;
+border: none;
+border-radius: 14px;
+background: linear-gradient(135deg, var(–gold), var(–gold-d));
+color: #000;
+font-family: var(–sans);
+font-size: 16px;
+font-weight: 700;
+cursor: pointer;
+transition: all 0.18s;
+letter-spacing: 0.3px;
+}
+
+.submit-btn:active { transform: scale(0.97); opacity: 0.9; }
+
+/* ══════════════════════════════════════
+GAME SCREEN
+══════════════════════════════════════ */
+#game {
+background:
+radial-gradient(ellipse 60% 40% at 50% 0%, rgba(247,147,26,0.06) 0%, transparent 60%),
+var(–bg);
+align-items: flex-start;
+justify-content: center;
+padding: 0;
+overflow-y: auto;
+-webkit-overflow-scrolling: touch;
+}
+
+.game-inner {
+width: 100%;
+max-width: 440px;
+margin: 0 auto;
+padding: 14px 14px 36px;
+display: flex;
+flex-direction: column;
+gap: 12px;
+}
+
+/* top bar */
+.topbar {
+display: flex;
+align-items: center;
+justify-content: space-between;
+padding: 12px 14px;
+background: var(–s2);
+border: 1px solid var(–border);
+border-radius: 18px;
+}
+
+.user-row {
+display: flex;
+align-items: center;
+gap: 10px;
+}
+
+.avatar {
+width: 38px; height: 38px;
+border-radius: 50%;
+background: linear-gradient(135deg, var(–gold), var(–gold-d));
+display: flex; align-items: center; justify-content: center;
+font-size: 17px; font-weight: 800; color: #000;
+flex-shrink: 0;
+}
+
+.user-name { font-size: 15px; font-weight: 700; line-height: 1.2; }
+.user-rank {
+font-family: var(–mono);
+font-size: 9px;
+color: var(–gold);
+letter-spacing: 1.5px;
+text-transform: uppercase;
+line-height: 1;
+margin-top: 3px;
+}
+
+.logout {
+background: var(–s1);
+border: 1px solid var(–border);
+border-radius: 9px;
+padding: 7px 13px;
+color: var(–muted);
+font-family: var(–sans);
+font-size: 13px;
+font-weight: 500;
+cursor: pointer;
+transition: all 0.18s;
+}
+
+.logout:active { color: var(–red); border-color: rgba(240,85,85,0.4); }
+
+/* balance */
+.bal-card {
+background: var(–s2);
+border: 1px solid rgba(247,147,26,0.2);
+border-radius: 22px;
+padding: clamp(18px, 5vw, 26px) clamp(16px, 5vw, 24px);
+text-align: center;
+position: relative;
+overflow: hidden;
+}
+
+.bal-card::before {
+content: ‘’;
+position: absolute; top: 0; left: 0; right: 0;
+height: 2px;
+background: linear-gradient(90deg, transparent, var(–gold), var(–gold-l), transparent);
+}
+
+.bal-tag {
+font-family: var(–mono);
+font-size: 9px;
+color: var(–muted);
+letter-spacing: 3.5px;
+text-transform: uppercase;
+margin-bottom: 6px;
+}
+
+.bal-num {
+font-size: clamp(30px, 9vw, 44px);
+font-weight: 800;
+color: #fff;
+letter-spacing: -0.5px;
+line-height: 1;
+}
+
+.bal-num .btc-sign { color: var(–gold); font-size: 0.6em; vertical-align: 0.15em; margin-right: 3px; }
+
+.bal-usd {
+font-family: var(–mono);
+font-size: 11px;
+color: var(–muted);
+margin-top: 6px;
+}
+
+.bal-usd b { color: var(–green); }
+
+/* mini stats */
+.stats {
+display: grid;
+grid-template-columns: 1fr 1fr 1fr;
+gap: 9px;
+}
+
+.sbox {
+background: var(–s2);
+border: 1px solid var(–border);
+border-radius: 15px;
+padding: 12px 8px;
+text-align: center;
+}
+
+.sbox-v {
+font-size: clamp(16px, 5vw, 21px);
+font-weight: 800;
+line-height: 1;
+}
+
+.sbox-v.g  { color: var(–gold);  }
+.sbox-v.gr { color: var(–green); }
+.sbox-v.p  { color: #a78bfa; }
+
+.sbox-l {
+font-family: var(–mono);
+font-size: 8px;
+color: var(–dim);
+letter-spacing: 1.5px;
+text-transform: uppercase;
+margin-top: 4px;
+}
+
+/* tap */
+.tap-zone {
+display: flex;
+flex-direction: column;
+align-items: center;
+gap: 14px;
+padding: 4px 0 6px;
+}
+
+.tap-outer {
+position: relative;
+width: clamp(160px, 46vw, 200px);
+height: clamp(160px, 46vw, 200px);
+display: flex;
+align-items: center;
+justify-content: center;
+}
+
+.ring {
+position: absolute; inset: 0;
+border-radius: 50%;
+border: 1px solid rgba(247,147,26,0.1);
+animation: pulse 2.8s ease-in-out infinite;
+}
+
+.ring:nth-child(2) {
+inset: -14px;
+border-color: rgba(247,147,26,0.05);
+animation-delay: 0.7s;
+}
+
+@keyframes pulse {
+0%,100% { opacity: 0.5; transform: scale(1); }
+50%      { opacity: 1;   transform: scale(1.03); }
+}
+
+.tap-btn {
+width: clamp(140px, 40vw, 176px);
+height: clamp(140px, 40vw, 176px);
+border-radius: 50%;
+border: 2.5px solid var(–gold);
+background: radial-gradient(circle at 36% 30%, #281800, #110a00);
+box-shadow:
+0 0 0 10px var(–glow-sm),
+0 0 40px var(–glow),
+inset 0 0 40px rgba(247,147,26,0.07);
+cursor: pointer;
+display: flex;
+flex-direction: column;
+align-items: center;
+justify-content: center;
+gap: 4px;
+transition: all 0.08s ease-out;
+user-select: none;
+position: relative;
+overflow: hidden;
+-webkit-tap-highlight-color: transparent;
+}
+
+.tap-btn::before {
+content: ‘’;
+position: absolute;
+top: 14%; left: 20%;
+width: 28%; height: 18%;
+background: radial-gradient(ellipse, rgba(255,255,255,0.13) 0%, transparent 80%);
+border-radius: 50%;
+pointer-events: none;
+}
+
+.tap-btn:active, .tap-btn.pop {
+transform: scale(0.9);
+box-shadow:
+0 0 0 14px rgba(247,147,26,0.12),
+0 0 60px rgba(247,147,26,0.55),
+inset 0 0 50px rgba(247,147,26,0.18);
+}
+
+.coin { font-size: clamp(46px, 13vw, 60px); line-height: 1; filter: drop-shadow(0 0 12px rgba(247,147,26,0.9)); pointer-events: none; }
+.tap-hint { font-family: var(–mono); font-size: 8px; color: var(–gold); letter-spacing: 3px; text-transform: uppercase; opacity: 0.55; pointer-events: none; }
+
+/* energy */
+.nrg-wrap { width: 100%; max-width: 300px; }
+
+.nrg-top {
+display: flex; justify-content: space-between; align-items: center;
+margin-bottom: 7px;
+}
+
+.nrg-top span {
+font-family: var(–mono);
+font-size: 10px;
+color: var(–muted);
+letter-spacing: 1.5px;
+text-transform: uppercase;
+}
+
+.nrg-top .nv { color: var(–green); }
+
+.nrg-track {
+width: 100%; height: 6px;
+background: var(–s1);
+border-radius: 99px;
+overflow: hidden;
+}
+
+.nrg-bar {
+height: 100%;
+background: linear-gradient(90deg, var(–green), #5fffb8);
+border-radius: 99px;
+transition: width 0.3s ease;
+box-shadow: 0 0 8px rgba(16,212,142,0.5);
+}
+
+/* upgrades */
+.upg-card {
+background: var(–s2);
+border: 1px solid var(–border);
+border-radius: 20px;
+overflow: hidden;
+}
+
+.upg-head {
+display: flex;
+align-items: center;
+justify-content: space-between;
+padding: 14px 16px 12px;
+border-bottom: 1px solid var(–border);
+}
+
+.upg-title {
+font-size: 16px;
+font-weight: 800;
+color: var(–gold);
+letter-spacing: 1px;
+text-transform: uppercase;
+}
+
+.upg-sub {
+font-family: var(–mono);
+font-size: 9px;
+color: var(–muted);
+letter-spacing: 1px;
+}
+
+.upg-list { display: flex; flex-direction: column; }
+
+.upg-row {
+display: flex;
+align-items: center;
+gap: 12px;
+padding: 13px 16px;
+border-bottom: 1px solid var(–border);
+transition: background 0.15s;
+}
+
+.upg-row:last-child { border-bottom: none; }
+.upg-row:active:not(.owned) { background: rgba(255,255,255,0.02); }
+
+.upg-ico {
+width: 44px; height: 44px;
+border-radius: 13px;
+background: var(–s1);
+border: 1px solid var(–border);
+display: flex; align-items: center; justify-content: center;
+font-size: 20px;
+flex-shrink: 0;
+transition: all 0.2s;
+}
+
+.upg-row.owned .upg-ico {
+border-color: rgba(247,147,26,0.4);
+background: rgba(247,147,26,0.07);
+}
+
+.upg-info { flex: 1; min-width: 0; }
+.upg-name { font-size: 14px; font-weight: 600; line-height: 1.2; }
+.upg-desc { font-family: var(–mono); font-size: 9px; color: var(–muted); margin-top: 3px; }
+
+.upg-btn {
+background: var(–s3);
+border: 1px solid var(–border);
+border-radius: 11px;
+padding: 8px 11px;
+color: var(–text);
+font-family: var(–mono);
+font-size: 10px;
+cursor: pointer;
+text-align: center;
+min-width: 76px;
+flex-shrink: 0;
+transition: all 0.18s;
+line-height: 1.5;
+}
+
+.upg-btn .bm { display: block; font-size: 15px; font-weight: 700; color: var(–gold); line-height: 1.1; font-family: var(–sans); }
+.upg-btn .bp { display: block; font-size: 9px; color: var(–muted); }
+
+.upg-btn:not(:disabled):active {
+border-color: var(–gold);
+background: rgba(247,147,26,0.1);
+transform: scale(0.96);
+}
+
+.upg-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+
+.owned-badge {
+font-family: var(–mono);
+font-size: 9px;
+color: var(–green);
+border: 1px solid rgba(16,212,142,0.25);
+background: rgba(16,212,142,0.07);
+padding: 5px 10px;
+border-radius: 8px;
+letter-spacing: 1px;
+flex-shrink: 0;
+display: none;
+}
+
+.upg-row.owned .upg-btn   { display: none; }
+.upg-row.owned .owned-badge { display: block; }
+
+/* float text */
+.floater {
+position: fixed;
+font-family: var(–sans);
+font-size: 18px;
+font-weight: 800;
+color: var(–gold);
+text-shadow: 0 0 12px rgba(247,147,26,0.8);
+pointer-events: none;
+z-index: 9999;
+animation: rise 0.85s ease-out forwards;
+}
+
+@keyframes rise {
+0%   { opacity: 1; transform: translateY(0) scale(1); }
+100% { opacity: 0; transform: translateY(-70px) scale(0.75); }
+}
+
+/* toast */
+.toast {
+position: fixed;
+bottom: max(24px, env(safe-area-inset-bottom, 24px));
+left: 50%;
+transform: translateX(-50%) translateY(16px);
+background: var(–s3);
+border: 1px solid var(–border);
+border-radius: 14px;
+padding: 12px 20px;
+font-size: 14px;
+font-weight: 500;
+white-space: nowrap;
+z-index: 9999;
+opacity: 0;
+transition: all 0.25s;
+max-width: 90vw;
+text-align: center;
+pointer-events: none;
+}
+
+.toast.on { opacity: 1; transform: translateX(-50%) translateY(0); }
+.toast.g  { border-color: rgba(16,212,142,0.35);  color: var(–green); }
+.toast.e  { border-color: rgba(240,85,85,0.35);   color: var(–red);   }
+.toast.o  { border-color: rgba(247,147,26,0.35);  color: var(–gold);  }
+</style>
+
+</head>
+<body>
+
+<!-- ── AUTH ── -->
+
+<div id="auth" class="screen">
+  <div class="auth-wrap">
+    <div class="logo">
+      <span class="logo-coin">₿</span>
+      <h1>Satoshi Clicker</h1>
+      <p>tap · earn · stack sats</p>
+    </div>
+    <div class="auth-card">
+      <div class="tabs">
+        <button class="tab on" id="tabLogin" onclick="setMode('login')">Sign In</button>
+        <button class="tab"    id="tabSignup" onclick="setMode('signup')">Sign Up</button>
+      </div>
+      <div class="fields">
+        <div class="field">
+          <span class="field-ico">👤</span>
+          <input id="uInput" type="text" placeholder="Username" autocomplete="off" autocapitalize="none" spellcheck="false">
+        </div>
+        <div class="field">
+          <span class="field-ico">🔒</span>
+          <input id="pInput" type="password" placeholder="Password" autocomplete="current-password">
+        </div>
+        <div class="msg" id="authMsg"></div>
+        <button class="submit-btn" id="authBtn" onclick="doAuth()">Sign In</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── GAME ── -->
+
+<div id="game" class="screen gone">
+  <div class="game-inner">
+
+```
+<!-- top bar -->
+<div class="topbar">
+  <div class="user-row">
+    <div class="avatar" id="ava">A</div>
+    <div>
+      <div class="user-name" id="uName">Player</div>
+      <div class="user-rank" id="uRank">NOVICE</div>
+    </div>
+  </div>
+  <button class="logout" onclick="doLogout()">Log out</button>
+</div>
+
+<!-- balance -->
+<div class="bal-card">
+  <div class="bal-tag">Your Balance</div>
+  <div class="bal-num"><span class="btc-sign">₿</span><span id="balNum">0.00000000</span></div>
+  <div class="bal-usd">≈ $<b id="usdNum">0.00</b> USD &nbsp;·&nbsp; <span id="tapCount">0</span> taps</div>
+</div>
+
+<!-- stats -->
+<div class="stats">
+  <div class="sbox"><div class="sbox-v g"  id="sMult">1×</div><div class="sbox-l">Mult</div></div>
+  <div class="sbox"><div class="sbox-v gr" id="sPer">0.00</div><div class="sbox-l">Per Tap</div></div>
+  <div class="sbox"><div class="sbox-v p"  id="sUpg">0</div><div class="sbox-l">Upgrades</div></div>
+</div>
+
+<!-- tap -->
+<div class="tap-zone">
+  <div class="tap-outer">
+    <div class="ring"></div>
+    <div class="ring"></div>
+    <button class="tap-btn" id="tapBtn" onclick="onTap(event)">
+      <div class="coin">₿</div>
+      <div class="tap-hint">TAP TO EARN</div>
+    </button>
+  </div>
+
+  <!-- energy -->
+  <div class="nrg-wrap">
+    <div class="nrg-top">
+      <span>⚡ Energy</span>
+      <span class="nv" id="nrgTxt">500 / 500</span>
+    </div>
+    <div class="nrg-track"><div class="nrg-bar" id="nrgBar" style="width:100%"></div></div>
+  </div>
+</div>
+
+<!-- upgrades -->
+<div class="upg-card">
+  <div class="upg-head">
+    <div class="upg-title">Upgrades</div>
+    <div class="upg-sub">spend BTC · earn faster</div>
+  </div>
+  <div class="upg-list" id="upgList"></div>
+</div>
+```
+
+  </div>
+</div>
+
+<!-- toast -->
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ─── CONFIG ─── */
+const BASE_TAP   = 0.00000001;
+const BTC_PRICE  = 65000;
+const MAX_NRG    = 500;
+const NRG_PS     = 1;  // regen per second
+
+const UPGRADES = [
+  { id:'u1', name:'Double Up',      icon:'⚡', mult:2,  base:0.00000050, desc:'2× tap multiplier'     },
+  { id:'u2', name:'Triple Threat',  icon:'🔥', mult:3,  base:0.00000200, desc:'3× tap multiplier'     },
+  { id:'u3', name:'Fiver Mode',     icon:'💎', mult:5,  base:0.00000800, desc:'5× tap multiplier'     },
+  { id:'u4', name:'Deca Boost',     icon:'🚀', mult:10, base:0.00003000, desc:'10× tap multiplier'    },
+  { id:'u5', name:'Whale Mode',     icon:'🐋', mult:20, base:0.00012000, desc:'20× tap multiplier'    },
+  { id:'u6', name:'Satoshi Mode',   icon:'🏆', mult:50, base:0.00060000, desc:'50× — legendary'       },
+];
+
+const RANKS = [
+  [0,         'NOVICE'],
+  [0.000001,  'HODLER'],
+  [0.00001,   'STACKER'],
+  [0.0001,    'WHALE JR.'],
+  [0.001,     'SATOSHI'],
+  [0.01,      'BITCOIN LORD'],
+];
+
+/* ─── STATE ─── */
+let WHO  = null;
+let MODE = 'login';
+let S    = {};         // game state
+let nrgT = null;
+
+function blank() {
+  return { bal:0, taps:0, nrg:MAX_NRG, mult:1, owned:[], costs:{} };
+}
+
+/* ─── AUTH HELPERS ─── */
+function users()      { return JSON.parse(localStorage.getItem('sc_users')||'{}'); }
+function saveUsers(u) { localStorage.setItem('sc_users', JSON.stringify(u)); }
+
+function setMode(m) {
+  MODE = m;
+  document.getElementById('tabLogin').classList.toggle('on', m==='login');
+  document.getElementById('tabSignup').classList.toggle('on', m==='signup');
+  document.getElementById('authBtn').textContent = m==='login' ? 'Sign In' : 'Create Account';
+  setMsg('','');
+}
+
+function setMsg(txt, cls) {
+  const el = document.getElementById('authMsg');
+  el.textContent = txt;
+  el.className = 'msg' + (cls?' '+cls:'');
+}
+
+function doAuth() {
+  const u = document.getElementById('uInput').value.trim();
+  const p = document.getElementById('pInput').value;
+  if (!u||!p) { setMsg('Please fill in both fields.','err'); return; }
+  const db = users();
+
+  if (MODE === 'signup') {
+    if (db[u]) { setMsg('Username already taken. Choose another.','err'); return; }
+    db[u] = { pw:p, data:blank() };
+    saveUsers(db);
+    setMsg('🎉 Account created! Entering the vault…','ok');
+    setTimeout(()=>launch(u, db[u].data), 1100);
+  } else {
+    if (!db[u])          { setMsg('This account does not exist.','err'); return; }
+    if (db[u].pw !== p)  { setMsg('Wrong password. Try again.','err');   return; }
+    setMsg('✅ Successfully signed in!','ok');
+    setTimeout(()=>launch(u, db[u].data), 800);
+  }
+}
+
+// enter key
+['uInput','pInput'].forEach(id => {
+  document.getElementById(id).addEventListener('keydown', e => { if(e.key==='Enter') doAuth(); });
+});
+
+/* ─── LAUNCH GAME ─── */
+function launch(username, data) {
+  WHO = username;
+  S   = {
+    bal:   data.bal   ?? 0,
+    taps:  data.taps  ?? 0,
+    nrg:   data.nrg   ?? MAX_NRG,
+    mult:  data.mult  ?? 1,
+    owned: data.owned ?? [],
+    costs: data.costs ?? {},
+  };
+
+  document.getElementById('auth').classList.add('gone');
+  document.getElementById('game').classList.remove('gone');
+  document.getElementById('ava').textContent  = username[0].toUpperCase();
+  document.getElementById('uName').textContent = username;
+
+  buildUpgrades();
+  refreshUI();
+
+  clearInterval(nrgT);
+  nrgT = setInterval(regenNrg, 1000);
+}
+
+function doLogout() {
+  persist();
+  clearInterval(nrgT);
+  WHO = null;
+  document.getElementById('game').classList.add('gone');
+  document.getElementById('auth').classList.remove('gone');
+  document.getElementById('uInput').value = '';
+  document.getElementById('pInput').value = '';
+  setMsg('','');
+  setMode('login');
+}
+
+/* ─── TAP ─── */
+function onTap(e) {
+  if (S.nrg <= 0) { toast('⚡ No energy! Regenerating…','e'); return; }
+  const earn = BASE_TAP * S.mult;
+  S.bal  += earn;
+  S.taps += 1;
+  S.nrg   = Math.max(0, S.nrg - 1);
+
+  const btn = document.getElementById('tapBtn');
+  btn.classList.add('pop');
+  setTimeout(()=>btn.classList.remove('pop'), 110);
+
+  // float
+  const fl = document.createElement('div');
+  fl.className = 'floater';
+  fl.textContent = '+₿' + earn.toFixed(8);
+  const r = btn.getBoundingClientRect();
+  fl.style.left = (r.left + r.width/2 - 40 + Math.random()*30) + 'px';
+  fl.style.top  = (r.top  + r.height/2) + 'px';
+  document.body.appendChild(fl);
+  setTimeout(()=>fl.remove(), 860);
+
+  refreshUI();
+  persist();
+}
+
+/* ─── ENERGY ─── */
+function regenNrg() {
+  if (S.nrg < MAX_NRG) {
+    S.nrg = Math.min(MAX_NRG, S.nrg + NRG_PS);
+    refreshUI(); persist();
+  }
+}
+
+/* ─── UPGRADES ─── */
+function costOf(upg) {
+  return upg.base * Math.pow(2.2, S.costs[upg.id]||0);
+}
+
+function buildUpgrades() {
+  const list = document.getElementById('upgList');
+  list.innerHTML = '';
+  UPGRADES.forEach(u => {
+    const owned = S.owned.includes(u.id);
+    const cost  = costOf(u);
+    const row   = document.createElement('div');
+    row.className = 'upg-row' + (owned?' owned':'');
+    row.id = 'row_'+u.id;
+    row.innerHTML = `
+      <div class="upg-ico">${u.icon}</div>
+      <div class="upg-info">
+        <div class="upg-name">${u.name}</div>
+        <div class="upg-desc">${u.desc}</div>
+      </div>
+      <button class="upg-btn" id="ubtn_${u.id}" onclick="buyUpg('${u.id}')">
+        <span class="bm">${u.mult}×</span>
+        <span class="bp">₿${cost.toFixed(8)}</span>
+      </button>
+      <div class="owned-badge">✓ ACTIVE</div>
+    `;
+    list.appendChild(row);
+  });
+}
+
+function buyUpg(id) {
+  const upg = UPGRADES.find(u=>u.id===id);
+  if (!upg) return;
+  const cost = costOf(upg);
+  if (S.bal < cost) { toast(`Need ₿${cost.toFixed(8)} to unlock this.`,'e'); return; }
+
+  S.bal  -= cost;
+  S.costs[id] = (S.costs[id]||0) + 1;
+  if (!S.owned.includes(id)) S.owned.push(id);
+
+  // highest owned mult wins
+  S.mult = 1;
+  UPGRADES.forEach(u => { if(S.owned.includes(u.id) && u.mult > S.mult) S.mult = u.mult; });
+
+  toast(`🚀 ${upg.name} — ${upg.mult}× activated!`,'o');
+  buildUpgrades();
+  refreshUI();
+  persist();
+}
+
+/* ─── UI ─── */
+function getRank(bal) {
+  let r = RANKS[0][1];
+  RANKS.forEach(([min,label]) => { if(bal>=min) r=label; });
+  return r;
+}
+
+function refreshUI() {
+  document.getElementById('balNum').textContent   = S.bal.toFixed(8);
+  document.getElementById('usdNum').textContent   = (S.bal * BTC_PRICE).toFixed(2);
+  document.getElementById('tapCount').textContent = S.taps.toLocaleString();
+  document.getElementById('sMult').textContent    = S.mult + '×';
+  document.getElementById('sPer').textContent     = (BASE_TAP * S.mult).toFixed(8);
+  document.getElementById('sUpg').textContent     = S.owned.length;
+  document.getElementById('uRank').textContent    = getRank(S.bal);
+
+  const pct = (S.nrg / MAX_NRG) * 100;
+  document.getElementById('nrgBar').style.width = pct + '%';
+  document.getElementById('nrgTxt').textContent = Math.floor(S.nrg) + ' / ' + MAX_NRG;
+
+  UPGRADES.forEach(u => {
+    const btn = document.getElementById('ubtn_'+u.id);
+    if (!btn) return;
+    const c = costOf(u);
+    btn.disabled = S.bal < c;
+    btn.querySelector('.bp').textContent = '₿'+c.toFixed(8);
+  });
+}
+
+/* ─── SAVE ─── */
+function persist() {
+  if (!WHO) return;
+  const db = users();
+  if (!db[WHO]) return;
+  db[WHO].data = { bal:S.bal, taps:S.taps, nrg:S.nrg, mult:S.mult, owned:S.owned, costs:S.costs };
+  saveUsers(db);
+}
+
+setInterval(()=>{ if(WHO) persist(); }, 8000);
+
+/* ─── TOAST ─── */
+let toastTO;
+function toast(msg, cls='') {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.className = 'toast on' + (cls?' '+cls:'');
+  clearTimeout(toastTO);
+  toastTO = setTimeout(()=>el.classList.remove('on'), 2500);
+}
+</script>
+
+</body>
+</html>
