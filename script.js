@@ -1,239 +1,132 @@
-// ===== GAME STATE =====
-let gameState = {
-    btc: 0.00000001,
+const usernameInput = document.getElementById("username");
+const passwordInput = document.getElementById("password");
+const signupBtn = document.getElementById("signupBtn");
+const loginBtn = document.getElementById("loginBtn");
+const authMessage = document.getElementById("authMessage");
+
+const authBox = document.getElementById("authBox");
+const gameBox = document.getElementById("gameBox");
+
+const tapBtn = document.getElementById("tapBtn");
+const btcDisplay = document.getElementById("btcDisplay");
+const upgradeBtn = document.getElementById("upgradeBtn");
+const upgradeCostDisplay = document.getElementById("upgradeCost");
+const multiplierDisplay = document.getElementById("multiplierDisplay");
+const welcome = document.getElementById("welcome");
+const logoutBtn = document.getElementById("logoutBtn");
+
+let currentUser = null;
+
+// ===== AUTH SYSTEM =====
+
+function getUsers() {
+  return JSON.parse(localStorage.getItem("users")) || {};
+}
+
+function saveUsers(users) {
+  localStorage.setItem("users", JSON.stringify(users));
+}
+
+signupBtn.onclick = () => {
+  const username = usernameInput.value.trim();
+  const password = passwordInput.value.trim();
+
+  if (!username || !password) {
+    authMessage.textContent = "Fill all fields";
+    return;
+  }
+
+  let users = getUsers();
+
+  if (users[username]) {
+    authMessage.textContent = "Account already exists";
+    return;
+  }
+
+  users[username] = {
+    password: password,
+    btc: 0,
     multiplier: 1,
-    totalEarned: 0.00000001,
-    tapCount: 0,
-    multiplierPurchases: {
-        2: 0,
-        5: 0,
-        10: 0,
-        25: 0,
-        50: 0,
-        100: 0
-    }
+    upgradeCost: 0.00000002
+  };
+
+  saveUsers(users);
+
+  authMessage.textContent = "Successfully created new account";
 };
 
-// Multiplier config with base costs
-const multipliers = [
-    { level: 2, baseCost: 0.00000010, label: '2x' },
-    { level: 5, baseCost: 0.00000100, label: '5x' },
-    { level: 10, baseCost: 0.00001000, label: '10x' },
-    { level: 25, baseCost: 0.00010000, label: '25x' },
-    { level: 50, baseCost: 0.00100000, label: '50x' },
-    { level: 100, baseCost: 0.01000000, label: '100x' }
-];
+loginBtn.onclick = () => {
+  const username = usernameInput.value.trim();
+  const password = passwordInput.value.trim();
 
-const EARN_PER_TAP = 0.00000001;
-const PRICE_INCREASE_MULTIPLIER = 1.15; // 15% price increase per purchase
+  let users = getUsers();
 
-// ===== DOM ELEMENTS =====
-const tapButton = document.getElementById('tapButton');
-const shopGrid = document.getElementById('shopGrid');
-const btcDisplay = document.getElementById('btcDisplay');
-const multiplierDisplay = document.getElementById('multiplierDisplay');
-const clicksDisplay = document.getElementById('clicksDisplay');
-const totalEarnedDisplay = document.getElementById('totalEarnedDisplay');
-const earningsPerTapDisplay = document.getElementById('earningsPerTapDisplay');
-const resetButton = document.getElementById('resetButton');
+  if (!users[username]) {
+    authMessage.textContent = "This account does not exist";
+    return;
+  }
 
-// ===== INITIALIZATION =====
-function init() {
-    loadGame();
-    createShopButtons();
-    attachEventListeners();
-    updateDisplay();
-}
+  if (users[username].password !== password) {
+    authMessage.textContent = "Wrong password";
+    return;
+  }
 
-// ===== HELPER FUNCTIONS =====
-function calculateCurrentCost(multiplierLevel) {
-    const baseCost = multipliers.find(m => m.level === multiplierLevel).baseCost;
-    const purchases = gameState.multiplierPurchases[multiplierLevel] || 0;
-    return baseCost * Math.pow(PRICE_INCREASE_MULTIPLIER, purchases);
-}
+  currentUser = username;
+  authMessage.textContent = "Successfully signed in!";
 
-// ===== LOAD/SAVE GAME =====
+  loadGame();
+};
+
+// ===== GAME =====
+
 function loadGame() {
-    const saved = localStorage.getItem('btcGameState');
-    if (saved) {
-        try {
-            const loaded = JSON.parse(saved);
-            gameState = loaded;
-            // Ensure multiplierPurchases object exists
-            if (!gameState.multiplierPurchases) {
-                gameState.multiplierPurchases = {
-                    2: 0,
-                    5: 0,
-                    10: 0,
-                    25: 0,
-                    50: 0,
-                    100: 0
-                };
-            }
-        } catch (e) {
-            console.error('Error loading game state:', e);
-            saveGame();
-        }
-    }
+  authBox.style.display = "none";
+  gameBox.style.display = "block";
+
+  updateUI();
 }
 
-function saveGame() {
-    localStorage.setItem('btcGameState', JSON.stringify(gameState));
+function updateUI() {
+  const users = getUsers();
+  const user = users[currentUser];
+
+  btcDisplay.textContent = "BTC: " + user.btc.toFixed(8);
+  multiplierDisplay.textContent = "Multiplier: x" + user.multiplier;
+  upgradeCostDisplay.textContent = user.upgradeCost.toFixed(8);
+
+  welcome.textContent = "User: " + currentUser;
 }
 
-// ===== TAP HANDLING =====
-function handleTap(e) {
-    const earnAmount = EARN_PER_TAP * gameState.multiplier;
-    
-    // Update state
-    gameState.btc += earnAmount;
-    gameState.totalEarned += earnAmount;
-    gameState.tapCount += 1;
-    
-    // Visual feedback
-    createFloatingText(e, earnAmount);
-    
-    // Update display
-    updateDisplay();
-    
-    // Save progress
-    saveGame();
-}
+tapBtn.onclick = () => {
+  let users = getUsers();
+  let user = users[currentUser];
 
-function createFloatingText(event, amount) {
-    const floatingText = document.createElement('div');
-    floatingText.className = 'floating-text';
-    floatingText.textContent = `+${amount.toFixed(8)}`;
-    
-    const rect = tapButton.getBoundingClientRect();
-    floatingText.style.left = (rect.left + rect.width / 2) + 'px';
-    floatingText.style.top = (rect.top + rect.height / 2) + 'px';
-    
-    document.body.appendChild(floatingText);
-    
-    // Remove after animation
-    setTimeout(() => {
-        floatingText.remove();
-    }, 1000);
-}
+  user.btc += 0.00000001 * user.multiplier;
 
-// ===== SHOP BUTTONS =====
-function createShopButtons() {
-    shopGrid.innerHTML = '';
-    
-    multipliers.forEach((m, idx) => {
-        const button = document.createElement('button');
-        button.className = 'upgrade-button';
-        
-        const isCurrentMultiplier = m.level === gameState.multiplier;
-        const currentCost = calculateCurrentCost(m.level);
-        const isAffordable = gameState.btc >= currentCost;
-        const purchases = gameState.multiplierPurchases[m.level] || 0;
-        
-        // Set classes
-        if (isCurrentMultiplier) {
-            button.classList.add('active');
-        } else if (isAffordable) {
-            button.classList.add('available');
-        } else {
-            button.classList.add('disabled');
-        }
-        
-        // Create button content with purchase count
-        button.innerHTML = `
-            <div class="button-shine"></div>
-            <div class="button-inner">
-                <span class="upgrade-label">${m.label} <span class="purchase-count">(${purchases})</span></span>
-                <span class="upgrade-cost">${currentCost.toFixed(8)}</span>
-            </div>
-            ${isCurrentMultiplier ? '<div class="active-dot"></div>' : ''}
-        `;
-        
-        // Add click handler
-        button.addEventListener('click', () => {
-            if (isAffordable) {
-                buyMultiplier(m);
-            }
-        });
-        
-        button.disabled = !isAffordable;
-        
-        shopGrid.appendChild(button);
-    });
-}
+  saveUsers(users);
+  updateUI();
+};
 
-function getCurrentMultiplierIndex() {
-    return multipliers.findIndex(m => m.level === gameState.multiplier);
-}
+upgradeBtn.onclick = () => {
+  let users = getUsers();
+  let user = users[currentUser];
 
-function buyMultiplier(multiplierData) {
-    const currentCost = calculateCurrentCost(multiplierData.level);
-    if (gameState.btc >= currentCost) {
-        gameState.btc -= currentCost;
-        gameState.multiplier = multiplierData.level;
-        gameState.multiplierPurchases[multiplierData.level] = (gameState.multiplierPurchases[multiplierData.level] || 0) + 1;
-        
-        updateDisplay();
-        createShopButtons();
-        saveGame();
-    }
-}
+  if (user.btc < user.upgradeCost) {
+    alert("Not enough BTC");
+    return;
+  }
 
-// ===== DISPLAY UPDATE =====
-function updateDisplay() {
-    btcDisplay.textContent = gameState.btc.toFixed(8);
-    multiplierDisplay.textContent = gameState.multiplier;
-    clicksDisplay.textContent = gameState.tapCount;
-    totalEarnedDisplay.textContent = gameState.totalEarned.toFixed(8);
-    earningsPerTapDisplay.textContent = (EARN_PER_TAP * gameState.multiplier).toFixed(8);
-}
+  user.btc -= user.upgradeCost;
+  user.multiplier += 1;
 
-// ===== EVENT LISTENERS =====
-function attachEventListeners() {
-    tapButton.addEventListener('click', handleTap);
-    
-    // Reset button (for debugging only)
-    resetButton.addEventListener('click', () => {
-        if (confirm('Are you sure you want to reset your progress?')) {
-            gameState = {
-                btc: 0.00000001,
-                multiplier: 1,
-                totalEarned: 0.00000001,
-                tapCount: 0,
-                multiplierPurchases: {
-                    2: 0,
-                    5: 0,
-                    10: 0,
-                    25: 0,
-                    50: 0,
-                    100: 0
-                }
-            };
-            updateDisplay();
-            createShopButtons();
-            saveGame();
-        }
-    });
-}
+  user.upgradeCost *= 1.8;
 
-// ===== SPECIAL FEATURES =====
-// Unlock reset button with Konami code: ↑ ↑ ↓ ↓ ← → ← → B A
-const konamiCode = ['ArrowUp', 'ArrowUp', 'ArrowDown', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'ArrowLeft', 'ArrowRight', 'b', 'a'];
-let konamiIndex = 0;
+  saveUsers(users);
+  updateUI();
+};
 
-document.addEventListener('keydown', (e) => {
-    const key = e.key.toLowerCase() === 'b' || e.key.toLowerCase() === 'a' ? e.key.toLowerCase() : e.code;
-    
-    if (key === konamiCode[konamiIndex]) {
-        konamiIndex++;
-        if (konamiIndex === konamiCode.length) {
-            resetButton.style.display = 'block';
-            konamiIndex = 0;
-        }
-    } else {
-        konamiIndex = 0;
-    }
-});
-
-// ===== START GAME =====
-window.addEventListener('DOMContentLoaded', init);
+logoutBtn.onclick = () => {
+  currentUser = null;
+  gameBox.style.display = "none";
+  authBox.style.display = "block";
+};
