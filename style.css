@@ -1,66 +1,158 @@
-body {
+/* RESET */
+* {
   margin: 0;
-  font-family: Arial, sans-serif;
-  background: #0f172a;
-  color: #fff;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* BODY */
+body {
+  font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+  background: radial-gradient(circle at top, #1e293b, #020617);
+  color: white;
+  height: 100vh;
   display: flex;
   justify-content: center;
   align-items: center;
-  height: 100vh;
 }
 
+/* CARD */
 .container {
-  width: 90%;
-  max-width: 400px;
-  background: #111827;
-  padding: 20px;
-  border-radius: 16px;
-  box-shadow: 0 0 20px rgba(255,165,0,0.2);
+  width: 92%;
+  max-width: 420px;
+  background: rgba(15, 23, 42, 0.85);
+  backdrop-filter: blur(20px);
+  border-radius: 20px;
+  padding: 24px;
+  box-shadow: 0 0 40px rgba(0, 0, 0, 0.6);
   text-align: center;
+  border: 1px solid rgba(255, 255, 255, 0.05);
 }
 
+/* TITLE */
 h2 {
-  color: #f7931a;
+  font-size: 26px;
+  margin-bottom: 20px;
+  color: #facc15;
+  letter-spacing: 1px;
 }
 
+/* INPUTS */
 input {
   width: 100%;
-  padding: 12px;
-  margin: 8px 0;
-  border-radius: 8px;
-  border: none;
+  padding: 14px;
+  margin-bottom: 10px;
+  border-radius: 12px;
+  border: 1px solid rgba(255,255,255,0.1);
+  background: rgba(255,255,255,0.05);
+  color: white;
+  outline: none;
+  transition: 0.2s;
 }
 
+input:focus {
+  border: 1px solid #facc15;
+  background: rgba(255,255,255,0.08);
+}
+
+/* BUTTON BASE */
 button {
   width: 100%;
   padding: 14px;
-  margin-top: 10px;
+  border-radius: 14px;
   border: none;
-  border-radius: 10px;
   cursor: pointer;
-  font-weight: bold;
+  font-weight: 600;
+  margin-top: 10px;
+  transition: 0.2s;
+}
+
+/* BUTTON VARIANTS */
+#signupBtn {
+  background: #334155;
+  color: white;
+}
+
+#loginBtn {
+  background: #facc15;
+  color: black;
 }
 
 #tapBtn {
-  background: #f7931a;
-  color: #000;
-  font-size: 18px;
+  background: linear-gradient(145deg, #facc15, #f59e0b);
+  color: black;
+  font-size: 20px;
+  margin-top: 20px;
+  box-shadow: 0 10px 25px rgba(250, 204, 21, 0.3);
 }
 
 #upgradeBtn {
-  background: #22c55e;
+  background: linear-gradient(145deg, #22c55e, #16a34a);
 }
 
 .logout {
   background: #ef4444;
 }
 
-#btcDisplay {
-  font-size: 24px;
-  margin: 15px 0;
+/* BUTTON EFFECTS */
+button:hover {
+  transform: translateY(-2px);
+  opacity: 0.95;
 }
 
-#authMessage {
+button:active {
+  transform: scale(0.97);
+}
+
+/* BTC DISPLAY */
+#btcDisplay {
+  font-size: 28px;
+  margin: 20px 0;
+  font-weight: bold;
+  color: #facc15;
+}
+
+/* MULTIPLIER */
+#multiplierDisplay {
   margin-top: 10px;
+  font-size: 16px;
+  opacity: 0.8;
+}
+
+/* UPGRADE SECTION */
+h3 {
+  margin-top: 25px;
+  margin-bottom: 10px;
+  font-size: 18px;
+  color: #94a3b8;
+}
+
+/* AUTH MESSAGE */
+#authMessage {
+  margin-top: 12px;
   font-size: 14px;
+  color: #f87171;
+}
+
+/* WELCOME */
+#welcome {
+  font-size: 14px;
+  opacity: 0.6;
+  margin-bottom: 10px;
+}
+
+/* ANIMATED TAP FEEDBACK */
+#tapBtn:active {
+  box-shadow: 0 5px 10px rgba(250, 204, 21, 0.5);
+}
+
+/* MOBILE */
+@media (max-width: 480px) {
+  .container {
+    padding: 18px;
+  }
+
+  #tapBtn {
+    font-size: 18px;
+  }
 }
