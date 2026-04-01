@@ -122,25 +122,11 @@ tapBtn.addEventListener("click", () => {
 
   user.btc += 0.00000001 * user.multiplier;
 
-  saveUsers(users);
-  updateUI();
-});
-
-// UPGRADE
-upgradeBtn.addEventListener("click", () => {
-  let users = getUsers();
-  let user = users[currentUser];
-
-  if (!user) return;
-
-  if (user.btc < user.upgradeCost) {
-    alert("Not enough BTC");
-    return;
-  }
-
-  user.btc -= user.upgradeCost;
-  user.multiplier += 1;
-  user.upgradeCost *= 1.8;
+  // VISUAL POP EFFECT
+  tapBtn.style.transform = "scale(1.1)";
+  setTimeout(() => {
+    tapBtn.style.transform = "scale(1)";
+  }, 100);
 
   saveUsers(users);
   updateUI();
